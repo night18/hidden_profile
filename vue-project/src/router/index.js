@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import EntranceView from '@/views/EntranceView.vue';
 import TaskInstruction from '@/views/TaskInstruction.vue';
 import CandidateExample from '@/views/CandidateExample.vue';
-
+import QualificationTask from '@/views/QualificationTask.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,9 +19,14 @@ const router = createRouter({
       component: TaskInstruction,
     },
     {
-      path: 'CandidateExample',
+      path: '/CandidateExample',
       name: 'CandidateExample',
       component: CandidateExample,
+    },
+    {
+      path: '/QualificationTask',
+      name: 'QualificationTask',
+      component: QualificationTask,
     }
   ]
 });

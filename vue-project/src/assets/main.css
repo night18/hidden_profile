@@ -31,3 +31,8 @@ a,
     padding: 0 2rem;
   }
 }
+
+.content-area {
+  min-height: 500px;
+  padding: 20px 0;
+}

@@ -67,7 +67,7 @@ function goExample() {
               <div id="collapseProcess" class="accordion-collapse collapse" aria-labelledby="headingProcess" data-bs-parent="#taskInstructions">
                 <div class="accordion-body">
                   <ol>
-                    <li><strong>Review candidate profiles</strong> – Examine the qualifications of each candidate.</li>
+                    <li><strong>Review candidate profiles</strong> – Examine the qualifications of each candidate. You <strong>cannot</strong> access the profiles during the discussion. But, you are allows to take notes when reviewing the profiles. </li>
                     <li><strong>Discuss with the committee</strong> – Share insights and deliberate on strengths and weaknesses.</li>
                     <li><strong>Make a final decision</strong> – Work towards a consensus on the best candidate.</li>
                   </ol>
