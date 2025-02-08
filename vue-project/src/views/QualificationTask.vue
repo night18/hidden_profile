@@ -65,6 +65,11 @@ function validationMessage() {
   return 'Your selection is not the best candidate. Please review the candidates and select the most qualified one.';
 }
 
+function next() {
+  // Redirect to the next page
+  router.push({ name: 'WaitingRoom' });
+}
+
 </script>
 <template>
   <div class="container">
@@ -85,17 +90,25 @@ function validationMessage() {
                 :id="'candidate' + index"
                 :value="candidate.name"
                 class="form-check-input"
+                :disabled="is_submit && selectedCandidate === 'Candidate B'"
                 v-model="selectedCandidate" />
               <label 
                 :for="'candidate' + index"
-              >{{ candidate.name }}
-            </label>
+              >
+                {{ candidate.name }}
+              </label>
           </div>
-          <button class="btn btn-primary btn-lg" @click="submit">Submit</button>
+          <button class="btn btn-primary" @click="submit" :disabled="is_submit && selectedCandidate === 'Candidate B'">Submit</button>
           <div v-if="is_submit">
-            <div class="alert alert-danger mt-3" role="alert">
+            <div 
+              class="alert mt-3" 
+              :class="{ 'alert-success': selectedCandidate === 'Candidate B', 'alert-danger': selectedCandidate !== 'Candidate B' }"
+              role="alert">
               {{ validationMessage() }}
             </div>
+          </div>
+          <div v-if="is_submit && selectedCandidate === 'Candidate B'">
+            <button class="btn btn-primary btn-lg" @click="next">Start Formal Task</button>
           </div>
         </div>
       </div>
