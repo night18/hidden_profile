@@ -33,16 +33,11 @@ def create_participant(request):
     - condition: str
     Due to paricipant model does not have condition, hence we have to create the group but not assign the participant to the group at this momemt.
     """
-    
+
     worker_id = request.POST.get('worker_id', None)
     study_id = request.POST.get('study_id', None)
     session_id = request.POST.get('session_id', None)
-            
-    if TEST_MODE:
-        condition = request.POST.get('condition', None)
-        if not worker_id or not condition:
-            return JsonResponse({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
-    
+   
     if not worker_id:
         return JsonResponse({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -55,7 +50,13 @@ def create_participant(request):
     participant = Participant.objects.create(worker_id=worker_id, formal_study_id=study_id, formal_session_id=session_id)
     
     if TEST_MODE:
+        condition_id = request.POST.get('condition', None)
+        print(f"condition_id: {condition_id}")
+        if not worker_id or not condition_id or condition_id not in ['0', '1', '2']:
+            return JsonResponse({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+            
         # Create the group
+        condition = Condition.objects.get(_id=int(condition_id))
         group = Group.objects.create(condition=condition)
         
         # Assign the participant to the group

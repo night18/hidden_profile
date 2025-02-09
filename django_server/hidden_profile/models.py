@@ -49,7 +49,7 @@ class Condition(models.Model):
         1: Individual-level LLM
         2: Group-level LLM
     """
-    _id = models.IntegerField(default=-1)
+    _id = models.IntegerField(default=-1, primary_key=True)
     description = models.CharField(max_length=100, default="Not set")
     
     def __str__(self):
@@ -64,7 +64,7 @@ class Role(models.Model):
         2: Research Focus
         3: Service Focus
     """
-    _id = models.IntegerField(default=0)
+    _id = models.IntegerField(default=0, primary_key=True)
     description = models.CharField(max_length=100, default="Not set")
     
     def __str__(self):

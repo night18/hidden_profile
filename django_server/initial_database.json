@@ -1,0 +1,44 @@
+[
+    {
+        "model": "hidden_profile.Condition",
+        "pk": 0,
+        "fields": {
+            "description": "Control (No LLM involved)"
+        }
+    },
+    {
+        "model": "hidden_profile.Condition",
+        "pk": 1,
+        "fields": {
+            "description": "Individual-level LLM"
+        }
+    },
+    {
+        "model": "hidden_profile.Condition",
+        "pk": 2,
+        "fields": {
+            "description": "Group-level LLM"
+        }
+    },
+    {
+        "model": "hidden_profile.Role",
+        "pk": 1,
+        "fields": {
+            "description": "Teaching Focus"
+        }
+    },
+    {
+        "model": "hidden_profile.Role",
+        "pk": 2,
+        "fields": {
+            "description": "Research Focus"
+        }
+    },
+    {
+        "model": "hidden_profile.Role",
+        "pk": 3,
+        "fields": {
+            "description": "Service Focus"
+        }
+    }
+]

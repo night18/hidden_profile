@@ -51,7 +51,7 @@ const router = createRouter({
       path: '/FailPairing',
       name: 'FailPairing',
       component: FailPairing,
-    },
+    }
   ]
 });
 

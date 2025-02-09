@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, onBeforeUnmount, computed } from 'vue';
+import { ref, onBeforeUnmount, computed } from 'vue';
 
 const props = defineProps({
   remain_time: {

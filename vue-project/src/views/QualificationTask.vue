@@ -98,7 +98,9 @@ function next() {
                 {{ candidate.name }}
               </label>
           </div>
-          <button class="btn btn-primary" @click="submit" :disabled="is_submit && selectedCandidate === 'Candidate B'">Submit</button>
+          <button class="btn btn-primary" @click="submit" :disabled="is_submit && selectedCandidate === 'Candidate B'">
+            Vote for the best candidate
+          </button>
           <div v-if="is_submit">
             <div 
               class="alert mt-3" 
