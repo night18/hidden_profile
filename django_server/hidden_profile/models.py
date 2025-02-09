@@ -50,6 +50,7 @@ class Condition(models.Model):
         2: Group-level LLM
     """
     _id = models.IntegerField(default=-1)
+    description = models.CharField(max_length=100, default="Not set")
     
     def __str__(self):
         return str(self._id)
@@ -64,6 +65,7 @@ class Role(models.Model):
         3: Service Focus
     """
     _id = models.IntegerField(default=0)
+    description = models.CharField(max_length=100, default="Not set")
     
     def __str__(self):
         return str(self._id)
@@ -75,6 +77,7 @@ class Group(models.Model):
     participants = models.ManyToManyField(Participant, related_name='groups')
     active_participants = models.ManyToManyField(Participant, related_name='active_groups', blank=True)
     max_size = models.PositiveIntegerField(default=3)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     def add_participant(self, participant):
         if self.participants.count() < self.max_size:
