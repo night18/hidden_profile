@@ -27,3 +27,11 @@ npm run dev
 ```sh
 npm run build
 ```
+
+## Websocket Code Function Explanation
+
+### Code (100)
+- *Goal*: Add the participant to the group.
+- *When*: After connecting to the web socket.
+- *What*: Send the participant ID to the server.
+- *Return*: {code: 100, group_members: array, startable: boolean}
