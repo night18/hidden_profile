@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-dfci(t+nr!rq-cv8y)ao-_58hfuichknn$uz-2lruq_ry#nu!e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+]
 
 
 # Application definition
@@ -38,16 +41,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'hidden_profile',
+    'rest_framework',
+    'channels',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://127.0.0.1:8080',
+    'https://127.0.0.1:8080'
 ]
 
 ROOT_URLCONF = 'group.urls'
@@ -69,7 +82,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'group.wsgi.application'
+# ASGI_APPLICATION = 'group.asgi.application'
 
+CHANNEL_LAYERS = {
+    'default' : {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            # "hosts": [('aws-my-1p3rgt1ppy60m.meelff.0001.use1.cache.amazonaws.com', 6379)],
+            "hosts": [('localhost', 6379)],
+        },
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -130,6 +153,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
