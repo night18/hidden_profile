@@ -5,8 +5,6 @@ from .models import CandidateProfile, Participant, Group, Role, Turn, Pariticipa
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.channel_map = dict()
-        
         
         await self.channel_layer.group_add(
             self.room_name,
@@ -24,11 +22,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.room_name)
         
         group = Group.objects.get(pk=self.room_name)
-        # if group.is_full():
+        participant = Participant.objects.get(pk=self.participant_id)
+        
+        if group.is_full():
             # Case 2
-            # Remove the participant f
-        # else:
+            group.inactivate_participant(participant)
+            response = {
+                "code": "user_left",
+                
+            }
+        else:
             # Case 1
+            group.remove_participant(participant)
+        
+        
         
         
     async def receive(self, text_data=None):
@@ -36,6 +43,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         type = data["type"]
         
         if type == "join":
-            partcipant_id = data["subject_id"]
-            if partcipant_id is None:
-                pass
+            participant_id = data["subject_id"]
+            if participant_id is None:
+                raise ValueError("Participant ID cannot be None")
+            
+            self.participant_id = participant_id
+        
+        elif type == "message":
+            pass
+            
+            
+            
+                
