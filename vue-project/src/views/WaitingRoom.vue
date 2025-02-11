@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useParticipantStore } from '@/stores/participant';
 import { useChatStore } from '@/stores/useChatStore';
+import { useGroupStore } from '@/stores/group';
 import CountdownTimer from '@/components/CountdownTimer.vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -11,6 +12,7 @@ const router = useRouter();
 const remainTime = ref(300);
 const message = ref('');
 const chatStore = useChatStore();
+const groupStore = useGroupStore();
 
 onMounted(() => {
   const interval = setInterval(() => {
@@ -44,13 +46,21 @@ onMounted(() => {
       
       chatStore.initializeWebSocket(group_id);
 
-      chatStore.on('room_ready', () => {
+      chatStore.on('room_ready', (data) => {
         clearInterval(interval);
+
+        // Initialize group store
+        groupStore.initialParticipants(data.participants);
+
         console.log('room_ready');
         router.push('/FormalCandidate');
       });
       
       chatStore.on('waiting', (data) => {
+        message.value = `Waiting for ${data.remaining} more participants...`;
+      });
+
+      chatStore.on('user_left', (data) => {
         message.value = `Waiting for ${data.remaining} more participants...`;
       });
 

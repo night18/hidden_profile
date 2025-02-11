@@ -35,7 +35,7 @@ class Participant(models.Model):
     qualification_seesion_id = models.CharField(max_length=100)
     formal_study_id = models.CharField(max_length=100)
     formal_session_id = models.CharField(max_length=100)
-    group = models.ForeignKey('Group', on_delete=models.SET_NULL, null=True)
+    group_id = models.UUIDField(default=uuid.uuid4, null=True)
     start_time = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -85,7 +85,6 @@ class Group(models.Model):
     def add_participant(self, participant):
         if self.participants.count() < self.max_size:
             self.participants.add(participant)
-            self.active_participants.add(participant)
         else:
             raise ValueError("Group has reached maximum size")
     
@@ -93,6 +92,9 @@ class Group(models.Model):
         self.participants.remove(participant)
         self.active_participants.remove(participant)
         
+    def activate_participant(self, participant):
+        self.active_participants.add(participant)    
+    
     def inactivate_participant(self, participant):
         self.active_participants.remove(participant)
     

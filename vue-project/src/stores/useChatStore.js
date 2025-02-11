@@ -16,12 +16,14 @@ export const useChatStore = defineStore('chat', {
       }
 
       this.roomId = roomId;
-      const wsUrl = `${import.meta.env.VITE_WS_URL}/${roomId}/`;
+      const wsUrl = `${import.meta.env.VITE_WS_URL}${roomId}/`;
+      
       this.socket = new WebSocket(wsUrl);
 
       this.socket.onopen = () => {
         console.log("WebSocket connected.");
-        this.sendMessage({ type: "join", participant_id: useParticipantStore().participantId });
+        
+        this.sendMessage({ type: "join", participant_id: useParticipantStore().participant_id });
       };
 
       this.socket.onmessage = (event) => {

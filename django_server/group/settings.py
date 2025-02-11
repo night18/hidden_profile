@@ -35,15 +35,16 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    # 'channels',
+    'hidden_profile',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'hidden_profile',
     'rest_framework',
-    'channels',
     'corsheaders',
 ]
 
@@ -82,7 +83,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'group.wsgi.application'
-# ASGI_APPLICATION = 'group.asgi.application'
+ASGI_APPLICATION = 'group.asgi.application'
 
 CHANNEL_LAYERS = {
     'default' : {

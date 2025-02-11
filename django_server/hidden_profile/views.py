@@ -57,10 +57,17 @@ def create_participant(request):
             
         # Create the group
         condition = Condition.objects.get(_id=int(condition_id))
-        group = Group.objects.create(condition=condition)
+        # Check whether there is a group with the same condition and empty slot
+        group = Group.objects.annotate(
+            num_participants=Count('participants')
+        ).filter(num_participants__lt=F('max_size'), condition=condition).order_by('created_at').first()
+        
+        if not group:
+            group = Group.objects.create(condition=condition)
+        
         
         # Assign the participant to the group
-        participant.group = group
+        participant.group_id = group._id
         participant.save()
         
     
@@ -83,8 +90,8 @@ def pairing(request):
     If the participant is already assigned to a group, return the group id.
     Otherwise, assign the participant to a group.
     """
-    if participant.group:
-        group_id = participant.group._id
+    if participant.group_id:
+        group_id = participant.group_id
         group = Group.objects.get(pk=group_id)
     else:
         group = Group.objects.annotate(
@@ -101,7 +108,7 @@ def pairing(request):
     
     group.add_participant(participant)
     group_id = group._id
-    participant.group = group
+    participant.group_id = group_id
     participant.save()
     
     json = {
