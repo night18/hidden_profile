@@ -79,6 +79,9 @@ class Group(models.Model):
     max_size = models.PositiveIntegerField(default=3)
     created_at = models.DateTimeField(auto_now_add=True)
     
+    def is_full(self):
+        return self.participants.count() >= self.max_size
+    
     def add_participant(self, participant):
         if self.participants.count() < self.max_size:
             self.participants.add(participant)

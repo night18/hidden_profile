@@ -72,7 +72,6 @@ def create_participant(request):
     
 @api_view(['POST'])
 def pairing(request):
-    json = {}
     participant_id = request.POST.get('participant_id', None)
     if not participant_id:
         return JsonResponse({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
@@ -105,7 +104,9 @@ def pairing(request):
     participant.group = group
     participant.save()
     
-    json['group_id'] = group_id
+    json = {
+        'group_id': group_id,
+    }
     return JsonResponse(json, status=status.HTTP_200_OK)
     
 
