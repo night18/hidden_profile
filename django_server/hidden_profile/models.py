@@ -44,7 +44,6 @@ class Participant(models.Model):
 class Condition(models.Model):
     """
         Condition Setting:
-        -1: Not set
         0: Control (No LLM involved)
         1: Individual-level LLM
         2: Group-level LLM
@@ -59,7 +58,6 @@ class Condition(models.Model):
 class Role(models.Model):
     """
         Role Setting:
-        0: Not set
         1: Teaching Focus
         2: Research Focus
         3: Service Focus

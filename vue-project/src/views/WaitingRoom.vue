@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useParticipantStore } from '@/stores/participant';
-import { useChatStore } from '@/stores/useChatStore';
+import { useChatStore } from '@/stores/chat';
 import { useGroupStore } from '@/stores/group';
 import CountdownTimer from '@/components/CountdownTimer.vue';
 import axios from 'axios';
