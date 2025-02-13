@@ -2,31 +2,36 @@ from django.db import models
 import uuid
 
 class CandidateProfile(models.Model):
-    id = models.UUIDField(primary_key=True)
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     pair = models.IntegerField()
+    winner = models.BooleanField()
     # Public Information
-    number_of_courses_taught = models.IntegerField()
-    student_teaching_evaluations = models.FloatField()
-    number_of_peer_reviewed_publications = models.IntegerField()
-    citation_impact = models.FloatField()
-    service_on_editorial_boards = models.BooleanField()
-    conference_organization_roles = models.BooleanField()
+    name = models.CharField(max_length=100)
+    number_of_courses_taught = models.CharField(max_length=10)
+    student_teaching_evaluations =models.CharField(max_length=10)
+    number_of_peer_reviewed_publications = models.CharField(max_length=10)
+    citations = models.CharField(max_length=10)
+    service_on_editorial_boards = models.CharField(max_length=10)
+    conference_organization_roles = models.CharField(max_length=100)
     
     # Hidden Information
-    undergraduate_mentorship_success = models.BooleanField()
-    graduate_thesis_supervision = models.BooleanField()
-    curriculum_development = models.BooleanField()
-    teaching_awards = models.BooleanField()
+    undergraduate_mentorship_success = models.CharField(max_length=100)
+    graduate_thesis_supervision = models.CharField(max_length=100)
+    curriculum_development = models.CharField(max_length=100)
+    teaching_awards = models.CharField(max_length=100)
     
-    grant_funding_secured = models.BooleanField()
-    impact_of_research_publications = models.BooleanField()
-    interdisciplinary_research = models.BooleanField()
-    research_awards = models.BooleanField()
+    grant_funding_secured = models.CharField(max_length=100)
+    impact_of_research_publications = models.CharField(max_length=100)
+    interdisciplinary_research = models.CharField(max_length=100)
+    research_awards = models.CharField(max_length=100)
     
-    invited_talks = models.BooleanField()
-    industry_collaboration = models.BooleanField()
-    university_committee_service = models.BooleanField()
-    diversity_and_inclusion_initiatives = models.BooleanField()
+    invited_talks = models.CharField(max_length=100)
+    industry_collaboration = models.CharField(max_length=100)
+    university_committee_service = models.CharField(max_length=100)
+    diversity_and_inclusion_initiatives = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return str(self._id)
 
 class Participant(models.Model):
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -101,11 +106,9 @@ class Group(models.Model):
 
 """In case we need to run a group experiment with multiple turns"""
 class Turn(models.Model):
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="turns")
     turn_number = models.PositiveIntegerField()
-    candidate_1 = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name="candidate_1")
-    candidate_2 = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name="candidate_2")
-    candidate_3 = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name="candidate_3")
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True)
     
@@ -113,9 +116,10 @@ class Turn(models.Model):
         unique_together = ('group', 'turn_number')
 
     def __str__(self):
-        return f"Turn {self.turn_number} for Group {self.group.id}"
+        return f"Turn {self.turn_number} for Group {self.group._id}"
     
-class PariticipantTurn(models.Model):
+class ParticipantTurn(models.Model):
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
@@ -125,12 +129,12 @@ class PariticipantTurn(models.Model):
         unique_together = ('participant', 'turn')
     
     def __str__(self):
-        return f"Participant {self.participant.id} in Turn {self.turn.id}"
+        return str(self._id)
     
     
 class Message(models.Model):
     """Stores chat messages exchanged during the experiment."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="messages")
     sender = models.ForeignKey(Participant, on_delete=models.CASCADE)
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE, related_name="messages")
@@ -138,12 +142,12 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message {self.id} from {self.sender.id} in Group {self.group.id} during Turn {self.turn.turn_number}"
+        return f"Message {self._id} from {self.sender._id} in Group {self.group._id} during Turn {self.turn.turn_number}"
 
 
 class LlmMessage(models.Model):
     """Stores LLM messages exchanged during the experiment."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="llm_messages")
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE, related_name="llm_messages")
     content = models.TextField()
@@ -153,16 +157,16 @@ class LlmMessage(models.Model):
 
     def __str__(self):
         if self.is_private and self.recipient:
-            return f"Private LLM Message {self.id} to {self.recipient.id} in Group {self.group.id} during Turn {self.turn.turn_number}"
-        return f"Public LLM Message {self.id} in Group {self.group.id} during Turn {self.turn.turn_number}"
+            return f"Private LLM Message {self._id} to {self.recipient._id} in Group {self.group._id} during Turn {self.turn.turn_number}"
+        return f"Public LLM Message {self._id} in Group {self.group._id} during Turn {self.turn.turn_number}"
     
 class FormalRecord(models.Model):
     """Stores each participant's vote in the formal task during the experiment."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="formal_records")
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE, related_name="formal_records")
     vote = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Formal Record {self.id} from {self.participant.id} in Group {self.turn.group.id} during Turn {self.turn.turn_number}"
+        return f"Formal Record {self._id} from {self.participant._id} in Group {self.turn.group._id} during Turn {self.turn.turn_number}"

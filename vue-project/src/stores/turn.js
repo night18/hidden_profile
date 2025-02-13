@@ -2,18 +2,18 @@ import { defineStore } from 'pinia';
 
 export const useTurnStore = defineStore('turn', {
     state: () => ({
-        turn: 0,
-        role: null,
+        turn_number: 0,
+        candidate_roles: null,
     }),
     actions: {
-        addProgress() {
-            this.turn += 1;
+        addTurnNumber() {
+            this.turn_number += 1;
         },
-        setRole(role) {
-            this.role = role;
+        setCandidateRoles(candidate_roles) {
+            this.candidate_roles = candidate_roles;
         },
-        clearRole() {
-            this.role = null;
-        },
+        clearCandidateRoles() {
+            this.candidate_roles = null;
+        }
     },
 });

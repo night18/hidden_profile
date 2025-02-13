@@ -4,8 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Count, F
-from .models import CandidateProfile, Participant, Group, Role, Turn, PariticipantTurn, Message, LlmMessage, FormalRecord, Condition
-# from .serializers import CandidateProfileSerializer, ParticipantSerializer, GroupSerializer, RoleSerializer, TurnSerializer, PariticipantTurnSerializer, MessageSerializer, LlmMessageSerializer, FormalRecordSerializer
+from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
+from .serializers import CandidateProfileSerializer
 from datetime import datetime
 import csv
 import random
@@ -117,4 +117,29 @@ def pairing(request):
     return JsonResponse(json, status=status.HTTP_200_OK)
     
 
+@api_view(['POST'])
+def candidate_profile_by_turn(request):
+    participant_id = request.POST.get('participant_id', None)
+    turn_number = request.POST.get('turn_number', None)
+    
+    # Get the role of the participant
+    participant = Participant.objects.get(pk=participant_id)
+    group = Group.objects.get(pk=participant.group_id)
+    turn = Turn.objects.get(group=group, turn_number=turn_number)
+    participant_turn = ParticipantTurn.objects.get(participant=participant, turn=turn)
+    role_id = participant_turn.role._id
+    
+    # Get the candidate profiles by turn, which also named as pair in chandidate profile model
+    candidate_profiles = CandidateProfile.objects.filter(pair=turn_number)
+    serializer = CandidateProfileSerializer(candidate_profiles, many=True, context={'role': role_id})
+    
+    json = {
+        "candidate_profiles": serializer.data
+    }
+    
+    return JsonResponse(json, status=status.HTTP_200_OK)
+    
+    
+    
+    
     

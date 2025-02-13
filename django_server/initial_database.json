@@ -40,5 +40,83 @@
         "fields": {
             "description": "Service Focus"
         }
+    },
+    {
+        "model": "hidden_profile.CandidateProfile",
+        "fields": {
+            "pair": 0,
+            "name": "Candidate A",
+            "winner": false,
+            "number_of_courses_taught": "12",
+            "student_teaching_evaluations": "4.7/5",
+            "number_of_peer_reviewed_publications": "28",
+            "citations": "1200",
+            "service_on_editorial_boards": "Yes",
+            "conference_organization_roles": "Co-Chair of a National Conference",
+            "undergraduate_mentorship_success": "12 students pursued grad studies",
+            "graduate_thesis_supervision": "10 theses supervised",
+            "curriculum_development": "Developed/redesigned 4 courses",
+            "teaching_awards": "Won 'Outstanding Teacher of the Year'",
+            "grant_funding_secured": "$2M",
+            "impact_of_research_publications": "10 top-tier publications",
+            "interdisciplinary_research": "Collaborated across AI and medicine",
+            "research_awards": "Won 'Best Paper Award' 3 times",
+            "invited_talks": "Delivered 10 keynote speeches",
+            "industry_collaboration": "Strong partnership with 3 companies",
+            "university_committee_service": "Chaired 2 committees",
+            "diversity_and_inclusion_initiatives": "Led a mentorship program for underrepresented groups"
+        }
+    },
+    {
+        "model": "hidden_profile.CandidateProfile",
+        "fields": {
+            "pair": 0,
+            "name": "Candidate B",
+            "winner": true,
+            "number_of_courses_taught": "15",
+            "student_teaching_evaluations": "4.8/5",
+            "number_of_peer_reviewed_publications": "35",
+            "citations": "1400",
+            "service_on_editorial_boards": "Yes",
+            "conference_organization_roles": "Member of Program Committee",
+            "undergraduate_mentorship_success": "5 students pursued grad studies",
+            "graduate_thesis_supervision": "4 theses supervised",
+            "curriculum_development": "Redesigned 1 course",
+            "teaching_awards": "No awards",
+            "grant_funding_secured": "$1.5M",
+            "impact_of_research_publications": "8 top-tier publications",
+            "interdisciplinary_research": "Limited interdisciplinary work",
+            "research_awards": "Won 1 research award",
+            "invited_talks": "Delivered 5 keynote speeches",
+            "industry_collaboration": "Partnership with 1 company",
+            "university_committee_service": "Member of 1 committee",
+            "diversity_and_inclusion_initiatives": "Organized one D&I workshop"
+        }
+    },
+    {
+        "model": "hidden_profile.CandidateProfile",
+        "fields": {
+            "pair": 0,
+            "name": "Candidate C",
+            "winner": false,
+            "number_of_courses_taught": "10",
+            "student_teaching_evaluations": "4.6/5",
+            "number_of_peer_reviewed_publications": "25",
+            "citations": "1100",
+            "service_on_editorial_boards": "No",
+            "conference_organization_roles": "Organizer of a Regional Workshop",
+            "undergraduate_mentorship_success": "8 students pursued grad studies",
+            "graduate_thesis_supervision": "6 theses supervised",
+            "curriculum_development": "Designed 2 courses",
+            "teaching_awards": "Nominated for a teaching award",
+            "grant_funding_secured": "$1M",
+            "impact_of_research_publications": "5 top-tier publications",
+            "interdisciplinary_research": "Collaborated across AI and education",
+            "research_awards": "Won 2 research awards",
+            "invited_talks": "Delivered 8 invited talks",
+            "industry_collaboration": "Partnership with 2 companies",
+            "university_committee_service": "Member of 2 committees",
+            "diversity_and_inclusion_initiatives": "Participated in D&I discussions"
+        }
     }
 ]

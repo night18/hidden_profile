@@ -1,7 +1,9 @@
 import json
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import CandidateProfile, Participant, Group, Role, Turn, PariticipantTurn, Message, LlmMessage, FormalRecord, Condition
+from django.db import transaction
+from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
+from .serializers import CandidateProfileSerializer
 import random
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -13,7 +15,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         
-        print('connected to room: ', self.room_name)
         await self.accept()
         
     async def disconnect(self, close_code):
@@ -49,9 +50,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
     async def receive(self, text_data=None):
         data = json.loads(text_data)
-        print(data)
         type = data["type"]
-        print(type)
         
         if type == "join":
             participant_id = data["participant_id"]
@@ -70,8 +69,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if group_count == group.max_size:
                 
                 # Get all participant ids in the group
-                participants = await sync_to_async(group.participants.all)()
-                participant_ids = [participant.id for participant in participants]
+                participants = await sync_to_async(list)(group.participants.all())
+                participant_ids = await sync_to_async(lambda: [str(participant._id) for participant in participants])()
                 
                 await self.channel_layer.group_send(
                     self.room_name,
@@ -79,7 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "type": "chat_message",
                         "message": {
                             "type": "room_ready",
-                            "participants": participant_ids                            
+                            "participants": participant_ids
                         }
                     }
                 )
@@ -94,63 +93,52 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         }
                     }
                 )
-        elif type == "candidate_profiles_by_turn":
-            """
-            For each turn, the participants will be assigned to a different role.
-            The whole group would have all the roles.
-            The participants will be assigned to the roles in a random order.
-            Each participants would see the same pair of candidates but differnt candidate attributes based on their role.
-            """
+        elif type == "role_by_turn":
+            turn_number = data["turn_number"]
+            group_id = self.room_name
             
-            participant_id = data["participant_id"]
-            turn = data["turn"]
+            group = await sync_to_async(Group.objects.get)(pk=group_id)
+            participants = await sync_to_async(list)(group.participants.all())
             
-        elif type == "candidate_profiles_by_turn":
-            participant_id = data["participant_id"]
-            turn = data["turn"]
+            # Create a new turn
+            turn = await sync_to_async(Turn.objects.create)(group=group, turn_number=turn_number)
             
-            participant = await sync_to_async(Participant.objects.get)(pk=participant_id)
-            group = await sync_to_async(Group.objects.get)(pk=participant.group_id)
-            
-            # Get all roles and shuffle them
+            # Assign the role to each participant
             roles = await sync_to_async(list)(Role.objects.all())
             random.shuffle(roles)
             
-            participants = await sync_to_async(list)(group.participants.all())
-            
+            # Check the number of participants matches the number of roles
             if len(participants) != len(roles):
-                raise ValueError("Number of participants and roles do not match")
+                raise ValueError("Number of participants must match the number of roles")
             
-            # Assign roles to participants
-            with transaction.atomic():
-                for i, participant in enumerate(participants):
-                    role = roles[i]
-                    await sync_to_async(ParticipantTurn.objects.create)(
-                        participant=participant,
-                        turn=turn,
-                        role=role
-                    )
+            for i, participant in enumerate(participants):
+                role = roles[i]
+                await sync_to_async(ParticipantTurn.objects.create)(participant=participant, turn=turn, role=role)
             
-            # Prepare candidate profiles for each participant based on their role
-            candidate_profiles = {}
-            for participant in participants:
-                participant_turn = await sync_to_async(ParticipantTurn.objects.get)(
-                    participant=participant,
-                    turn=turn
-                )
-                role = participant_turn.role
-                candidate_profiles[participant.id] = await sync_to_async(self.get_candidate_profiles_by_role)(role)
+            # Send the all role-participant pairs to the group
+            role_participant_pairs = await sync_to_async(list)(ParticipantTurn.objects.filter(turn=turn))
+            
+            # use sync_to_async to create pairs of participant, role, and role description
+            pairs = await sync_to_async(lambda: [
+                {
+                    "participant": str(pair.participant._id),
+                    "role": pair.role._id,
+                    "role_desc": pair.role.description
+                } for pair in role_participant_pairs
+            ])()
+            
             
             await self.channel_layer.group_send(
                 self.room_name,
                 {
                     "type": "chat_message",
                     "message": {
-                        "type": "candidate_profiles_by_turn",
-                        "candidate_profiles": candidate_profiles
+                        "type": "role_assignment",
+                        "pairs": pairs
                     }
                 }
             )
+            
             
         
         elif type == "message":

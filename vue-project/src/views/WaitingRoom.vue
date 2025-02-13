@@ -11,10 +11,10 @@ import Swal from 'sweetalert2';
 const router = useRouter();
 const remainTime = ref(300);
 const message = ref('');
-const chatStore = useChatStore();
 const groupStore = useGroupStore();
 
 onMounted(() => {
+  const chatStore = useChatStore();
   const interval = setInterval(() => {
     if (remainTime.value > 0) {
       remainTime.value--;

@@ -16,11 +16,19 @@ const props = defineProps({
 // Extract candidate names (used as column headers)
 const candidateNames = computed(() => props.candidates.map(candidate => candidate.name));
 
-// Extract all attributes dynamically (used as row headers)
+// Extract all attributes dynamically (used as row headers).
 const attributes = computed(() => {
   if (!props.candidates.length) return [];
-  return Object.keys(props.candidates[0]).filter(key => key !== "name");
+  return Object.keys(props.candidates[0]).filter(key => key !== "name" && key !== "_id");
 });
+
+// Transfer the attribute name to a more readable format. For instance, "conference_organization_roles" to "Conference Organization Roles".
+const attributeDisplayName = (attribute) => {
+  return attribute
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
 // Function to check if a cell should be highlighted
 const isHighlighted = (name, attribute) => {
@@ -44,10 +52,10 @@ const isHighlighted = (name, attribute) => {
         </thead>
         <tbody>
           <tr v-for="attribute in attributes" :key="attribute">
-            <td class="fw-bold">{{ attribute }}</td>
+            <td class="fw-bold">{{ attributeDisplayName(attribute) }}</td>
             <td 
               v-for="candidate in candidates"
-              :key="candidate.name"
+              :key="candidate._id"
               class="text-center"
               :class="{ 'table-danger': isHighlighted(candidate.name, attribute) }"
             >
