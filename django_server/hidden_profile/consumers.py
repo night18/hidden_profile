@@ -5,10 +5,12 @@ from django.db import transaction
 from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
 from .serializers import CandidateProfileSerializer
 import random
+from .gpt import OpenAIClient
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.openai_client = OpenAIClient()
         
         await self.channel_layer.group_add(
             self.room_name,
@@ -195,6 +197,33 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             
             
+            # Check the group's condition id to decide whether and how LLM should respond
+            condition_id = await sync_to_async(lambda: group.condition._id)()
+            if condition_id == 1:
+                pass
+            
+            elif condition_id == 2:
+                # Call the GPT-4o model to generate a response
+                
+                response, llm_message_id = await sync_to_async(self.openai_client.group_level_response)(group_id, turn_number)
+                
+                # Broadcast the LLM response to the group
+                await self.channel_layer.group_send(
+                    self.room_name,
+                    {
+                        "type": "chat_message",
+                        "message": {
+                            "type": "message",
+                            "content": {
+                            "_id": llm_message_id,
+                            "sender": {
+                                "participant_id": -1,  
+                            },
+                            "content": response
+                        }
+                        }
+                    }
+                )
             
             
     
