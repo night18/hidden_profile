@@ -215,7 +215,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "message": {
                             "type": "message",
                             "content": {
-                            "_id": llm_message_id,
+                            "_id": str(llm_message_id),
                             "sender": {
                                 "participant_id": -1,  
                             },

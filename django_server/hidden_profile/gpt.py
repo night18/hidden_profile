@@ -67,7 +67,7 @@ class OpenAIClient:
         for chat_message in chat_messages:
             messages.append({"role": "user", "content": str(chat_message.sender._id) + ":" + chat_message.content})
         
-        response = self.generate_response(messages)
+        response = self.generate_response(messages).content
         
         # Store the response as new data in the database
         llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=False)
