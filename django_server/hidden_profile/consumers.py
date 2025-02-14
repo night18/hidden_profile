@@ -200,7 +200,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Check the group's condition id to decide whether and how LLM should respond
             condition_id = await sync_to_async(lambda: group.condition._id)()
             if condition_id == 1:
-                pass
+                response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response)(sender_id, group_id, turn_number)
+                
+                # Send the message to the original sender only
+                await self.channel_layer.send(
+                    self.channel_name,
+                    {
+                        "type": "chat_message",
+                        "message": {
+                            "type": "message",
+                            "content": {
+                                "_id": str(llm_message_id),
+                                "sender": {
+                                    "participant_id": -1,  
+                                },
+                                "content": response
+                            }
+                        }
+                    }
+                )
+                
             
             elif condition_id == 2:
                 # Call the GPT-4o model to generate a response

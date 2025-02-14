@@ -1,5 +1,5 @@
 from openai import OpenAI
-from .models import Group, Turn, ParticipantTurn, Message, LlmMessage
+from .models import Group, Turn, ParticipantTurn, Message, LlmMessage, Participant
 import os
 
 class OpenAIClient:
@@ -11,6 +11,13 @@ class OpenAIClient:
         self.model = "gpt-4o"
         self.max_tokens = 150
         self.group_system_prompt_template = self.load_group_system_prompt_template()
+        self.individual_system_prompt_template = self.load_individual_system_prompt_template()
+
+    def load_individual_system_prompt_template(self):
+        base_dir = os.path.dirname(__file__)
+        prompt_path = os.path.join(base_dir, "individual_system_prompt.txt")
+        with open(prompt_path, "r") as file:
+            return file.read().strip()
 
     def load_group_system_prompt_template(self):
         base_dir = os.path.dirname(__file__)
@@ -26,7 +33,52 @@ class OpenAIClient:
         )
         print("completion")
         print(completion)
-        return(completion.choices[0].message)
+        return completion.choices[0].message.content
+    
+    def individual_level_response(self, participant_id, group_id, turn_number):
+        # Get the participant
+        participant = Participant.objects.get(pk=participant_id)
+        
+        # Get the group
+        group = Group.objects.get(pk=group_id)
+        
+        # Get the turn
+        turn = Turn.objects.get(group=group, turn_number=turn_number)
+        
+        # Get the role of the participant in the turn
+        participant_turn = ParticipantTurn.objects.get(participant=participant, turn=turn)
+        role_id = participant_turn.role._id
+        role_description = participant_turn.role.description
+        
+        hidden_profile_attributes = ""
+        attributes = "Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citation Impact, Service on Editorial Boards, Conference Organization Roles"
+        
+        if role_id == 1:
+            hidden_profile_attributes = "Undergraduate Mentorship Success, Graduate Thesis Supervision, Curriculum Development, Teaching Awards"
+        elif role_id == 2:
+            hidden_profile_attributes = "Grant Funding Secured, Impact of Research Publications, Interdisciplinary Research, Research Awards"
+        elif role_id == 3:
+            hidden_profile_attributes = "Invited Talks, Industry Collaboration, University Committee Service, Diversity and Inclusion Initiatives"
+        
+        attributes = attributes + ", " + hidden_profile_attributes
+        
+        messages = []
+        system_prompt = self.individual_system_prompt_template.format(participant_name=participant_id, expertise=role_description, attributes=attributes, hidden_profile_attributes=hidden_profile_attributes)
+        messages.append({"role": "system", "content": system_prompt})
+        
+        
+        # Get the messages in the group. Sort by timestamp, the older messages come first
+        chat_messages = Message.objects.filter(group=group, turn=turn).order_by("timestamp")
+        
+        for chat_message in chat_messages:
+            messages.append({"role": "user", "content": str(chat_message.sender._id) + ":" + chat_message.content})
+        
+        response = self.generate_response(messages)
+        
+        # Store the response as new data in the database
+        llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=True, recipient=participant)
+        
+        return response, str(llm_message._id)
     
     def group_level_response(self, group_id, turn_number):
         # Get the participants in the group
@@ -67,7 +119,7 @@ class OpenAIClient:
         for chat_message in chat_messages:
             messages.append({"role": "user", "content": str(chat_message.sender._id) + ":" + chat_message.content})
         
-        response = self.generate_response(messages).content
+        response = self.generate_response(messages)
         
         # Store the response as new data in the database
         llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=False)
