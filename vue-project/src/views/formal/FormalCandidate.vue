@@ -44,7 +44,7 @@ onMounted(() => {
 
   });
 
-  chatStore.on('user_left', (data) => {
+  chatStore.on('user_left_after_pairing', (data) => {
     // Remove the participant from the group
     useGroupStore().removeParticipant(data.participant_id);
     // Alert the user that a participant has left, say sorry to finish the task. When users click OK, they will be redirected to the Ending page.
@@ -59,6 +59,9 @@ onMounted(() => {
   
   // Only the first participant in the participant list will send a request to the server
   if (participantStore.participant_id === useGroupStore().participants[0]) {
+    if (turnStore.candidate_roles !== null) {
+      return;
+    }
     chatStore.sendMessage({
       type: 'role_by_turn',
       participant_id: participantStore.participant_id,
@@ -67,7 +70,9 @@ onMounted(() => {
   }
 });
 
-
+function next() {
+  router.push('/GroupDiscussion');
+}
 
 
 
@@ -81,9 +86,9 @@ onMounted(() => {
         <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
         
         <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. Remember that each attribute is equally important in the decision-making process.</p>
-        <p>After you click the next button, you cannot access the candidate profiles again. But, you could tke notes on a separate sheet of paper.</p>
+        <p>After you click the next button, you <strong>cannot</strong> access the candidate profiles again. But, you could tke notes on a separate sheet of paper.</p>
         
-        <button class="btn btn-primary btn-lg" @click="">Next</button>
+        <button class="btn btn-primary btn-lg" @click="next">Next</button>
       </div>
     </div>
   </div>

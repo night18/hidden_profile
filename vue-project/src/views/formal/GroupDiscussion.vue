@@ -2,41 +2,15 @@
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import ChatRoom from '@/components/ChatRoom.vue';
-
+import { useCandidateProfileStore } from '@/stores/candidate_profile';
 const router = useRouter();
 
 const selectedCandidate = ref('');
+const candidateProfileStore = useCandidateProfileStore();
+const candidates = candidateProfileStore.candidate_profiles;
 
 // Sample data
-const candidates = [
-  {
-    "name": "Candidate A",
-    "Number of Courses Taught": "4",
-    "Student Teaching Evaluations": "4.0/5.0",
-    "Number of Peer-Reviewed Publications": "2",
-    "Citation Impact": "5",
-    "Service on Editorial Boards": "Yes",
-    "Conference Organization Roles": "Yes",
-  },
-  {
-    "name": "Candidate B",
-    "Number of Courses Taught": "6",
-    "Student Teaching Evaluations": "4.5/5.0",
-    "Number of Peer-Reviewed Publications": "5",
-    "Citation Impact": "10",
-    "Service on Editorial Boards": "Yes",
-    "Conference Organization Roles": "Yes",
-  },
-  {
-    "name": "Candidate C",
-    "Number of Courses Taught": "3",
-    "Student Teaching Evaluations": "3.0/5.0",
-    "Number of Peer-Reviewed Publications": "10",
-    "Citation Impact": "20",
-    "Service on Editorial Boards": "Yes",
-    "Conference Organization Roles": "No",
-  }
-];
+
 </script>
 <template>
   <div class="container">
@@ -56,7 +30,7 @@ const candidates = [
               <input
                 type="radio"
                 :id="'candidate' + index"
-                :value="candidate.name"
+                :value="candidate._id"
                 class="form-check-input"
                 v-model="selectedCandidate" />
               <label :for="'candidate' + index">

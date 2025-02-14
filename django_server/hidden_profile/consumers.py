@@ -29,23 +29,36 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         if await sync_to_async(group.is_full)():
             # Case 2
-            await sync_to_async(group.remove_participant)(participant)
+            await sync_to_async(group.inactivate_participant)(participant)
+            group_count = await sync_to_async(group.participants.count)()
+            await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "user_left_after_pairing",
+                        "participant_id": self.participant_id,
+                        "remaining": group.max_size - group_count
+                    }
+                }
+            )
+            
         else:
             # Case 1
             await sync_to_async(group.remove_participant)(participant)
         
-        group_count = await sync_to_async(group.participants.count)()
-        await self.channel_layer.group_send(
-            self.room_name,
-            {
-                "type": "chat_message",
-                "message": {
-                    "type": "user_left",
-                    "participant": self.participant_id,
-                    "remaining": group.max_size - group_count
+            group_count = await sync_to_async(group.participants.count)()
+            await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "user_left",
+                        "participant_id": self.participant_id,
+                        "remaining": group.max_size - group_count
+                    }
                 }
-            }
-        )
+            )
         
         
     async def receive(self, text_data=None):
@@ -100,8 +113,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             group = await sync_to_async(Group.objects.get)(pk=group_id)
             participants = await sync_to_async(list)(group.participants.all())
             
-            # Create a new turn
-            turn = await sync_to_async(Turn.objects.create)(group=group, turn_number=turn_number)
+            # In the turn has not create, create a new turn
+            if not await sync_to_async(Turn.objects.filter(group=group, turn_number=turn_number).exists)():
+                turn = await sync_to_async(Turn.objects.create)(group=group, turn_number=turn_number)
             
             # Assign the role to each participant
             roles = await sync_to_async(list)(Role.objects.all())
@@ -142,7 +156,46 @@ class ChatConsumer(AsyncWebsocketConsumer):
             
         
         elif type == "message":
-            pass
+            """
+                Recive
+                "type": "message",
+                "sender": participantStore.participant_id,
+                "turn_number": turnStore.turn_number,
+                "content": send_out_message.value
+            """
+            sender_id = data["sender"]
+            content = data["content"]
+            turn_number = data["turn_number"]
+            group_id = self.room_name
+            
+            group = await sync_to_async(Group.objects.get)(pk=group_id)
+            sender = await sync_to_async(Participant.objects.get)(pk=sender_id)
+            turn = await sync_to_async(Turn.objects.get)(group=group, turn_number=turn_number)
+            
+            # Save the message to the database
+            message = await sync_to_async(Message.objects.create)(group=group, sender=sender, turn=turn, content=content)
+            message_id = str(message._id)
+            
+            # Broadcast the message to the group
+            await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "message",
+                        "content": {
+                            "_id": message_id,
+                            "sender": {
+                                "participant_id": sender_id,  
+                            },
+                            "content": content
+                        }
+                    }
+                }
+            )
+            
+            
+            
             
     
     async def chat_message(self, event):

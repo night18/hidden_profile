@@ -8,11 +8,11 @@ export const useGroupStore = defineStore('group', {
         initialParticipants(participants) {
             this.participants = participants;
         },
-        addParticipant(participant) {
-            this.participants.push(participant);
+        addParticipant(participant_id) {
+            this.participants.push(participant_id);
         },
-        removeParticipant(participant) {
-            this.participants = this.participants.filter(p => p.id !== participant.id);
+        removeParticipant(participant_id) {
+            this.participants = this.participants.filter(p => p !== participant_id);
         },
     },
 });

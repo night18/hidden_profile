@@ -29,7 +29,7 @@ export const useChatStore = defineStore('chat', {
       this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === "message") {
-          this.messages.push(data);
+          this.messages.push(data.content);
         }
 
         if (data.type in this.eventCallbacks) {
