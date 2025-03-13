@@ -1,3 +1,6 @@
+asgiref==3.8.1
 channels==4.2.0
 Django==5.1.6
 djangorestframework==3.15.2
+openai==1.66.3
+python-dotenv==1.0.1
