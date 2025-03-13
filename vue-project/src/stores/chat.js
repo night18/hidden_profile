@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { useParticipantStore } from './participant';
+import { useTurnStore } from './turn';
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
@@ -28,8 +29,16 @@ export const useChatStore = defineStore('chat', {
 
       this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data.type === "message") {
+        if (data.type === "message") { 
           this.messages.push(data.content);
+          // Send a message back to the server to call the LLM agent to reply the message when the sender is the users themselves
+          if (data.content.sender.participant_id === useParticipantStore().participant_id) {
+            this.sendMessage({
+              "type": "auto_llm", 
+              "sender": useParticipantStore().participant_id,
+              "turn_number": useTurnStore().turn_number,
+              "content": data.content });
+          }
         }
 
         if (data.type in this.eventCallbacks) {

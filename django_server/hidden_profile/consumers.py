@@ -196,6 +196,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
             
+        elif type == "auto_llm":
+            """
+                Recive
+                "type": "auto_llm",
+                "sender": participantStore.participant_id,
+                "turn_number": turnStore.turn_number,
+                "content": send_out_message.value
+            """
+            sender_id = data["sender"]
+            content = data["content"]
+            turn_number = data["turn_number"]
+            group_id = self.room_name
+            print("Auto LLM")
+            
+            group = await sync_to_async(Group.objects.get)(pk=group_id)
+            sender = await sync_to_async(Participant.objects.get)(pk=sender_id)
+            turn = await sync_to_async(Turn.objects.get)(group=group, turn_number=turn_number)
             
             # Check the group's condition id to decide whether and how LLM should respond
             condition_id = await sync_to_async(lambda: group.condition._id)()
