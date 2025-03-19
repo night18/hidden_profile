@@ -119,7 +119,8 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'experiment',
-            'USER': 'chun',
+            'USER': 'chunwei',
+            # 'USER': 'chun',
             'PASSWORD': 'chun',
             'HOST': 'localhost',
             'PORT': '5432',
