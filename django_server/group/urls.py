@@ -22,6 +22,7 @@ from hidden_profile import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/hidden_profile/create_participant/', views.create_participant),
+    path('api/hidden_profile/record_avatar/', views.record_avatar),
     path('api/hidden_profile/pairing/', views.pairing),
     path('api/hidden_profile/candidate_profile_by_turn/', views.candidate_profile_by_turn),
 ]

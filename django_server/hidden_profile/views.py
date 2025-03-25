@@ -75,7 +75,23 @@ def create_participant(request):
         'participant_id': participant._id,
     }
     return JsonResponse(json, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def record_avatar(request):
+    participant_id = request.POST.get('participant_id', None)
+    avatar_color = request.POST.get('avatar_color', None)
+    avatar_name = request.POST.get('avatar_name', None)
+
+    if not participant_id or not avatar_color or not avatar_name:
+        return JsonResponse({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
     
+    participant = Participant.objects.get(pk=participant_id)
+    participant.avatar_color = avatar_color
+    participant.avatar_name = avatar_name
+    participant.save()
+
+    return JsonResponse({'success': 'Avatar recorded'}, status=status.HTTP_200_OK)
+
     
 @api_view(['POST'])
 def pairing(request):

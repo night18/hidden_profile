@@ -27,7 +27,7 @@ function next() {
     let body = new FormData();
     body.append('participant_id', useParticipantStore().participant_id);
     body.append('avatar_color', avatar_color.value);
-    body.append('avatar_animal', avatar_animal.value);
+    body.append('avatar_name', avatar_animal.value);
 
     axios.post('/record_avatar/', body)
         .then((response) => {
@@ -41,7 +41,6 @@ function next() {
             }
             router.push({ name: 'NetiquetteRule' });
         });
-        
 }
 
 generateAvatar();
@@ -59,7 +58,7 @@ generateAvatar();
             <p>As a reminder, for each group task, you can earn <b>$0.4</b> as an additional bonus only if your group's final decision is the best candidate. You will not earn the bonus if the group's final prediction is a tie.</p>
             <p>To protect your identity, we would assign you an avatar to represent you in your group throughout the rest of this study. If you are not satisfied with the assigned avatar, please click the <b>Refresh</b> button to get a new one.</p>
             <div class="avatar-area">
-                Your anonymous avatar is: {{ avatar_color }} {{ avatar_animal }}<br>
+                Your anonymous avatar is: <b>{{ avatar_color }} {{ avatar_animal }}</b> <br>
                 <Animal :color="avatar_color" :name="avatar_animal" />
                 <button class="btn btn-secondary" @click="refresh">Refresh</button>
             </div>
