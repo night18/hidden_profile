@@ -8,6 +8,8 @@ import WaitingRoom from '@/views/WaitingRoom.vue';
 import FormalCandidate from '@/views/formal/FormalCandidate.vue';
 import GroupDiscussion from '@/views/formal/GroupDiscussion.vue';
 import FailPairing from '@/views/errors/FailPairing.vue';
+import NetiquetteRule from '@/views/NetiquetteRule.vue';
+import FormalInstruction from '@/views/FormalInstruction.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,6 +33,16 @@ const router = createRouter({
       path: '/QualificationTask',
       name: 'QualificationTask',
       component: QualificationTask,
+    },
+    {
+      path: '/FormalInstruction',
+      name: 'FormalInstruction',
+      component: FormalInstruction,
+    },
+    {
+      path: '/NetiquetteRule',
+      name: 'NetiquetteRule',
+      component: NetiquetteRule,
     },
     {
       path: '/WaitingRoom',

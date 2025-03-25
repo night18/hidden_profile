@@ -67,7 +67,7 @@ function validationMessage() {
 
 function next() {
   // Redirect to the next page
-  router.push({ name: 'WaitingRoom' });
+  router.push({ name: 'FormalInstruction' });
 }
 
 </script>
