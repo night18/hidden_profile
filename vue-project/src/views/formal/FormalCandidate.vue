@@ -31,6 +31,30 @@ onMounted(() => {
       turn_number: turnStore.turn_number,
     });
   }
+
+  chatStore.on('role_assignment', (data) => {
+    console.log('role_assignment');
+    console.log(data);
+    turnStore.setCandidateRoles(data.pairs);
+
+    // Request the candidate profiles based on the role of the participant
+    let body = new FormData();
+    body.append('participant_id', participantStore.participant_id);
+    body.append('turn_number', turnStore.turn_number);
+    axios.post('/candidate_profile_by_turn/', body)
+      .then((response) => {
+        if (response.status !== 200) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to get candidate profiles',
+          });
+          return;
+        }
+
+        candidateProfileStore.setCandidateProfiles(response.data.candidate_profiles);
+      });
+  });
 });
 
 function next() {

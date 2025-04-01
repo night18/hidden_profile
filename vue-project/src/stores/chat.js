@@ -52,11 +52,7 @@ export const useChatStore = defineStore('chat', {
 
       this.socket.onerror = (error) => {
         console.error("WebSocket error:", error);
-      };
-
-      // Register the event handlers
-      this.on('role_assignment', this.handleRoleAssignment);
-      this.on('user_left_after_pairing', this.handleUserLeftAfterPairing);
+      };      
     },
     sendMessage(data) {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -70,47 +66,6 @@ export const useChatStore = defineStore('chat', {
         this.eventCallbacks[eventType] = [];
       }
       this.eventCallbacks[eventType].push(callback);
-    },
-    handleRoleAssignment(data) {
-      const turnStore = useTurnStore();
-      const participantStore = useParticipantStore();
-      const candidateProfileStore = useCandidateProfileStore();
-
-      console.log(data);
-      // Set the role of the participant
-      turnStore.setCandidateRoles(data.pairs);
-
-      // Request the candidate profiles based on the role of the participant
-      let body = new FormData();
-      body.append('participant_id', participantStore.participant_id);
-      body.append('turn_number', turnStore.turn_number);
-      axios.post('/candidate_profile_by_turn/', body)
-        .then((response) => {
-          if (response.status !== 200) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'Failed to get candidate profiles',
-            });
-            return;
-          }
-
-          candidateProfileStore.setCandidateProfiles(response.data.candidate_profiles);
-        });
-    },
-    handleUserLeftAfterPairing(data) {
-      const groupStore = useGroupStore();
-
-      // Remove the participant from the group
-      groupStore.removeParticipant(data.participant_id);
-      // Alert the user that a participant has left, say sorry to finish the task. When users click OK, they will be redirected to the Ending page.
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Sorry, a participant has left the task. Please click OK to finish the task.',
-      }).then(() => {
-        // router.push('/Ending');
-      });
     }
   }
 });

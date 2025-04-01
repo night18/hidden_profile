@@ -64,6 +64,16 @@ onMounted(() => {
         message.value = `Waiting for ${data.remaining} more participants...`;
       });
 
+      chatStore.on('user_left_after_pairing', (data) => {
+        groupStore.removeParticipant(data.participant_id);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Sorry, a participant has left the task. Please click OK to finish the task.',
+        }).then(() => {
+          // router.push('/Ending');
+        });
+      });
     })
     .catch((error) => {
       console.error(error);
