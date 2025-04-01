@@ -15,49 +15,12 @@ const chatStore = useChatStore();
 const participantStore = useParticipantStore();
 const candidateProfileStore = useCandidateProfileStore();
 const turnStore = useTurnStore();
+const selectedCandidate = ref('');
 
 onMounted(() => {
   console.log('FormalCandidate mounted');
     
-  chatStore.on('role_assignment', (data) => {
-    console.log(data);
-    // Set the role of the participant
-    turnStore.setCandidateRoles(data.pairs);
-
-    // Request the candidate profiles based on the role of the participant
-    let body = new FormData();
-    body.append('participant_id', participantStore.participant_id);
-    body.append('turn_number', turnStore.turn_number);
-    axios.post('/candidate_profile_by_turn/', body)
-      .then((response) => {
-        if (response.status !== 200) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to get candidate profiles',
-          });
-          return;
-        }
-
-        candidateProfileStore.setCandidateProfiles(response.data.candidate_profiles);
-      });
-
-  });
-
-  chatStore.on('user_left_after_pairing', (data) => {
-    // Remove the participant from the group
-    useGroupStore().removeParticipant(data.participant_id);
-    // Alert the user that a participant has left, say sorry to finish the task. When users click OK, they will be redirected to the Ending page.
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Sorry, a participant has left the task. Please click OK to finish the task.',
-    }).then(() => {
-      // router.push('/Ending');
-    });
-  });
-  
-  // Only the first participant in the participant list will send a request to the server
+    // Only the first participant in the participant list will send a request to the server
   if (participantStore.participant_id === useGroupStore().participants[0]) {
     if (turnStore.candidate_roles !== null) {
       return;
@@ -71,6 +34,23 @@ onMounted(() => {
 });
 
 function next() {
+  // Record the selected candidate to the server using POST request
+  let body = new FormData();
+  body.append('participant_id', participantStore.participant_id);
+  body.append('turn_number', turnStore.turn_number);
+  body.append('selected_candidate', selectedCandidate.value);
+  axios.post('/initial_decision/', body)
+    .then((response) => {
+      if (response.status !== 200) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to record the selected candidate',
+        });
+        return;
+      }
+      // Use the 
+    });
   router.push('/GroupDiscussion');
 }
 
@@ -86,9 +66,26 @@ function next() {
         <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
         
         <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. Remember that each attribute is equally important in the decision-making process.</p>
-        <p>After you click the next button, you <strong>cannot</strong> access the candidate profiles again. But, you could tke notes on a separate sheet of paper.</p>
-        
-        <button class="btn btn-primary btn-lg" @click="next">Next</button>
+        <!-- <p>After you click the next button, you <strong>cannot</strong> access the candidate profiles again. But, you could tke notes on a separate sheet of paper.</p> -->
+        <div
+          v-if="candidateProfileStore.candidate_profiles !== null"
+          v-for="(candidate, index) in candidateProfileStore.candidate_profiles"
+          :key="index"
+          class="form-check"
+          >
+            <input
+              type="radio"
+              :id="candidate._id"
+              :value="candidate.name"
+              class="form-check-input"
+              v-model="selectedCandidate" />
+            <label 
+              :for="candidate._id"
+            >
+              {{ candidate.name }}
+            </label>
+          </div>        
+        <button class="btn btn-primary btn-lg" @click="next">submit</button>
       </div>
     </div>
   </div>

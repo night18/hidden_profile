@@ -126,7 +126,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Check the number of participants matches the number of roles
             if len(participants) != len(roles):
                 raise ValueError("Number of participants must match the number of roles")
-            
+
             for i, participant in enumerate(participants):
                 role = roles[i]
                 await sync_to_async(ParticipantTurn.objects.create)(participant=participant, turn=turn, role=role)

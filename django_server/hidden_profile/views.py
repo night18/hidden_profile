@@ -131,7 +131,35 @@ def pairing(request):
         'group_id': group_id,
     }
     return JsonResponse(json, status=status.HTTP_200_OK)
+
+#   let body = new FormData();
+#   body.append('participant_id', participantStore.participant_id);
+#   body.append('turn_number', turnStore.turn_number);
+#   body.append('selected_candidate', selectedCandidate.value);
+#   axios.post('/initial_decision/', body)
+@api_view(['POST'])
+def initial_decision(request):
+    participant_id = request.POST.get('participant_id', None)
+    turn_number = request.POST.get('turn_number', None)
+    selected_candidate_name = request.POST.get('selected_candidate', None)
     
+    if not participant_id or not turn_number or not selected_candidate_name:
+        return JsonResponse({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    participant = Participant.objects.get(pk=participant_id)
+    group = Group.objects.get(pk=participant.group_id)
+    turn = Turn.objects.get(group=group, turn_number=turn_number)
+    participant_turn = ParticipantTurn.objects.get(participant=participant, turn=turn)
+    selected_candidate = CandidateProfile.objects.get(pair=turn_number, name=selected_candidate_name)
+    
+    # Check whether the participant has already made a decision
+    if participant_turn.initial_decision:
+        return JsonResponse({'error': 'Participant has already made an initial decision'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    participant_turn.initial_decision = selected_candidate
+    participant_turn.save()
+    
+    return JsonResponse({'success': 'Initial decision recorded'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def candidate_profile_by_turn(request):

@@ -111,6 +111,7 @@ class Turn(models.Model):
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="turns")
     turn_number = models.PositiveIntegerField()
+    candidatePair = models.IntegerField(null=True)
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True)
     
@@ -161,13 +162,24 @@ class LlmMessage(models.Model):
         if self.is_private and self.recipient:
             return f"Private LLM Message {self._id} to {self.recipient._id} in Group {self.group._id} during Turn {self.turn.turn_number}"
         return f"Public LLM Message {self._id} in Group {self.group._id} during Turn {self.turn.turn_number}"
-    
+
+class InitialRecord(models.Model):
+    """Stores each participant's vote in the initial task during the experiment."""
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="initial_records")
+    turn = models.ForeignKey(Turn, on_delete=models.CASCADE, related_name="initial_records")
+    vote = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name="initial_records")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Initial Record {self._id} from {self.participant._id} in Group {self.turn.group._id} during Turn {self.turn.turn_number}"
+
 class FormalRecord(models.Model):
     """Stores each participant's vote in the formal task during the experiment."""
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="formal_records")
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE, related_name="formal_records")
-    vote = models.IntegerField()
+    vote = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name="formal_records")
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
