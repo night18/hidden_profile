@@ -85,7 +85,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 
                 # Get all participant ids in the group
                 participants = await sync_to_async(list)(group.participants.all())
-                participant_ids = await sync_to_async(lambda: [str(participant._id) for participant in participants])()
+                participant_info = await sync_to_async(lambda: [
+                    {
+                        "_id": str(participant._id),
+                        "avatar_color": participant.avatar_color,
+                        "avatar_animal": participant.avatar_animal,
+                    } for participant in participants
+                ])()
                 
                 await self.channel_layer.group_send(
                     self.room_name,
@@ -93,7 +99,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "type": "chat_message",
                         "message": {
                             "type": "room_ready",
-                            "participants": participant_ids
+                            "participants": participant_info,
                         }
                     }
                 )

@@ -41,7 +41,7 @@ class Participant(models.Model):
     formal_study_id = models.CharField(max_length=100)
     formal_session_id = models.CharField(max_length=100)
     avatar_color = models.CharField(max_length=100, default=None, null=True)
-    avatar_name = models.CharField(max_length=100, default=None, null=True)
+    avatar_animal = models.CharField(max_length=100, default=None, null=True)
     group_id = models.UUIDField(default=uuid.uuid4, null=True)
     start_time = models.DateTimeField(auto_now_add=True)
     

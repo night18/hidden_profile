@@ -80,14 +80,14 @@ def create_participant(request):
 def record_avatar(request):
     participant_id = request.POST.get('participant_id', None)
     avatar_color = request.POST.get('avatar_color', None)
-    avatar_name = request.POST.get('avatar_name', None)
+    avatar_animal = request.POST.get('avatar_name', None)
 
-    if not participant_id or not avatar_color or not avatar_name:
+    if not participant_id or not avatar_color or not avatar_animal:
         return JsonResponse({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
     
     participant = Participant.objects.get(pk=participant_id)
     participant.avatar_color = avatar_color
-    participant.avatar_name = avatar_name
+    participant.avatar_animal = avatar_animal
     participant.save()
 
     return JsonResponse({'success': 'Avatar recorded'}, status=status.HTTP_200_OK)

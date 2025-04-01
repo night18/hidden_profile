@@ -19,7 +19,8 @@ const candidateNames = computed(() => props.candidates.map(candidate => candidat
 // Extract all attributes dynamically (used as row headers).
 const attributes = computed(() => {
   if (!props.candidates.length) return [];
-  return Object.keys(props.candidates[0]).filter(key => key !== "name" && key !== "_id");
+  const keys = Object.keys(props.candidates[0]).filter(key => key !== "name" && key !== "_id");
+  return keys.sort(() => Math.random() - 0.5);
 });
 
 // Transfer the attribute name to a more readable format. For instance, "conference_organization_roles" to "Conference Organization Roles".

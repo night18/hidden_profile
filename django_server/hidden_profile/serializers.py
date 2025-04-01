@@ -24,7 +24,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             'number_of_courses_taught',
             'student_teaching_evaluations',
             'number_of_peer_reviewed_publications',
-            'citation_impact',
+            'citations',
             'service_on_editorial_boards',
             'conference_organization_roles',
         ]

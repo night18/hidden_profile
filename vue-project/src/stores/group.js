@@ -12,7 +12,8 @@ export const useGroupStore = defineStore('group', {
             this.participants.push(participant_id);
         },
         removeParticipant(participant_id) {
-            this.participants = this.participants.filter(p => p !== participant_id);
+            // Remove the participant from the participants array
+            this.participants = this.participants.filter(p => p._id !== participant_id);
         },
     },
 });

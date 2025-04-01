@@ -15,13 +15,14 @@ const chatStore = useChatStore();
 const participantStore = useParticipantStore();
 const candidateProfileStore = useCandidateProfileStore();
 const turnStore = useTurnStore();
+const groupStore = useGroupStore();
 const selectedCandidate = ref('');
 
 onMounted(() => {
   console.log('FormalCandidate mounted');
     
     // Only the first participant in the participant list will send a request to the server
-  if (participantStore.participant_id === useGroupStore().participants[0]) {
+  if (participantStore.participant_id === groupStore.participants[0]._id) {
     if (turnStore.candidate_roles !== null) {
       return;
     }
