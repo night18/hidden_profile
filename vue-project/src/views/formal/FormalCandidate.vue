@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watchEffect, nextTick } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useParticipantStore } from '@/stores/participant';
 import { useChatStore } from '@/stores/chat';
@@ -17,6 +17,7 @@ const candidateProfileStore = useCandidateProfileStore();
 const turnStore = useTurnStore();
 const groupStore = useGroupStore();
 const selectedCandidate = ref('');
+const isSubmitting = ref(false); // Track submission state
 
 onMounted(() => {
   console.log('FormalCandidate mounted');
@@ -56,10 +57,31 @@ onMounted(() => {
         candidateProfileStore.setCandidateProfiles(response.data.candidate_profiles);
       });
   });
+
+  // Deep watch whether all participants have completed the initial decision
+  watch(() => groupStore.participants, (newVal) => {
+    if (newVal.length === 0) {
+      return;
+    }
+    const allComplete = newVal.every((participant) => participant.complete_initial);
+    if (allComplete) {
+      router.push('/GroupDiscussion');
+    }
+  }, { deep: true });
+
+  // Record the partcipant who complete the initial decision
+  chatStore.on('complete_initial', (data) => {
+    console.log('complete_initial');
+    if (data.turn_number !== turnStore.turn_number) {
+      return;
+    }    
+    
+    groupStore.setParticipantCompleteInitial(data.sender);
+  });
 });
 
 function next() {
-  // Record the selected candidate to the server using POST request
+  isSubmitting.value = true; // Show spinner
   let body = new FormData();
   body.append('participant_id', participantStore.participant_id);
   body.append('turn_number', turnStore.turn_number);
@@ -72,15 +94,24 @@ function next() {
           title: 'Error',
           text: 'Failed to record the selected candidate',
         });
+        isSubmitting.value = false; // Hide spinner on error
         return;
       }
-      // Use the 
+      chatStore.sendMessage({
+        type: 'complete_initial',
+        sender: participantStore.participant_id,
+        turn_number: turnStore.turn_number,
+      });
+    })
+    .catch(() => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while submitting your decision',
+      });
+      isSubmitting.value = false; // Hide spinner on error
     });
-  router.push('/GroupDiscussion');
 }
-
-
-
 </script>
 <template>
   <div class="container">
@@ -91,7 +122,6 @@ function next() {
         <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
         
         <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. Remember that each attribute is equally important in the decision-making process.</p>
-        <!-- <p>After you click the next button, you <strong>cannot</strong> access the candidate profiles again. But, you could tke notes on a separate sheet of paper.</p> -->
         <div
           v-if="candidateProfileStore.candidate_profiles !== null"
           v-for="(candidate, index) in candidateProfileStore.candidate_profiles"
@@ -110,7 +140,15 @@ function next() {
               {{ candidate.name }}
             </label>
           </div>        
-        <button class="btn btn-primary btn-lg" @click="next">submit</button>
+        <button 
+          class="btn btn-primary btn-lg" 
+          @click="next" 
+          :disabled="isSubmitting"
+        >
+          <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span v-if="!isSubmitting">Submit</span>
+        </button>
+        <p v-if="isSubmitting" class="mt-3">Your teammates are still working on their decisions. Please wait...</p>
       </div>
     </div>
   </div>

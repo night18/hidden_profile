@@ -201,7 +201,32 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 }
             )
+
+        elif type == "complete_initial":
+            """
+                A signal to indicate that the participant has completed the initial decision. 
+                After receive this signal from all participants, the group will be ready to start the experiment.
+                Hence, it has to send a signal to all participants to indicate that the experiment is ready to start.
+            """
+            sender_id = data["sender"]
+            turn_number = data["turn_number"]
+            group_id = self.room_name
             
+
+            # send the signal to the groups
+            group = await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "complete_initial",
+                        "sender": sender_id,
+                        "turn_number": turn_number
+                    }
+                }
+            )
+            
+
         elif type == "auto_llm":
             """
                 Recive

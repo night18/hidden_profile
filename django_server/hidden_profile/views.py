@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Count, F
-from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
+from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition, InitialRecord
 from .serializers import CandidateProfileSerializer
 from datetime import datetime
 import csv
@@ -132,11 +132,6 @@ def pairing(request):
     }
     return JsonResponse(json, status=status.HTTP_200_OK)
 
-#   let body = new FormData();
-#   body.append('participant_id', participantStore.participant_id);
-#   body.append('turn_number', turnStore.turn_number);
-#   body.append('selected_candidate', selectedCandidate.value);
-#   axios.post('/initial_decision/', body)
 @api_view(['POST'])
 def initial_decision(request):
     participant_id = request.POST.get('participant_id', None)
@@ -149,15 +144,10 @@ def initial_decision(request):
     participant = Participant.objects.get(pk=participant_id)
     group = Group.objects.get(pk=participant.group_id)
     turn = Turn.objects.get(group=group, turn_number=turn_number)
-    participant_turn = ParticipantTurn.objects.get(participant=participant, turn=turn)
     selected_candidate = CandidateProfile.objects.get(pair=turn_number, name=selected_candidate_name)
     
-    # Check whether the participant has already made a decision
-    if participant_turn.initial_decision:
-        return JsonResponse({'error': 'Participant has already made an initial decision'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    participant_turn.initial_decision = selected_candidate
-    participant_turn.save()
+    # Store the initial decision
+    InitialRecord.objects.create(participant=participant, turn=turn, vote=selected_candidate)
     
     return JsonResponse({'success': 'Initial decision recorded'}, status=status.HTTP_200_OK)
 

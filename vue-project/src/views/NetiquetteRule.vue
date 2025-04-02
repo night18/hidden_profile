@@ -26,7 +26,7 @@ function submit() {
                 <label class="form-check-label" for="agreement">I have read and agree to follow the discussion rules.</label>
             </div>
         </div>
-        <button class="btn btn-primary" @click="submit" :disabled="!agreement">Next</button>
+        <button class="btn btn-primary btn-lg" @click="submit" :disabled="!agreement">Next</button>
       
     </div>
 </div>

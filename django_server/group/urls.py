@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/hidden_profile/record_avatar/', views.record_avatar),
     path('api/hidden_profile/pairing/', views.pairing),
     path('api/hidden_profile/candidate_profile_by_turn/', views.candidate_profile_by_turn),
+    path('api/hidden_profile/initial_decision/', views.initial_decision),
 ]
