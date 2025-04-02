@@ -6,6 +6,7 @@ import { useChatStore } from '@/stores/chat';
 import { useTurnStore } from '@/stores/turn';
 import { useGroupStore } from '@/stores/group';
 import { useCandidateProfileStore } from '@/stores/candidate_profile';
+import CountdownTimer from '@/components/CountdownTimer.vue';
 import CandidateTable from '@/components/CandidateTable.vue';
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -115,6 +116,10 @@ function next() {
 </script>
 <template>
   <div class="container">
+    <div class="timer">
+      <b>Time Remaining</b>
+      <CountdownTimer :remain_time="120" />
+    </div>
     <div class="jumbotron container">
       <h2> Formal Task</h2>
       <div class="content-area">
@@ -153,3 +158,15 @@ function next() {
     </div>
   </div>
 </template>
+<style scoped>
+.timer {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  z-index: 1000;
+}
+</style>
