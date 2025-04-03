@@ -152,6 +152,25 @@ def initial_decision(request):
     return JsonResponse({'success': 'Initial decision recorded'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+def final_decision(request):
+    participant_id = request.POST.get('participant_id', None)
+    turn_number = request.POST.get('turn_number', None)
+    selected_candidate_id = request.POST.get('selected_candidate', None)
+    
+    if not participant_id or not turn_number or not selected_candidate_id:
+        return JsonResponse({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    participant = Participant.objects.get(pk=participant_id)
+    group = Group.objects.get(pk=participant.group_id)
+    turn = Turn.objects.get(group=group, turn_number=turn_number)
+    selected_candidate = CandidateProfile.objects.get(pk=selected_candidate_id)
+    
+    # Store the final decision
+    FormalRecord.objects.create(participant=participant, turn=turn, vote=selected_candidate)
+    
+    return JsonResponse({'success': 'Final decision recorded'}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
 def candidate_profile_by_turn(request):
     participant_id = request.POST.get('participant_id', None)
     turn_number = request.POST.get('turn_number', None)

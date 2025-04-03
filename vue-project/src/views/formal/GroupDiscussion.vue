@@ -3,16 +3,28 @@ import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ChatRoom from '@/components/ChatRoom.vue';
 import { useCandidateProfileStore } from '@/stores/candidate_profile';
+import { useParticipantStore } from '@/stores/participant';
+import { useTurnStore } from '@/stores/turn';
 import CountdownTimer from '@/components/CountdownTimer.vue';
 import CandidateTable from '@/components/CandidateTable.vue';
+import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const router = useRouter();
 
-const selectedCandidate = ref('');
+const participantStore = useParticipantStore();
 const candidateProfileStore = useCandidateProfileStore();
-const candidates = candidateProfileStore.candidate_profiles;
+const turnStore = useTurnStore();
 
-const showCandidateTable = ref(false);
+// Candidate Related Variables
+const candidates = candidateProfileStore.candidate_profiles;
+const selectedCandidate = ref('');
+
+// Display Related Variables
+const showCandidateTable = ref(false); // Display  the floadting window
+const showCandidateSelection = ref(false); // Display the candidate selection
+const isSubmitting = ref(false); // Track submission state
+
 
 const toggleCandidateTable = () => {
   showCandidateTable.value = !showCandidateTable.value;
@@ -22,10 +34,26 @@ const closeCandidateTable = () => {
   showCandidateTable.value = false;
 };
 
-const showCandidateSelection = ref(false);
-
 const ready = () => {
   showCandidateSelection.value = true;
+};
+
+const submit = () => {
+  if (selectedCandidate.value === '') {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Please select a candidate before submitting.',
+    });
+    return;
+  }
+
+  isSubmitting.value = true;
+  let body = new FormData();
+  body.append('participant_id', participantStore.participant_id);
+  body.append('turn_number', turnStore.turn_number);
+  body.append('selected_candidate', selectedCandidate.value);
+  axios.post('/final_decision/', body)
 };
 
 // Disable copy-paste functionality
@@ -91,6 +119,7 @@ onMounted(() => {
                   type="radio"
                   :id="'candidate' + index"
                   :value="candidate._id"
+                  :name="candidate.name"
                   class="form-check-input"
                   v-model="selectedCandidate" />
                 <label :for="'candidate' + index">
