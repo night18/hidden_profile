@@ -21,6 +21,18 @@ export const useGroupStore = defineStore('group', {
             if (participant) {
                 participant.complete_initial = true;
             }
-        }
+        },
+        SetParticipantReadyToVote(participant_id) {
+            const participant = this.participants.find(p => p._id === participant_id);
+            if (participant) {
+                participant.ready_to_vote = true;
+            }
+        },
+        clearParticipantStatus() {
+            this.participants.forEach(participant => {
+                participant.ready_to_vote = false;
+                participant.complete_initial = false;
+            });
+        },
     },
 });

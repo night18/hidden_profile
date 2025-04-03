@@ -5,6 +5,8 @@ import ChatRoom from '@/components/ChatRoom.vue';
 import { useCandidateProfileStore } from '@/stores/candidate_profile';
 import { useParticipantStore } from '@/stores/participant';
 import { useTurnStore } from '@/stores/turn';
+import { useChatStore } from '@/stores/chat';
+import { useGroupStore } from '@/stores/group';
 import CountdownTimer from '@/components/CountdownTimer.vue';
 import CandidateTable from '@/components/CandidateTable.vue';
 import Swal from 'sweetalert2';
@@ -15,6 +17,8 @@ const router = useRouter();
 const participantStore = useParticipantStore();
 const candidateProfileStore = useCandidateProfileStore();
 const turnStore = useTurnStore();
+const chatStore = useChatStore();
+const groupStore = useGroupStore();
 
 // Candidate Related Variables
 const candidates = candidateProfileStore.candidate_profiles;
@@ -25,7 +29,6 @@ const showCandidateTable = ref(false); // Display  the floadting window
 const showCandidateSelection = ref(false); // Display the candidate selection
 const isSubmitting = ref(false); // Track submission state
 
-
 const toggleCandidateTable = () => {
   showCandidateTable.value = !showCandidateTable.value;
 };
@@ -35,7 +38,11 @@ const closeCandidateTable = () => {
 };
 
 const ready = () => {
-  showCandidateSelection.value = true;
+  chatStore.sendMessage({
+    type: 'ready_to_vote',
+    sender: participantStore.participant_id,
+    turn_number: turnStore.turn_number,
+  });
 };
 
 const submit = () => {
@@ -73,6 +80,26 @@ const disableCopyPaste = () => {
 onMounted(() => {
   const cleanup = disableCopyPaste();
   onUnmounted(cleanup);
+
+  watch(() => groupStore.participants, (newVal) => {
+    if (newVal.length === 0) {
+      return;
+    }
+    const allReady = newVal.every((participant) => participant.ready_to_vote);
+    if (allReady) {
+      showCandidateSelection.value = true;
+    }
+  }, { deep: true });
+
+  // Listen for messages from the chat room
+  chatStore.on('ready_to_vote', (data) => {
+    if (data.turn_number !== turnStore.turn_number) {
+      return;
+    }
+    // Set the participant is ready
+    groupStore.SetParticipantReadyToVote(data.sender);
+  });
+
 });
 </script>
 <template>

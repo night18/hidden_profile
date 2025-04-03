@@ -225,6 +225,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 }
             )
+
+        elif type == "ready_to_vote":
+            sender_id = data["sender"]
+            turn_number = data["turn_number"]
+            group_id = self.room_name
+
+            # send the signal to the groups
+            group = await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "ready_to_vote",
+                        "sender": sender_id,
+                        "turn_number": turn_number
+                    }
+                }
+            )
+
+        elif type == "complete_final":
+            pass
             
 
         elif type == "auto_llm":
