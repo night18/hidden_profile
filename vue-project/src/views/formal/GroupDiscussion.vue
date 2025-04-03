@@ -27,6 +27,7 @@ const selectedCandidate = ref('');
 // Display Related Variables
 const showCandidateTable = ref(false); // Display  the floadting window
 const showCandidateSelection = ref(false); // Display the candidate selection
+const isReady = ref(false); // Track if the participant is ready to vote
 const isSubmitting = ref(false); // Track submission state
 
 const toggleCandidateTable = () => {
@@ -38,6 +39,7 @@ const closeCandidateTable = () => {
 };
 
 const ready = () => {
+  isReady.value = true;
   chatStore.sendMessage({
     type: 'ready_to_vote',
     sender: participantStore.participant_id,
@@ -133,7 +135,10 @@ onMounted(() => {
             </div>
             <div v-if="!showCandidateSelection" class="ready-area">
               <p>If you have fully discussed with other search committee members, please click the ready to vote button.</p>
-              <button class="btn btn-primary btn-lg" @click="ready">Ready to Vote</button>
+              <button class="btn btn-primary btn-lg" @click="ready" :disabled="isReady">
+                <span v-if="isReady"> Waiting other commettiees <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span> 
+                <span v-if="!isReady" > Ready to Vote </span>
+              </button>
             </div>
             <div v-if="showCandidateSelection">
               <p>Please elect the candidate you believe is the best fit for the faculty position.</p>

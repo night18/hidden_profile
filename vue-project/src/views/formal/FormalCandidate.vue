@@ -150,7 +150,9 @@ function next() {
           @click="next" 
           :disabled="isSubmitting"
         >
-          <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span v-if="isSubmitting">Waiting other committees
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </span>
           <span v-if="!isSubmitting">Submit</span>
         </button>
         <p v-if="isSubmitting" class="mt-3">Your teammates are still working on their decisions. Please wait...</p>
