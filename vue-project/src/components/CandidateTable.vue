@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
+import { useAttributeStore } from "@/stores/attributes";
 
 // Receive candidates as a prop
 const props = defineProps({
@@ -13,15 +14,35 @@ const props = defineProps({
   },
 });
 
+// Pinia store
+const attributeStore = useAttributeStore();
+
 // Extract candidate names (used as column headers)
 const candidateNames = computed(() => props.candidates.map(candidate => candidate.name));
 
-// Extract all attributes dynamically (used as row headers).
-const attributes = computed(() => {
-  if (!props.candidates.length) return [];
-  const keys = Object.keys(props.candidates[0]).filter(key => key !== "name" && key !== "_id");
-  return keys.sort(() => Math.random() - 0.5);
-});
+// Watch for changes in candidates and synchronize attributes with Pinia
+watch(
+  () => props.candidates,
+  (newCandidates) => {
+    if (!newCandidates.length) return;
+
+    const newAttributes = Object.keys(newCandidates[0]).filter(key => key !== "name" && key !== "_id");
+    const storedAttributes = attributeStore.getAttributes;
+
+    // Compare attributes (ignoring order)
+    const areAttributesSame = newAttributes.length === storedAttributes.length &&
+      newAttributes.every(attr => storedAttributes.includes(attr));
+
+    if (!areAttributesSame) {
+      attributeStore.initialAttributes(newAttributes);
+      attributeStore.randomizeAttributes();
+    }
+  },
+  { immediate: true }
+);
+
+// Use attributes from Pinia store
+const attributes = computed(() => attributeStore.getAttributes);
 
 // Transfer the attribute name to a more readable format. For instance, "conference_organization_roles" to "Conference Organization Roles".
 const attributeDisplayName = (attribute) => {
