@@ -7,6 +7,8 @@ from .serializers import CandidateProfileSerializer
 import random
 from .gpt import OpenAIClient
 
+TOTAL_TURNS = 1
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
@@ -100,6 +102,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "message": {
                             "type": "room_ready",
                             "participants": participant_info,
+                            "total_turns": TOTAL_TURNS
                         }
                     }
                 )
@@ -245,7 +248,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
         elif type == "complete_final":
-            pass
+            sender_id = data["sender"]
+            turn_number = data["turn_number"]
+            group_id = self.room_name
+            # send the signal to the groups
+            group = await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "complete_final",
+                        "sender": sender_id,
+                        "turn_number": turn_number
+                    }
+                }
+            )
             
 
         elif type == "auto_llm":

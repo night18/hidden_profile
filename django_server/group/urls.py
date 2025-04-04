@@ -27,4 +27,5 @@ urlpatterns = [
     path('api/hidden_profile/candidate_profile_by_turn/', views.candidate_profile_by_turn),
     path('api/hidden_profile/initial_decision/', views.initial_decision),
     path('api/hidden_profile/final_decision/', views.final_decision),
+    path('api/hidden_profile/get_bonus/', views.get_bonus)
 ]

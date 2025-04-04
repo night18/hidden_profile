@@ -10,6 +10,7 @@ import CountdownTimer from '@/components/CountdownTimer.vue';
 import CandidateTable from '@/components/CandidateTable.vue';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import GroupDiscussion from './GroupDiscussion.vue';
 
 const router = useRouter();
 const chatStore = useChatStore();
@@ -66,7 +67,7 @@ onMounted(() => {
     }
     const allComplete = newVal.every((participant) => participant.complete_initial);
     if (allComplete) {
-      router.push('/GroupDiscussion');
+      router.push( {name: 'GroupDiscussion'} );
     }
   }, { deep: true });
 

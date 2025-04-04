@@ -63,6 +63,14 @@ const submit = () => {
   body.append('turn_number', turnStore.turn_number);
   body.append('selected_candidate', selectedCandidate.value);
   axios.post('/final_decision/', body)
+    .then((response) => {
+      // Send a message to the chat room to let other participants know the candidate has selected
+      chatStore.sendMessage({
+        type: 'complete_final',
+        sender: participantStore.participant_id,
+        turn_number: turnStore.turn_number,
+      });
+    })
 };
 
 // Disable copy-paste functionality
@@ -91,6 +99,17 @@ onMounted(() => {
     if (allReady) {
       showCandidateSelection.value = true;
     }
+
+    const allComplete = newVal.every((participant) => participant.complete_final);
+    if (allComplete) {
+      turnStore.addTurnNumber();
+      groupStore.clearParticipantStatus()
+      if (turnStore.isTurnFinished()) {
+        router.push( {name: 'exit'} );
+      } else {
+        router.push( {name: 'FormalCandidate' } );
+      }
+    }
   }, { deep: true });
 
   // Listen for messages from the chat room
@@ -99,7 +118,15 @@ onMounted(() => {
       return;
     }
     // Set the participant is ready
-    groupStore.SetParticipantReadyToVote(data.sender);
+    groupStore.setParticipantReadyToVote(data.sender);
+  });
+
+  chatStore.on('complete_final', (data) => {
+    if (data.turn_number !== turnStore.turn_number) {
+      return;
+    }
+    // Set the participant is ready
+    groupStore.setParticipantCompleteFinal(data.sender);
   });
 
 });

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useParticipantStore } from '@/stores/participant';
 import { useChatStore } from '@/stores/chat';
 import { useGroupStore } from '@/stores/group';
+import { useTurnStore } from '@/stores/turn';
 import CountdownTimer from '@/components/CountdownTimer.vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -12,6 +13,7 @@ const router = useRouter();
 const remainTime = ref(300);
 const message = ref('');
 const groupStore = useGroupStore();
+const turnStore = useTurnStore();
 
 onMounted(() => {
   const chatStore = useChatStore();
@@ -51,6 +53,7 @@ onMounted(() => {
 
         // Initialize group store
         groupStore.initialParticipants(data.participants);
+        turnStore.initializeTurn(data.total_turns);
 
         console.log('room_ready');
         router.push('/FormalCandidate');

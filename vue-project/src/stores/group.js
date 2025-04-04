@@ -22,16 +22,25 @@ export const useGroupStore = defineStore('group', {
                 participant.complete_initial = true;
             }
         },
-        SetParticipantReadyToVote(participant_id) {
+        setParticipantReadyToVote(participant_id) {
             const participant = this.participants.find(p => p._id === participant_id);
             if (participant) {
                 participant.ready_to_vote = true;
             }
         },
+        setParticipantCompleteFinal(participant_id) {
+            // Find the participant and set complete_final to true
+            const participant = this.participants.find(p => p._id === participant_id);
+            if (participant) {
+                participant.complete_final = true;
+            }
+        },
         clearParticipantStatus() {
             this.participants.forEach(participant => {
+                // Reset the status of each participant
                 participant.ready_to_vote = false;
                 participant.complete_initial = false;
+                participant.complete_final = false;
             });
         },
     },

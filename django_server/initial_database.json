@@ -46,7 +46,7 @@
         "fields": {
             "pair": 0,
             "name": "Candidate A",
-            "winner": false,
+            "winner": true,
             "number_of_courses_taught": "12",
             "student_teaching_evaluations": "4.7/5",
             "number_of_peer_reviewed_publications": "28",
@@ -72,7 +72,7 @@
         "fields": {
             "pair": 0,
             "name": "Candidate B",
-            "winner": true,
+            "winner": false,
             "number_of_courses_taught": "15",
             "student_teaching_evaluations": "4.8/5",
             "number_of_peer_reviewed_publications": "35",

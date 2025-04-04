@@ -10,6 +10,7 @@ import GroupDiscussion from '@/views/formal/GroupDiscussion.vue';
 import FailPairing from '@/views/errors/FailPairing.vue';
 import NetiquetteRule from '@/views/NetiquetteRule.vue';
 import FormalInstruction from '@/views/FormalInstruction.vue';
+import ExitView from '@/views/ExitView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,6 +64,11 @@ const router = createRouter({
       path: '/FailPairing',
       name: 'FailPairing',
       component: FailPairing,
+    },
+    {
+      path: '/exit',
+      name: 'exit',
+      component: ExitView,
     }
   ]
 });
