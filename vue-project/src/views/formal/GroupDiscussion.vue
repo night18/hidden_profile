@@ -29,6 +29,8 @@ const showCandidateTable = ref(false); // Display  the floadting window
 const showCandidateSelection = ref(false); // Display the candidate selection
 const isReady = ref(false); // Track if the participant is ready to vote
 const isSubmitting = ref(false); // Track submission state
+const countdownFinished = ref(false); // Track if the countdown is finished
+const countdownTime = ref(120); // Countdown time in seconds
 
 const toggleCandidateTable = () => {
   showCandidateTable.value = !showCandidateTable.value;
@@ -104,7 +106,14 @@ const disableCopyPaste = () => {
   };
 };
 
+const startCountdown = () => {
+  setTimeout(() => {
+    countdownFinished.value = true;
+  }, countdownTime.value * 1000); // Convert seconds to milliseconds
+};
+
 onMounted(() => {
+  startCountdown();
   const cleanup = disableCopyPaste();
   onUnmounted(cleanup);
 
@@ -150,10 +159,6 @@ onMounted(() => {
 </script>
 <template>
   <div class="container">
-    <div class="timer">
-      <b>Time Remaining</b>
-      <CountdownTimer :remain_time="900" />
-    </div>
     <div class="jumbotron container">
       <div class="row">
         <div class="col-md-6">
@@ -178,10 +183,18 @@ onMounted(() => {
               <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
             </div>
             <div v-if="!showCandidateSelection" class="ready-area">
-              <p>If you have fully discussed with other search committee members, please click the ready to vote button.</p>
-              <button class="btn btn-primary btn-lg" @click="ready" :disabled="isReady">
-                <span v-if="isReady"> Waiting other commettiees <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span> 
-                <span v-if="!isReady" > Ready to Vote </span>
+              <p>You must discuss with the other search committee members for at least 2 minutes. Once you have fully discussed, please click the 'Ready to Vote' button.</p>
+              <button class="btn btn-primary btn-lg" @click="ready" :disabled="!countdownFinished || isReady">
+                <span v-if="!countdownFinished">
+                  <CountdownTimer :remain_time="countdownTime" />
+                </span>
+                <span v-else-if="isReady">
+                  Waiting other committees 
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </span>
+                <span v-else>
+                  Ready to Vote
+                </span>
               </button>
             </div>
             <div v-if="showCandidateSelection">

@@ -6,6 +6,7 @@ The web application for the hidden profile task
 - [x] Instead of handle the message and llm response together, try to separate them.
 - [x] Set pair to Turn in role_by_turn.
 - [x] Spinner after clicking final vote.
-- [ ] Chat at least one minute.
-- [ ] Reverse the counter in group chat.
-- [ ] Change the icon and name in group discussion. 
+- [x] Chat at least two minute.
+- [ ] Change the icon and name in group discussion.
+- [ ] Double check the bonus page.
+- [ ] Formal Disconnect the channel.
