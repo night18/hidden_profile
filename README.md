@@ -7,6 +7,7 @@ The web application for the hidden profile task
 - [x] Set pair to Turn in role_by_turn.
 - [x] Spinner after clicking final vote.
 - [x] Chat at least two minute.
-- [ ] Change the icon and name in group discussion.
-- [ ] Double check the bonus page.
+- [x] Change the icon and name in group discussion.
+- [x] Double check the bonus page.
 - [ ] Formal Disconnect the channel.
+- [ ] GPT would not participant until 30 seconds.

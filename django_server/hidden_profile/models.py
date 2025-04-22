@@ -43,7 +43,9 @@ class Participant(models.Model):
     avatar_color = models.CharField(max_length=100, default=None, null=True)
     avatar_animal = models.CharField(max_length=100, default=None, null=True)
     group_id = models.UUIDField(default=uuid.uuid4, null=True)
+    bonus = models.FloatField(default=0.0)
     start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True)
     
     def __str__(self):
         return str(self._id)
@@ -183,4 +185,4 @@ class FormalRecord(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Formal Record {self._id} from {self.participant._id} in Group {self.turn.group._id} during Turn {self.turn.turn_number}"
+        return f"Formal Record {self._id} from {self.participant._id}, voting {self.vote.name}, in Group {self.turn.group._id} during Turn {self.turn.turn_number}"

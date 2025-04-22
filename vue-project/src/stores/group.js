@@ -43,5 +43,21 @@ export const useGroupStore = defineStore('group', {
                 participant.complete_final = false;
             });
         },
+        getParticipantAvatarAnimalById(participant_id) {
+            // Find the participant and return their avatar animal
+            const participant = this.participants.find(p => p._id === participant_id);
+            if (participant) {
+                return participant.avatar_animal;
+            }
+            return null;
+        },
+        getParticipantAvatarColorById(participant_id) {
+            // Find the participant and return their avatar color
+            const participant = this.participants.find(p => p._id === participant_id);
+            if (participant) {
+                return participant.avatar_color;
+            }
+            return null;
+        }
     },
 });

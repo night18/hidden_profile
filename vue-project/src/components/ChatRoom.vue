@@ -4,6 +4,7 @@ import { useParticipantStore } from '@/stores/participant';
 import { useGroupStore } from '@/stores/group';
 import { useTurnStore } from '@/stores/turn';
 import { useChatStore } from '@/stores/chat';
+import Animal from '@/components/Animal.vue';
 
 const send_out_message = ref('');
 const participantStore = useParticipantStore();
@@ -33,28 +34,69 @@ function sendMessage() {
   send_out_message.value = '';
 }
 
+// Avoid to directly access the groupStore
+function avatarColorById(participant_id) {
+  return groupStore.getParticipantAvatarColorById(participant_id);
+}
+function avatarAnimalById(participant_id) {
+  return groupStore.getParticipantAvatarAnimalById(participant_id);
+}
+
+function avatarNameById(participant_id) {
+  return avatarColorById(participant_id) + " " + avatarAnimalById(participant_id) + " (" + get_participant_name(participant_id) + ")";
+}
+
+function current_state(member) {
+  // 1: not ready, 2: ready to vote, 3: voted
+  // Search the member in the groupStore
+  let participant = groupStore.participants.find(participant => participant._id === member._id);
+  if (participant) {
+    if (participant.complete_final !== null && participant.complete_final === true) {
+      // If complete_final is not null and is true, return 3
+      return 3;
+    }
+    // If ready_to_vote is not null and is true, return 2
+    if (participant.ready_to_vote !== null && participant.ready_to_vote === true) {
+      return 2;
+    }
+    if (participant.complete_initial !== null && participant.complete_initial === true) {
+      // If complete_initial is not null and is true, return 1
+      return 1;
+    }
+    
+  }
+  return 0; // Default to not ready
+}
+
 </script>
 <template>
   <div class="chat-room">
-    <!-- <div class="member-area"> -->
-      <!-- <span v-for="member in members" :key="member.id" class="member-card">
-        <v-animal size="20px" :name="member.avatar_name" :color="avatarColorHex(member.avatar_color)" class="avatar-icon"/>
-        {{member_name(member)}}
-        <font-awesome-icon :icon="icon_style(member)" :class="{'green_icon': current_state(member)=== 3, 'yellow_icon': current_state(member) === 2, 'gray_icon': current_state(member) === 1 }"/>
-      </span> -->
-      <!-- <div class="card">
+    <div class="member-area">
+      <span v-for="member in groupStore.participants" :key="member._id" class="member-card">
+        <Animal
+          :color="avatarColorById(member._id)"
+          :name="avatarAnimalById(member._id)"
+          size="22px"
+          class="avatar-icon"
+        />
+        {{ avatarColorById(member._id) + " " + avatarAnimalById(member._id) }}
+        <font-awesome-icon icon="fa-solid fa-circle" :class="{'green_icon': current_state(member)=== 3, 'yellow_icon': current_state(member) === 2, 'gray_icon': current_state(member) === 1, 'red_icon': current_state(member) === 0 }"/>
+      </span>
+      <div class="card">
         <div class="collapse" id="collapseRule">
-          <div class="card card-body">
+          <div class="card-body">
             <p><strong>Voting Status</strong> <br>
-              <font-awesome-icon icon="fa-solid fa-circle" class="gray_icon"/> Waiting for vote<br>
+              <font-awesome-icon icon="fa-solid fa-circle" class="red_icon"/> Errors! <br>
+              <font-awesome-icon icon="fa-solid fa-circle" class="gray_icon"/> Not Ready <br>
+              <font-awesome-icon icon="fa-solid fa-circle" class="yellow_icon"/> Ready to vote <br>
               <font-awesome-icon icon="fa-solid fa-circle" class="green_icon"/> Made final vote!<br>
             </p>
           </div>
         </div>
 
         <button class="card-footer" data-bs-toggle="collapse" href="#collapseRule" role="button" aria-expanded="false" aria-controls="collapseRule">Icon Explanation</button>
-      </div> -->
-    <!-- </div> -->
+      </div>
+    </div>
     <div class="room-area" ref="roomarea">
       <div class="chat-info">
         Feel free to share your thoughts and ideas here. Let's keep the conversation respectful and constructive!
@@ -82,12 +124,18 @@ function sendMessage() {
         <div class="row" v-else-if=" message.sender.participant_id !== participantStore.participant_id">
           <div class="col-1 icon-div">
             <div class="message-avatar-icon">
-              <font-awesome-icon icon="fa-solid fa-user" class="circle-icon"/>
+              <Animal
+                :color="avatarColorById(message.sender.participant_id)"
+                :name="avatarAnimalById(message.sender.participant_id)"
+                size="35px"
+              />
             </div>
           </div>
           <div class="col-9">
             <div class="row">
-              <div class="message-avatar-name"> {{get_participant_name(message.sender.participant_id)}} </div>
+                <div class="message-avatar-name">
+                  {{ avatarNameById(message.sender.participant_id) }}
+                </div>
             </div>
             <div class="row">
               <div class="message-content">
@@ -101,7 +149,9 @@ function sendMessage() {
           <div class="col-2"></div>
           <div class="col-9">
             <div class="row">
-              <div class="message-avatar-name">{{get_participant_name(message.sender.participant_id)}}</div>
+              <div class="message-avatar-name">
+                {{ avatarNameById(message.sender.participant_id) }}
+              </div>
             </div>
             <div class="row">
               <div class="message-content own_message">
@@ -111,7 +161,11 @@ function sendMessage() {
           </div>
           <div class="col-1 icon-div-own">
             <div class="message-avatar-icon">
-              <font-awesome-icon icon="fa-solid fa-user" class="circle-icon"/>
+              <Animal
+                :color="avatarColorById(message.sender.participant_id)"
+                :name="avatarAnimalById(message.sender.participant_id)"
+                size="35px"
+              />
             </div>
           </div>
         </div>
@@ -157,7 +211,19 @@ function sendMessage() {
     border-radius: 5px;
     text-align: center;
     margin-right: 2px;
-    margin-bottom: 2px;
+    margin-bottom: 10px;
+  }
+
+  .card {
+    border: solid 1px black;
+  }
+
+  .card-footer {
+    background-color: #5C636A;
+    color: white;
+    border: none;
+    text-align: center;
+    cursor: pointer;
   }
 
   .room-area {
@@ -181,21 +247,26 @@ function sendMessage() {
   }
 
   .icon-div {
-    vertical-align: center;
-    margin: auto 0;
+    vertical-align: bottom;
+    margin: auto 0 0 0;
     padding-right: 40px;
   }
 
   .icon-div-own {
-    vertical-align: center;
-    margin: auto 0;
+    vertical-align: bottom;
+    margin: auto 0 0 0;
+  }
+
+  .avatar-icon {
+    /* border-radius: 50%; */
+    display: inline-block;
+    margin-right: 5px;
   }
 
   .message-avatar-icon {
-    display: inline-block;
+    display: block;
     text-align: center;
-    line-height: 30px;
-    margin: auto 0;
+    line-height: 40px;
   }
 
   .circle-icon-judge {
@@ -230,19 +301,18 @@ function sendMessage() {
   .message-content {
     background-color: #E4E6EB;
     padding: 3px 15px;
-    border-radius: 10px;
+    border-radius: 15px;
     display: inline-block;
   }
 
   .own_message {
     margin-left: 0px;
-  }
-
-  .own_message .message-content {
     background-color: #0184ff;
     color:  #ffffff;
-    margin-right: 0;
     margin-left: auto;
+    margin-right: -25px; /* reduce or remove right margin */
+    padding-right: 12px; /* you can tweak this as needed */
+    border-radius: 15px;
   }
 
   .own_message .col {
@@ -276,6 +346,10 @@ function sendMessage() {
     margin: 0 20px;
     padding-left: 5px;
     padding-bottom: 10px;
+  }
+
+  .red_icon {
+    color: #e63946;
   }
 
   .gray_icon {

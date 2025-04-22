@@ -179,6 +179,10 @@ def candidate_profile_by_turn(request):
     participant = Participant.objects.get(pk=participant_id)
     group = Group.objects.get(pk=participant.group_id)
     turn = Turn.objects.get(group=group, turn_number=turn_number)
+    # update turn with turn_number
+    turn.candidatePair = turn_number
+    turn.save()
+    
     participant_turn = ParticipantTurn.objects.get(participant=participant, turn=turn)
     role_id = participant_turn.role._id
     
@@ -215,18 +219,19 @@ def get_bonus(request):
         for vote in votes:
             vote_counts[vote] = vote_counts.get(vote, 0) + 1
         
-        print(vote_counts)
         majority_vote = max(vote_counts, key=vote_counts.get)
         if list(vote_counts.values()).count(vote_counts[majority_vote]) > 1:
             # Tie in votes, no bonus for this turn
             continue
         
-        print(turn.candidatePair)
         # Check if the majority vote corresponds to the best candidate
         best_candidate = CandidateProfile.objects.filter(pair=turn.candidatePair, winner=True).first()
-        print(best_candidate)
-        print(majority_vote)
-        if best_candidate and str(best_candidate._id) == majority_vote:
+        if best_candidate and str(best_candidate._id) == str(majority_vote):
             total_bonus += 0.5
+    
+    # Save the bonus to the participant
+    participant.bonus = total_bonus
+    participant.end_time = datetime.now()
+    participant.save()
     
     return JsonResponse({'bonus': total_bonus}, status=status.HTTP_200_OK)
