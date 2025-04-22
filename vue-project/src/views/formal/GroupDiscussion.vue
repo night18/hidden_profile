@@ -131,6 +131,8 @@ onMounted(() => {
       turnStore.addTurnNumber();
       groupStore.clearParticipantStatus()
       if (turnStore.isTurnFinished()) {
+        // Close the chat room
+        chatStore.closeWebSocket();
         router.push( {name: 'exit'} );
       } else {
         router.push( {name: 'FormalCandidate' } );

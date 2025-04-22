@@ -61,6 +61,13 @@ export const useChatStore = defineStore('chat', {
         console.error("WebSocket not connected.");
       }
     },
+    closeWebSocket() {
+      if (this.socket) {
+        this.socket.close(4000, "Client closed connection.");
+        this.socket = null;
+        console.log("WebSocket closed with code 4000.");
+      }
+    },
     on(eventType, callback) {
       if (!(eventType in this.eventCallbacks)) {
         this.eventCallbacks[eventType] = [];

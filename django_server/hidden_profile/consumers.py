@@ -26,12 +26,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Check when do they leave the room
         # case 1: leave when pairing
         # case 2: leave after pairing
+        # case 3: leave because finish the experiment
         await self.channel_layer.group_discard(self.room_name, self.channel_name)
         
         group = await sync_to_async(Group.objects.get)(pk=self.room_name)
         participant = await sync_to_async(Participant.objects.get)(pk=self.participant_id)
         
-        if await sync_to_async(group.is_full)():
+        if close_code == 4000:
+            pass
+        elif await sync_to_async(group.is_full)():
             # Case 2
             await sync_to_async(group.inactivate_participant)(participant)
             group_count = await sync_to_async(group.participants.count)()
