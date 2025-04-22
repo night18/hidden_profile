@@ -64,6 +64,15 @@ const submit = () => {
   body.append('selected_candidate', selectedCandidate.value);
   axios.post('/final_decision/', body)
     .then((response) => {
+      if (response.status !== 200) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to submit your vote.',
+        });
+        isSubmitting.value = false;
+        return;
+      }
       // Send a message to the chat room to let other participants know the candidate has selected
       chatStore.sendMessage({
         type: 'complete_final',
@@ -71,6 +80,14 @@ const submit = () => {
         turn_number: turnStore.turn_number,
       });
     })
+    .catch(() => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while submitting your vote.',
+      });
+      isSubmitting.value = false;
+    });
 };
 
 // Disable copy-paste functionality
@@ -185,7 +202,17 @@ onMounted(() => {
                   {{ candidate.name }}
                 </label>
               </div>
-              <button class="btn btn-primary btn-lg" style="margin-top: 10px;" @click="submit">Vote for the Best Candidate</button>
+              <button
+                class="btn btn-primary btn-lg"
+                style="margin-top: 10px;"
+                @click="submit"
+                :disabled="isSubmitting"
+              >
+                <span v-if="isSubmitting">Waiting other committees
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </span>
+                <span v-if="!isSubmitting">Vote</span>
+              </button>
             </div>
           </div>
         </div>
