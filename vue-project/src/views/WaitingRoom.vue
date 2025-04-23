@@ -14,6 +14,14 @@ const remainTime = ref(300);
 const message = ref('');
 const groupStore = useGroupStore();
 const turnStore = useTurnStore();
+const sound = new Audio('/alert.mp3');
+
+// Function to play the sound
+function playSound() {
+  sound.play().catch(error => {
+    console.error('Playback failed:', error)
+  })
+}
 
 onMounted(() => {
   const chatStore = useChatStore();
@@ -56,6 +64,8 @@ onMounted(() => {
         turnStore.initializeTurn(data.total_turns);
 
         console.log('room_ready');
+        // Play the alert sound
+        playSound();
         router.push('/FormalCandidate');
       });
       

@@ -11,5 +11,6 @@ The web application for the hidden profile task
 - [x] Double check the bonus page.
 - [x] Formal Disconnect the channel.
 - [x] GPT would not participant until 60 seconds.
-- [ ] Add sounds while successfully paired.
+- [x] Add sounds while successfully paired.
 - [ ] Change the name in LLM prompt.
+- [ ] The redirect function when user leave. 
