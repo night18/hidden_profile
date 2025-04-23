@@ -13,4 +13,6 @@ The web application for the hidden profile task
 - [x] GPT would not participant until 60 seconds.
 - [x] Add sounds while successfully paired.
 - [x] Change the name in LLM prompt.
+- [x] Add summarize function which could be activated when calling @quori (case unsensitive).
+- [ ] @Jose - please change the prompts.
 - [ ] The redirect function when user leave. 

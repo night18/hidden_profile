@@ -183,6 +183,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             content = data["content"]
             turn_number = data["turn_number"]
             group_id = self.room_name
+            print(data)
             
             group = await sync_to_async(Group.objects.get)(pk=group_id)
             sender = await sync_to_async(Participant.objects.get)(pk=sender_id)
@@ -191,24 +192,47 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Save the message to the database
             message = await sync_to_async(Message.objects.create)(group=group, sender=sender, turn=turn, content=content)
             message_id = str(message._id)
-            
-            # Broadcast the message to the group
-            await self.channel_layer.group_send(
-                self.room_name,
-                {
-                    "type": "chat_message",
-                    "message": {
-                        "type": "message",
-                        "content": {
-                            "_id": message_id,
-                            "sender": {
-                                "participant_id": sender_id,  
-                            },
-                            "content": content
+
+            # Check the condition id to decide whether and how LLM should respond
+            condition_id = await sync_to_async(lambda: group.condition._id)()
+            # If the condition id is 1 and @quori is in the message, send the message to the original sender only
+            if condition_id == 1 and "@quori" in content.lower():
+                
+                await self.channel_layer.send(
+                    self.channel_name,
+                    {
+                        "type": "chat_message",
+                        "message": {
+                            "type": "message",
+                            "content": {
+                                "_id": message_id,
+                                "sender": {
+                                    "participant_id": sender_id,  
+                                },
+                                "content": content
+                            }
                         }
                     }
-                }
-            )
+                )
+
+            else:
+                # Broadcast the message to the group
+                await self.channel_layer.group_send(
+                    self.room_name,
+                    {
+                        "type": "chat_message",
+                        "message": {
+                            "type": "message",
+                            "content": {
+                                "_id": message_id,
+                                "sender": {
+                                    "participant_id": sender_id,  
+                                },
+                                "content": content
+                            }
+                        }
+                    }
+                )
 
         elif type == "complete_initial":
             """
@@ -296,7 +320,49 @@ class ChatConsumer(AsyncWebsocketConsumer):
             
             # Check the group's condition id to decide whether and how LLM should respond
             condition_id = await sync_to_async(lambda: group.condition._id)()
-            if condition_id == 1:
+            # Check @quori (case unsensitive) in the message content
+            if "@quori" in content.lower():
+                # When codition is 1, is_private is True, when condition is 2, is_private is False
+                is_private = condition_id == 1
+                
+                response, llm_message_id = await sync_to_async(self.openai_client.quori_response)(group_id, turn_number, is_private)
+                # if is_private is True, send the message to the original sender only
+                if is_private:
+                    await self.channel_layer.send(
+                        self.channel_name,
+                        {
+                            "type": "chat_message",
+                            "message": {
+                                "type": "message",
+                                "content": {
+                                    "_id": str(llm_message_id),
+                                    "sender": {
+                                        "participant_id": -1,  
+                                    },
+                                    "content": response
+                                }
+                            }
+                        }
+                    )
+                else:
+                    # Broadcast the LLM response to the group
+                    await self.channel_layer.group_send(
+                        self.room_name,
+                        {
+                            "type": "chat_message",
+                            "message": {
+                                "type": "message",
+                                "content": {
+                                    "_id": str(llm_message_id),
+                                    "sender": {
+                                        "participant_id": -1,  
+                                    },
+                                    "content": response
+                                }
+                            }
+                        }
+                    )
+            elif condition_id == 1:
                 response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response)(sender_id, group_id, turn_number)
                 
                 # Send the message to the original sender only

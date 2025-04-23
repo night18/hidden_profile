@@ -68,6 +68,11 @@ function current_state(member) {
   return 0; // Default to not ready
 }
 
+// Given a message, format the message content. Replace the \n with <br>.
+function formatMessageContent(content) {
+  return content.replace(/\n/g, '<br>');
+}
+
 </script>
 <template>
   <div class="chat-room">
@@ -99,23 +104,23 @@ function current_state(member) {
     </div>
     <div class="room-area" ref="roomarea">
       <div class="chat-info">
-        Feel free to share your thoughts and ideas here. Let's keep the conversation respectful and constructive!
+        After 1 minutes, there will be a LLM assistant, Quori, to participate the discussion. You can call the LLM assistant to summarize the conversation by typing "<b>@Quori</b>" in the message box. <br>
       </div>
       <div v-for="message in messages" :key="message.id" class="message-card">
         <!-- message from LLM asssitant -->
         <div class="row" v-if="message.sender.participant_id === -1">
           <div class="col-1 icon-div">
             <div class="message-avatar-icon">
-              <font-awesome-icon icon="fa-solid fa-globe" class="circle-icon"/>
+              <font-awesome-icon icon="fa-solid fa-robot" class="circle-icon"/>
             </div>
           </div>
           <div class="col-9">
             <div class="row">
-              <div class="message-avatar-name">LLM Assistant</div>
+              <div class="message-avatar-name">Quori</div>
             </div>
             <div class="row">
               <div class="message-content">
-                <span>{{message.content}}</span>
+                <span v-html="formatMessageContent(message.content)"></span>
               </div>
             </div>
           </div>
@@ -139,7 +144,7 @@ function current_state(member) {
             </div>
             <div class="row">
               <div class="message-content">
-                <span>{{message.content}}</span>
+                <span v-html="formatMessageContent(message.content)"></span>
               </div>
             </div>
           </div>
@@ -155,7 +160,7 @@ function current_state(member) {
             </div>
             <div class="row">
               <div class="message-content own_message">
-                <span>{{message.content}}</span>
+                <span v-html="formatMessageContent(message.content)"></span>
               </div>
             </div>
           </div>

@@ -37,7 +37,7 @@ export const useChatStore = defineStore('chat', {
               "type": "auto_llm", 
               "sender": useParticipantStore().participant_id,
               "turn_number": useTurnStore().turn_number,
-              "content": data.content });
+              "content": data.content.content, });
           }
         }
 
