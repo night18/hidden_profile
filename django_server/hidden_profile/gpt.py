@@ -35,6 +35,28 @@ class OpenAIClient:
         print(completion)
         return completion.choices[0].message.content
     
+    def get_participant_alias(self, participant):
+        # Get the participant
+        return participant.avatar_color + " " + participant.avatar_animal
+    
+    def get_group_chat_history(self, group_id, turn_number):
+        # Get the group
+        group = Group.objects.get(pk=group_id)
+        
+        # Get the turn
+        turn = Turn.objects.get(group=group, turn_number=turn_number)
+        
+        # Get the messages in the group. Sort by timestamp, the older messages come first
+        chat_messages = Message.objects.filter(group=group, turn=turn).order_by("timestamp")
+        
+        # Format the messages for the OpenAI API
+        formatted_messages = []
+        for chat_message in chat_messages:
+            sender_alias = self.get_participant_alias(chat_message.sender)
+            formatted_messages.append({"role": "user", "content": f"{sender_alias}: {chat_message.content}"})
+        
+        return formatted_messages
+
     def individual_level_response(self, participant_id, group_id, turn_number):
         # Get the participant
         participant = Participant.objects.get(pk=participant_id)
@@ -63,16 +85,21 @@ class OpenAIClient:
         attributes = attributes + ", " + hidden_profile_attributes
         
         messages = []
-        system_prompt = self.individual_system_prompt_template.format(participant_name=participant_id, expertise=role_description, attributes=attributes, hidden_profile_attributes=hidden_profile_attributes)
+        system_prompt = self.individual_system_prompt_template.format(
+            participant_name=self.get_participant_alias(participant),
+            expertise=role_description,
+            attributes=attributes,
+            hidden_profile_attributes=hidden_profile_attributes
+        )
         messages.append({"role": "system", "content": system_prompt})
         
         
         # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = Message.objects.filter(group=group, turn=turn).order_by("timestamp")
-        
-        for chat_message in chat_messages:
-            messages.append({"role": "user", "content": str(chat_message.sender._id) + ":" + chat_message.content})
-        
+        chat_messages = self.get_group_chat_history(group_id, turn_number)
+        messages.extend(chat_messages)
+        print("messages")
+        print(messages)
+
         response = self.generate_response(messages)
         
         # Store the response as new data in the database
@@ -85,21 +112,20 @@ class OpenAIClient:
         group = Group.objects.get(pk=group_id)
         participants = group.participants.all()
         role_ids = []
-        participant_ids = []
         turn = Turn.objects.get(group=group, turn_number=turn_number)
         
         # Find their roles in the current turn
         for participant in participants:
             participant_turn = ParticipantTurn.objects.get(participant=participant, turn=turn)
             role_ids.append(participant_turn.role._id)
-            participant_ids.append(participant._id)
+            
             
         # Assgin the role to each participant
         teaching_focus_id = None
         research_focus_id = None
         service_focus_id = None
         
-        for participant_id, role_id in zip(participant_ids, role_ids):
+        for participant_id, role_id in zip(participants, role_ids):
             if role_id == 1:
                 teaching_focus_id = participant_id
             elif role_id == 2:
@@ -108,17 +134,22 @@ class OpenAIClient:
                 service_focus_id = participant_id
         
         
-        system_prompt = self.group_system_prompt_template.format(teaching_focus_id=teaching_focus_id, research_focus_id=research_focus_id, service_focus_id=service_focus_id)
+        system_prompt = self.group_system_prompt_template.format(
+            teaching_focus_id=self.get_participant_alias(teaching_focus_id),
+            research_focus_id=self.get_participant_alias(research_focus_id),
+            service_focus_id=self.get_participant_alias(service_focus_id)
+            )
         
         messages = [
             {"role": "system", "content": system_prompt},
         ]
         
         # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = Message.objects.filter(group=group, turn=turn).order_by("timestamp")
-        for chat_message in chat_messages:
-            messages.append({"role": "user", "content": str(chat_message.sender._id) + ":" + chat_message.content})
-        
+        chat_messages = self.get_group_chat_history(group_id, turn_number)
+        messages.extend(chat_messages)
+        print("messages")
+        print(messages)
+
         response = self.generate_response(messages)
         
         # Store the response as new data in the database
