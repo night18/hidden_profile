@@ -10,4 +10,6 @@ The web application for the hidden profile task
 - [x] Change the icon and name in group discussion.
 - [x] Double check the bonus page.
 - [x] Formal Disconnect the channel.
-- [ ] GPT would not participant until 30 seconds.
+- [x] GPT would not participant until 60 seconds.
+- [ ] Add sounds while successfully paired.
+- [ ] Change the name in LLM prompt.

@@ -6,8 +6,10 @@ from .models import CandidateProfile, Participant, Group, Role, Turn, Participan
 from .serializers import CandidateProfileSerializer
 import random
 from .gpt import OpenAIClient
+import datetime
 
 TOTAL_TURNS = 1
+LLM_IDLE_TIME = 60  # seconds
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -280,11 +282,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
             content = data["content"]
             turn_number = data["turn_number"]
             group_id = self.room_name
-            print("Auto LLM")
+            
             
             group = await sync_to_async(Group.objects.get)(pk=group_id)
             sender = await sync_to_async(Participant.objects.get)(pk=sender_id)
             turn = await sync_to_async(Turn.objects.get)(group=group, turn_number=turn_number)
+
+            # Check the turn start time, and do not respond if the turn has started less than 1 minute
+            turn_start_time = await sync_to_async(lambda: turn.start_time)()
+            current_time = datetime.datetime.now(datetime.timezone.utc)
+            if (current_time - turn_start_time).total_seconds() < LLM_IDLE_TIME:
+                return
             
             # Check the group's condition id to decide whether and how LLM should respond
             condition_id = await sync_to_async(lambda: group.condition._id)()
