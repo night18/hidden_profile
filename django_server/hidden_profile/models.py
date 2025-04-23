@@ -157,6 +157,7 @@ class LlmMessage(models.Model):
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE, related_name="llm_messages")
     content = models.TextField()
     is_private = models.BooleanField(default=False)
+    is_summary = models.BooleanField(default=False)
     recipient = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="llm_private_messages", null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 

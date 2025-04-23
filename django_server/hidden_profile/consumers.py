@@ -9,7 +9,9 @@ from .gpt import OpenAIClient
 import datetime
 
 TOTAL_TURNS = 1
-LLM_IDLE_TIME = 60  # seconds
+LLM_START_TIME = 60  # seconds
+LLM_IDLE_TIME = 30  # seconds
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -315,13 +317,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Check the turn start time, and do not respond if the turn has started less than 1 minute
             turn_start_time = await sync_to_async(lambda: turn.start_time)()
             current_time = datetime.datetime.now(datetime.timezone.utc)
-            if (current_time - turn_start_time).total_seconds() < LLM_IDLE_TIME:
+            if (current_time - turn_start_time).total_seconds() < LLM_START_TIME:
                 return
             
             # Check the group's condition id to decide whether and how LLM should respond
             condition_id = await sync_to_async(lambda: group.condition._id)()
             # Check @quori (case unsensitive) in the message content
-            if "@quori" in content.lower():
+            if "@quori" in content.lower() and (condition_id == 1 or condition_id == 2):
                 # When codition is 1, is_private is True, when condition is 2, is_private is False
                 is_private = condition_id == 1
                 
@@ -363,6 +365,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         }
                     )
             elif condition_id == 1:
+                # If the time period between the last non summerized LLM message and the current message is less than 30 seconds, do not respond
+                last_llm_message = await sync_to_async(lambda: LlmMessage.objects.filter(group=group, turn=turn, is_summary=False).order_by('-timestamp').first())()
+                if last_llm_message and (datetime.datetime.now(datetime.timezone.utc) - last_llm_message.timestamp).total_seconds() < LLM_IDLE_TIME:
+                    return
+
                 response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response)(sender_id, group_id, turn_number)
                 
                 # Send the message to the original sender only
@@ -385,8 +392,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 
             
             elif condition_id == 2:
+                # If the time period between the last non summerized LLM message and the current message is less than 30 seconds, do not respond
+                last_llm_message = await sync_to_async(lambda: LlmMessage.objects.filter(group=group, turn=turn, is_summary=False).order_by('-timestamp').first())()
+                if last_llm_message and (datetime.datetime.now(datetime.timezone.utc) - last_llm_message.timestamp).total_seconds() < LLM_IDLE_TIME:
+                    return
                 # Call the GPT-4o model to generate a response
-                
                 response, llm_message_id = await sync_to_async(self.openai_client.group_level_response)(group_id, turn_number)
                 
                 # Broadcast the LLM response to the group

@@ -64,7 +64,7 @@ class OpenAIClient:
         
         return formatted_messages
 
-    def quori_response(self, group_id, turn_number, is_private=False):
+    def quori_response(self, group_id, turn_number, caller_id=None, is_private=False):
         group = Group.objects.get(pk=group_id)
         participants = group.participants.all()
         role_ids = []
@@ -109,7 +109,10 @@ class OpenAIClient:
         response = self.generate_response(messages)
         
         # Store the response as new data in the database
-        llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=is_private)
+        if is_private:
+            llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=is_private, recipient=caller_id)
+        else:
+            llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=is_private)
         
         
         return response, str(llm_message._id)

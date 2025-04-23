@@ -14,5 +14,6 @@ The web application for the hidden profile task
 - [x] Add sounds while successfully paired.
 - [x] Change the name in LLM prompt.
 - [x] Add summarize function which could be activated when calling @quori (case unsensitive).
+- [x] The LLM must wait idle_time for next nudge.
 - [ ] @Jose - please change the prompts.
 - [ ] The redirect function when user leave. 
