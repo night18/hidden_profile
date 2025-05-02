@@ -104,7 +104,7 @@ function formatMessageContent(content) {
     </div>
     <div class="room-area" ref="roomarea">
       <div class="chat-info">
-        After 1 minutes, there will be a LLM assistant, Quori, to participate the discussion. You can call the LLM assistant to summarize the conversation by typing "<b>@Quori</b>" in the message box. <br>
+        After 1 minute, there will be an LLM assistant, Quori, to participate in the discussion. You can call the LLM assistant to summarize the conversation by typing "<b>@Quori</b>" in the message box. <br>
       </div>
       <div v-for="message in messages" :key="message.id" class="message-card">
         <!-- message from LLM asssitant -->

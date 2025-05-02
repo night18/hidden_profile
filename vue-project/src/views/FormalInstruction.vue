@@ -50,9 +50,9 @@ generateAvatar();
     <div class="jumbotron container">
         <h2>Group Phase Instruction</h2>
         <div class="content-area">
-            <p>Now, we are about to move on to the group phase. You will be assigned to a group of three people to form a search committee. As a member in a search committee, you will be working with other committee members to evaluate the qualifications of three candidates and make a hiring decision. For each of these tasks, you need to follow the following steps:</p>
+            <p>Now, we are about to move on to the group phase. You will be assigned to a group of three people to form a search committee. As a member of a search committee, you will be working with other committee members to evaluate the qualifications of three candidates and make a hiring decision. For each of these tasks, you need to follow the following steps:</p>
             <ol>
-                <li>Review the candidate profiles and made your initial decision by yourself.</li>
+                <li>Review the candidate profiles and make your initial decision on your own.</li>
                 <li>Discuss with other members in your group and vote for the best candidate.</li>
             </ol>
             <p>As a reminder, for each group task, you can earn <b>$0.4</b> as an additional bonus only if your group's final decision is the best candidate. You will not earn the bonus if the group's final prediction is a tie.</p>
