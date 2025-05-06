@@ -245,6 +245,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             sender_id = data["sender"]
             turn_number = data["turn_number"]
             group_id = self.room_name
+            turn = await sync_to_async(Turn.objects.get)(group=group_id, turn_number=turn_number)
+            
+            # Change the turn start time to current time
+            turn.start_time = datetime.datetime.now(datetime.timezone.utc)
+            await sync_to_async(turn.save)()
+
+            
             
 
             # send the signal to the groups
