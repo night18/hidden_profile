@@ -18,7 +18,7 @@ The web application for the hidden profile task
 - [x] The idle time should be based on the chatroom starting time.
 - [ ] @Jose - please change the prompts.
 - [ ] The redirect function when user leave. 
-- [ ] For task instruction, make sure participants read all four.
+- [x] For task instruction, make sure participants read all four.
 - [ ] Change "Candidate Example" to "Faculty search example" on CandidateExample.vue, change the table highlight color.
 - [ ] Change the quori prompt to individual level and group level. 
 - [ ] Show the table summary in the bonus page.
