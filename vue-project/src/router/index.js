@@ -11,6 +11,7 @@ import FailPairing from '@/views/errors/FailPairing.vue';
 import NetiquetteRule from '@/views/NetiquetteRule.vue';
 import FormalInstruction from '@/views/FormalInstruction.vue';
 import ExitView from '@/views/ExitView.vue';
+import TeammateLeft from '@/views/errors/TeammateLeft.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -69,7 +70,12 @@ const router = createRouter({
       path: '/exit',
       name: 'exit',
       component: ExitView,
-    }
+    },
+    {
+      path: '/TeammateLeft',
+      name: 'TeammateLeft',
+      component: TeammateLeft,
+    },
   ]
 });
 

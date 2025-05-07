@@ -84,7 +84,7 @@ onMounted(() => {
           title: 'Error',
           text: 'Sorry, a participant has left the task. Please click OK to finish the task.',
         }).then(() => {
-          // router.push('/Ending');
+          router.push({ name: 'TeammateLeft' });
         });
       });
     })
