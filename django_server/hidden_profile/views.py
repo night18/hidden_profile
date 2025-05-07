@@ -208,6 +208,8 @@ def get_bonus(request):
     turns = Turn.objects.filter(group=group)
     
     total_bonus = 0
+    voting_results = []  # List to store voting results for each turn
+    
     for turn in turns:
         # Get all formal records for the turn
         votes = FormalRecord.objects.filter(turn=turn).values_list('vote', flat=True)
@@ -222,16 +224,31 @@ def get_bonus(request):
         majority_vote = max(vote_counts, key=vote_counts.get)
         if list(vote_counts.values()).count(vote_counts[majority_vote]) > 1:
             # Tie in votes, no bonus for this turn
+            voting_results.append({
+                'task': f'Turn {turn.turn_number}',
+                'final_vote': 'Tie',
+                'ground_truth': 'N/A',
+                'bonus': 0
+            })
             continue
         
         # Check if the majority vote corresponds to the best candidate
         best_candidate = CandidateProfile.objects.filter(pair=turn.candidatePair, winner=True).first()
-        if best_candidate and str(best_candidate._id) == str(majority_vote):
-            total_bonus += 0.5
+        bonus = 0.5 if best_candidate and str(best_candidate._id) == str(majority_vote) else 0
+        total_bonus += bonus
+
+        final_vote_name = CandidateProfile.objects.get(pk=majority_vote).name if majority_vote else 'N/A'
+        
+        voting_results.append({
+            'task': str(turn.turn_number),
+            'final_vote': str(final_vote_name),
+            'ground_truth': str(best_candidate) if best_candidate else 'N/A',
+            'bonus': bonus
+        })
     
     # Save the bonus to the participant
     participant.bonus = total_bonus
     participant.end_time = datetime.now()
     participant.save()
     
-    return JsonResponse({'bonus': total_bonus}, status=status.HTTP_200_OK)
+    return JsonResponse({'bonus': total_bonus, 'list': voting_results}, status=status.HTTP_200_OK)

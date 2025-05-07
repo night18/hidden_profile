@@ -31,7 +31,7 @@ class CandidateProfile(models.Model):
     diversity_and_inclusion_initiatives = models.CharField(max_length=100)
     
     def __str__(self):
-        return str(self._id)
+        return str(self.name)
 
 class Participant(models.Model):
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

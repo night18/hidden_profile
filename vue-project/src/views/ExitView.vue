@@ -6,8 +6,8 @@ import Swal from 'sweetalert2';
 
 const participantStore = useParticipantStore();
 const bonus = ref(null);
+const taskDetails = ref([]);
 const errorMessage = ref('');
-
 
 onMounted(() => {
   let body = new FormData();
@@ -23,7 +23,11 @@ onMounted(() => {
         return;
       }
       bonus.value = response.data.bonus;
+      taskDetails.value = response.data.list; // Updated to handle the 'list' field
     })
+    .catch(() => {
+      errorMessage.value = 'An error occurred while retrieving your bonus.';
+    });
 });
 </script>
 <template>
@@ -35,6 +39,24 @@ onMounted(() => {
         <p>If you have any questions or feedback, please feel free to contact us.</p>
         <div v-if="bonus !== null">
           <p>Your bonus: <strong>{{ bonus }}</strong></p>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Turn</th>
+                <th>Vote Result</th>
+                <th>Ground Truth</th>
+                <th>Bonus</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="task in taskDetails" :key="task.task">
+                <td>{{ task.task }}</td>
+                <td>{{ task.final_vote }}</td>
+                <td>{{ task.ground_truth }}</td>
+                <td>{{ task.bonus }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div v-else-if="errorMessage">
           <p class="error">{{ errorMessage }}</p>

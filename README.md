@@ -16,10 +16,12 @@ The web application for the hidden profile task
 - [x] Add summarize function which could be activated when calling @quori (case unsensitive).
 - [x] The LLM must wait idle_time for next nudge.
 - [x] The idle time should be based on the chatroom starting time.
-- [ ] @Jose - please change the prompts.
 - [x] For task instruction, make sure participants read all four.
 - [x] Change "Candidate Example" to "Faculty search example" on CandidateExample.vue, change the table highlight color.
-- [ ] Change the quori prompt to individual level and group level. 
-- [ ] Show the table summary in the bonus page.
+- [x] Show the table summary in the bonus page.
 - [ ] The redirect function when user leave. 
+- [ ] Hide the @quori notification in the control group.
+- [ ] Post-survey.
 - [ ] Pre-survey.
+- [ ] Change the quori prompt to individual level and group level. 
+- [ ] @Jose - please change the prompts.
