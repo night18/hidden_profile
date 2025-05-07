@@ -56,7 +56,7 @@ function next() {
 <template>
   <div class="container">
     <div class="jumbotron container">
-      <h2> Candidate Example </h2>
+      <h2> Faculty Search Example </h2>
       <div class="content-area">
         <p>You are serving on a university search committee tasked with selecting the most qualified candidate for a faculty position. You will review three candidate profiles and work with other committee members to evaluate their qualifications and make a hiring decision. Here is an example of how the candidate profiles will be presented to you.</p>
         <CandidateTable :candidates="example_candidates"/>

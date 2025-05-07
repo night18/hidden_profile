@@ -79,7 +79,7 @@ const isHighlighted = (name, attribute) => {
               v-for="candidate in candidates"
               :key="candidate._id"
               class="text-center"
-              :class="{ 'table-danger': isHighlighted(candidate.name, attribute) }"
+              :class="{ 'table-success': isHighlighted(candidate.name, attribute) }"
             >
               {{ candidate[attribute] || '-' }}
             </td>
