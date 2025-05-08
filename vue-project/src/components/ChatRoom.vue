@@ -73,6 +73,11 @@ function formatMessageContent(content) {
   return content.replace(/\n/g, '<br>');
 }
 
+function get_group_condition() {
+  // Get the group condition from the groupStore
+  return groupStore.getCondition() !== 0;
+}
+
 </script>
 <template>
   <div class="chat-room">
@@ -103,7 +108,7 @@ function formatMessageContent(content) {
       </div>
     </div>
     <div class="room-area" ref="roomarea">
-      <div class="chat-info">
+      <div v-if="get_group_condition()" class="chat-info">
         After 1 minute, there will be an LLM assistant, Quori, to participate in the discussion. You can call the LLM assistant to summarize the conversation by typing "<b>@Quori</b>" in the message box. <br>
       </div>
       <div v-for="message in messages" :key="message.id" class="message-card">

@@ -102,6 +102,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     } for participant in participants
                 ])()
                 
+                # Get the condition of the group
+                condition = await sync_to_async(lambda: group.condition._id)()
+
                 await self.channel_layer.group_send(
                     self.room_name,
                     {
@@ -109,6 +112,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "message": {
                             "type": "room_ready",
                             "participants": participant_info,
+                            "condition": condition,
                             "total_turns": TOTAL_TURNS
                         }
                     }

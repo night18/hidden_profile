@@ -61,6 +61,7 @@ onMounted(() => {
 
         // Initialize group store
         groupStore.initialParticipants(data.participants);
+        groupStore.setCondition(data.condition);
         turnStore.initializeTurn(data.total_turns);
 
         console.log('room_ready');

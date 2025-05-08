@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 export const useGroupStore = defineStore('group', {
     state: () => ({
         participants: [],
+        condition: null,
     }),
     actions: {
         initialParticipants(participants) {
@@ -58,6 +59,12 @@ export const useGroupStore = defineStore('group', {
                 return participant.avatar_color;
             }
             return null;
-        }
+        },
+        setCondition(condition) {
+            this.condition = condition;
+        },
+        getCondition() {
+            return this.condition;
+        },
     },
 });

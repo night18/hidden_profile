@@ -20,7 +20,7 @@ The web application for the hidden profile task
 - [x] Change "Candidate Example" to "Faculty search example" on CandidateExample.vue, change the table highlight color.
 - [x] Show the table summary in the bonus page.
 - [x] The redirect function when user leave. 
-- [ ] Hide the @quori notification in the control group.
+- [x] Hide the @quori notification in the control group.
 - [ ] Post-survey.
 - [ ] Pre-survey.
 - [ ] Change the quori prompt to individual level and group level.
