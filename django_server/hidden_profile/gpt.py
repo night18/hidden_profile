@@ -9,28 +9,24 @@ class OpenAIClient:
             raise ValueError("OPENAI_API_KEY is not set")
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o"
-        self.max_tokens = 150
-        self.group_system_prompt_template = self.load_group_system_prompt_template()
-        self.individual_system_prompt_template = self.load_individual_system_prompt_template()
-        self.quori_system_prompt_template = self.load_quori_system_prompt_template()
+        self.max_tokens = 300
+        # Load system prompts and templates at initialization
+        self.group_system_prompt_template = self._load_prompt("group_system_prompt.txt")
+        self.individual_system_prompt_template = self._load_prompt("individual_system_prompt.txt")
+        self.quori_system_prompt_template = self._load_prompt("quori_system_prompt.txt")
+        self.group_summarization_prompt = self._load_prompt("group_summarization_prompt.txt")
+        self.intervention_analyzer_prompt = self._load_prompt("intervention_analyzer.txt")
 
-    def load_quori_system_prompt_template(self):
-        base_dir = os.path.dirname(__file__)
-        prompt_path = os.path.join(base_dir, "quori_system_prompt.txt")
-        with open(prompt_path, "r") as file:
-            return file.read().strip()
 
-    def load_individual_system_prompt_template(self):
+    def _load_prompt(self, filename):
+        #Helper method to load prompt templates from files
         base_dir = os.path.dirname(__file__)
-        prompt_path = os.path.join(base_dir, "individual_system_prompt.txt")
-        with open(prompt_path, "r") as file:
-            return file.read().strip()
-
-    def load_group_system_prompt_template(self):
-        base_dir = os.path.dirname(__file__)
-        prompt_path = os.path.join(base_dir, "group_system_prompt.txt")
-        with open(prompt_path, "r") as file:
-            return file.read().strip()
+        prompt_path = os.path.join(base_dir, filename)
+        try:
+            with open(prompt_path, "r") as file:
+                return file.read().strip()
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Prompt file not found: {prompt_path}")
 
     def generate_response(self, messages):
         completion = self.client.chat.completions.create(
@@ -39,7 +35,7 @@ class OpenAIClient:
             max_tokens=self.max_tokens
         )
         print("completion")
-        print(completion)
+        print(completion.choices[0].message.content)
         return completion.choices[0].message.content
     
     def get_participant_alias(self, participant):
@@ -119,7 +115,7 @@ class OpenAIClient:
     
 
 
-    def individual_level_response(self, participant_id, group_id, turn_number):
+    def individual_level_response(self, participant_id, group_id, turn_number,intervention_type):
         # Get the participant
         participant = Participant.objects.get(pk=participant_id)
         
@@ -154,6 +150,7 @@ class OpenAIClient:
             hidden_profile_attributes=hidden_profile_attributes
         )
         messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": f"Intervention Type: {intervention_type}"})
         
         
         # Get the messages in the group. Sort by timestamp, the older messages come first
@@ -169,7 +166,7 @@ class OpenAIClient:
         
         return response, str(llm_message._id)
     
-    def group_level_response(self, group_id, turn_number):
+    def group_level_response(self, group_id, turn_number, intervention_type):
         # Get the participants in the group
         group = Group.objects.get(pk=group_id)
         participants = group.participants.all()
@@ -205,13 +202,40 @@ class OpenAIClient:
         messages = [
             {"role": "system", "content": system_prompt},
         ]
-        
+        messages.append({"role": "user", "content": f"Intervention Type: {intervention_type}"})
+
         # Get the messages in the group. Sort by timestamp, the older messages come first
         chat_messages = self.get_group_chat_history(group_id, turn_number)
         messages.extend(chat_messages)
         print("messages")
         print(messages)
 
+        response = self.generate_response(messages)
+        
+        # Store the response as new data in the database
+        llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=False)
+        
+        
+        return response, llm_message._id
+    def intervention_analyzer_response(self, group_id, turn_number):
+        # Get the group
+        group = Group.objects.get(pk=group_id)
+        
+        # Get the turn
+        turn = Turn.objects.get(group=group, turn_number=turn_number)
+
+        messages = [
+            {"role": "system", "content": self.intervention_analyzer_prompt},
+        ]
+        
+        
+        # Get the messages in the group. Sort by timestamp, the older messages come first
+        chat_messages = self.get_group_chat_history(group_id, turn_number)
+        messages.extend(chat_messages)
+
+
+
+        # Generate the response using the OpenAI API        
         response = self.generate_response(messages)
         
         # Store the response as new data in the database

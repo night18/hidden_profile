@@ -7,17 +7,24 @@ from .serializers import CandidateProfileSerializer
 import random
 from .gpt import OpenAIClient
 import datetime
+import ast
+from datetime import datetime, timedelta
+import asyncio
 
 TOTAL_TURNS = 1
-LLM_START_TIME = 60  # seconds
-LLM_IDLE_TIME = 30  # seconds
+LLM_START_TIME = 10  # seconds
+LLM_IDLE_TIME = 10  # seconds
+
+
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.openai_client = OpenAIClient()
-        
+        #self.last_activity = datetime.utcnow()
+        #self.idle_task = asyncio.create_task(self._idle_watchdog())
         await self.channel_layer.group_add(
             self.room_name,
             self.channel_name
@@ -71,7 +78,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
         
-        
+
+
+
     async def receive(self, text_data=None):
         data = json.loads(text_data)
         type = data["type"]
@@ -83,6 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             
             self.participant_id = participant_id
             participant = await sync_to_async(Participant.objects.get)(pk=participant_id)
+            self.group_id= participant.group_id
             group_id = participant.group_id
             group = await sync_to_async(Group.objects.get)(pk=group_id)
             await sync_to_async(group.activate_participant)(participant)
@@ -335,6 +345,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             condition_id = await sync_to_async(lambda: group.condition._id)()
             # Check @quori (case unsensitive) in the message content
             if "@quori" in content.lower() and (condition_id == 1 or condition_id == 2):
+                print('@quori detected in the message content')
                 # When codition is 1, is_private is True, when condition is 2, is_private is False
                 is_private = condition_id == 1
                 
@@ -375,14 +386,38 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             }
                         }
                     )
+
+
+
             elif condition_id == 1:
                 # If the time period between the last non summerized LLM message and the current message is less than 30 seconds, do not respond
                 last_llm_message = await sync_to_async(lambda: LlmMessage.objects.filter(group=group, turn=turn, is_summary=False).order_by('-timestamp').first())()
                 if last_llm_message and (datetime.datetime.now(datetime.timezone.utc) - last_llm_message.timestamp).total_seconds() < LLM_IDLE_TIME:
                     return
 
-                response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response)(sender_id, group_id, turn_number)
-                
+
+                while True:
+                    try:
+                        intervention_response, llm_message_id = await sync_to_async(self.openai_client.intervention_analyzer_response)( group_id, turn_number)
+                        print('inter')
+                        print(intervention_response)
+                        intervention_response = json.loads(intervention_response)
+
+
+                    
+                        if intervention_response["summarization"]['score'] >= 70:
+                            response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response)(sender_id, group_id, turn_number,"Summarization")
+                        elif intervention_response["nudging"]['score']  > 50:
+                            response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response)(sender_id, group_id, turn_number,"Nudging")
+                        elif intervention_response["devils_advocate"]['score']  >50:
+                            response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response )(sender_id, group_id, turn_number,"Devils Advocate")
+                        else:
+                            # If no intervention is needed, do not respond
+                            return
+                        break
+                    except:
+                        continue
+
                 # Send the message to the original sender only
                 await self.channel_layer.send(
                     self.channel_name,
@@ -407,8 +442,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 last_llm_message = await sync_to_async(lambda: LlmMessage.objects.filter(group=group, turn=turn, is_summary=False).order_by('-timestamp').first())()
                 if last_llm_message and (datetime.datetime.now(datetime.timezone.utc) - last_llm_message.timestamp).total_seconds() < LLM_IDLE_TIME:
                     return
-                # Call the GPT-4o model to generate a response
-                response, llm_message_id = await sync_to_async(self.openai_client.group_level_response)(group_id, turn_number)
+                while True:
+                    try:
+                        intervention_response, llm_message_id = await sync_to_async(self.openai_client.intervention_analyzer_response)( group_id, turn_number)
+                        print('inter')
+                        print(intervention_response)
+                        intervention_response = json.loads(intervention_response)
+
+
+                    
+                        if intervention_response["summarization"]['score'] >= 70:
+                            response, llm_message_id = await sync_to_async(self.openai_client.group_level_response)(sender_id, group_id, turn_number,"Summarization")
+                        elif intervention_response["nudging"]['score']  > 50:
+                            response, llm_message_id = await sync_to_async(self.openai_client.group_level_response)(sender_id, group_id, turn_number,"Nudging")
+                        elif intervention_response["devils_advocate"]['score']  >50:
+                            response, llm_message_id = await sync_to_async(self.openai_client.group_level_response )(sender_id, group_id, turn_number,"Devils Advocate")
+                        else:
+                            # If no intervention is needed, do not respond
+                            return
+                        break
+                    except:
+                        continue
+
+
                 
                 # Broadcast the LLM response to the group
                 await self.channel_layer.group_send(
