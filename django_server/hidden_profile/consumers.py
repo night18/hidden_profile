@@ -8,14 +8,15 @@ import random
 from .gpt import OpenAIClient
 import datetime
 import ast
-from datetime import datetime, timedelta
+from datetime import  timedelta,timezone
 import asyncio
-
+from channels.generic.websocket import AsyncWebsocketConsumer
+import uuid
+from channels.layers import get_channel_layer
+import contextlib   
 TOTAL_TURNS = 1
 LLM_START_TIME = 10  # seconds
 LLM_IDLE_TIME = 10  # seconds
-
-
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -23,8 +24,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.openai_client = OpenAIClient()
-        #self.last_activity = datetime.utcnow()
-        #self.idle_task = asyncio.create_task(self._idle_watchdog())
+        self.watchdog_flag=False
         await self.channel_layer.group_add(
             self.room_name,
             self.channel_name
@@ -33,7 +33,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
         
     async def disconnect(self, close_code):
-        
         # Check when do they leave the room
         # case 1: leave when pairing
         # case 2: leave after pairing
@@ -42,7 +41,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         group = await sync_to_async(Group.objects.get)(pk=self.room_name)
         participant = await sync_to_async(Participant.objects.get)(pk=self.participant_id)
-        
+        if hasattr(self, "auto_llm_task"):
+            self.auto_llm_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self.auto_llm_task
         if close_code == 4000:
             pass
         elif await sync_to_async(group.is_full)():
@@ -101,7 +103,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             
             
             if group_count == group.max_size:
-                
                 # Get all participant ids in the group
                 participants = await sync_to_async(list)(group.participants.all())
                 participant_info = await sync_to_async(lambda: [
@@ -138,6 +139,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         }
                     }
                 )
+
         elif type == "role_by_turn":
             turn_number = data["turn_number"]
             group_id = self.room_name
@@ -195,10 +197,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "turn_number": turnStore.turn_number,
                 "content": send_out_message.value
             """
+
             sender_id = data["sender"]
             content = data["content"]
             turn_number = data["turn_number"]
             group_id = self.room_name
+            print('message received')
             print(data)
             
             group = await sync_to_async(Group.objects.get)(pk=group_id)
@@ -211,7 +215,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             # Check the condition id to decide whether and how LLM should respond
             condition_id = await sync_to_async(lambda: group.condition._id)()
-            # If the condition id is 1 and @quori is in the message, send the message to the original sender only
             if condition_id == 1 and "@quori" in content.lower():
                 
                 await self.channel_layer.send(
@@ -250,100 +253,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-        elif type == "complete_initial":
-            """
-                A signal to indicate that the participant has completed the initial decision. 
-                After receive this signal from all participants, the group will be ready to start the experiment.
-                Hence, it has to send a signal to all participants to indicate that the experiment is ready to start.
-            """
-            sender_id = data["sender"]
-            turn_number = data["turn_number"]
-            group_id = self.room_name
-            turn = await sync_to_async(Turn.objects.get)(group=group_id, turn_number=turn_number)
-            
-            # Change the turn start time to current time
-            turn.start_time = datetime.datetime.now(datetime.timezone.utc)
-            await sync_to_async(turn.save)()
-
-            
-            
-
-            # send the signal to the groups
-            group = await self.channel_layer.group_send(
-                self.room_name,
-                {
-                    "type": "chat_message",
-                    "message": {
-                        "type": "complete_initial",
-                        "sender": sender_id,
-                        "turn_number": turn_number
-                    }
-                }
-            )
-
-        elif type == "ready_to_vote":
-            sender_id = data["sender"]
-            turn_number = data["turn_number"]
-            group_id = self.room_name
-
-            # send the signal to the groups
-            group = await self.channel_layer.group_send(
-                self.room_name,
-                {
-                    "type": "chat_message",
-                    "message": {
-                        "type": "ready_to_vote",
-                        "sender": sender_id,
-                        "turn_number": turn_number
-                    }
-                }
-            )
-
-        elif type == "complete_final":
-            sender_id = data["sender"]
-            turn_number = data["turn_number"]
-            group_id = self.room_name
-            # send the signal to the groups
-            group = await self.channel_layer.group_send(
-                self.room_name,
-                {
-                    "type": "chat_message",
-                    "message": {
-                        "type": "complete_final",
-                        "sender": sender_id,
-                        "turn_number": turn_number
-                    }
-                }
-            )
-            
-
-        elif type == "auto_llm":
-            """
-                Recive
-                "type": "auto_llm",
-                "sender": participantStore.participant_id,
-                "turn_number": turnStore.turn_number,
-                "content": send_out_message.value
-            """
-            sender_id = data["sender"]
-            content = data["content"]
-            turn_number = data["turn_number"]
-            group_id = self.room_name
-            
-            
-            group = await sync_to_async(Group.objects.get)(pk=group_id)
-            sender = await sync_to_async(Participant.objects.get)(pk=sender_id)
-            turn = await sync_to_async(Turn.objects.get)(group=group, turn_number=turn_number)
-
-            # Check the turn start time, and do not respond if the turn has started less than 1 minute
-            turn_start_time = await sync_to_async(lambda: turn.start_time)()
-            current_time = datetime.datetime.now(datetime.timezone.utc)
-            if (current_time - turn_start_time).total_seconds() < LLM_START_TIME:
-                return
-            
-            # Check the group's condition id to decide whether and how LLM should respond
-            condition_id = await sync_to_async(lambda: group.condition._id)()
-            # Check @quori (case unsensitive) in the message content
+            # If the condition id is 1 and @quori is in the message, send the message to the original sender only
             if "@quori" in content.lower() and (condition_id == 1 or condition_id == 2):
                 print('@quori detected in the message content')
                 # When codition is 1, is_private is True, when condition is 2, is_private is False
@@ -389,104 +299,272 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 
-            elif condition_id == 1:
+
+        elif type == "complete_initial":
+            """
+                A signal to indicate that the participant has completed the initial decision. 
+                After receive this signal from all participants, the group will be ready to start the experiment.
+                Hence, it has to send a signal to all participants to indicate that the experiment is ready to start.
+            """
+            sender_id = data["sender"]
+            turn_number = data["turn_number"]
+            self.turn_number = turn_number
+
+
+            group_id = self.room_name
+            turn = await sync_to_async(Turn.objects.get)(group=group_id, turn_number=turn_number)
+            self.turn_id= turn._id
+            
+            # Change the turn start time to current time
+            turn.start_time = datetime.datetime.now(datetime.timezone.utc)
+            await sync_to_async(turn.save)()
+
+            
+            sender = await sync_to_async(Participant.objects.get)(pk=sender_id)
+            sender.complete_initial = True
+            
+            await sync_to_async(sender.save)(update_fields=["complete_initial"])
+
+            # send the signal to the groups
+            group = await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "complete_initial",
+                        "sender": sender_id,
+                        "turn_number": turn_number
+                    }
+                }
+            )
+
+            someone_incomplete = await sync_to_async(
+                Participant.objects.filter(group_id=self.room_name,
+                                        complete_initial=False).exists
+            )()
+
+            group = await sync_to_async(Group.objects.get)(pk=group_id)
+            condition_id = await sync_to_async(lambda: group.condition._id)()
+            if condition_id == 1:
+                # Every participant gets their own LLM task
+                print(f"[LLM] Starting individual LLM (condition 1) for participant {self.participant_id}")
+                self.auto_llm_task = asyncio.create_task(self.periodic_llm_call(group, turn))
+
+
+
+
+            elif condition_id == 2:
+                if someone_incomplete:
+                    return 
+                self.auto_llm_task = asyncio.create_task(self.periodic_llm_call(group, turn))
+
+
+
+
+        elif type == "ready_to_vote":
+            sender_id = data["sender"]
+            turn_number = data["turn_number"]
+            group_id = self.room_name
+
+
+            # send the signal to the groups
+            group = await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "ready_to_vote",
+                        "sender": sender_id,
+                        "turn_number": turn_number
+                    }
+                }
+            )
+
+        elif type == "complete_final":
+            sender_id = data["sender"]
+            turn_number = data["turn_number"]
+            group_id = self.room_name
+
+
+            # send the signal to the groups
+            group = await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "complete_final",
+                        "sender": sender_id,
+                        "turn_number": turn_number
+                    }
+                }
+            )
+
+
+    async def get_role_alias_dict(self):
+        queryset = (
+            ParticipantTurn.objects
+            .filter(turn_id=self.turn_id, participant__group_id=self.group_id)
+            .select_related("participant")           # pre-join Participant
+        )
+
+        # Evaluate the QS off-thread so the event loop never blocks
+        pt_rows = await sync_to_async(list)(queryset)
+
+        role_alias = {}
+        for pt in pt_rows:
+            if pt.role_id not in role_alias:         # first Participant per role “wins”
+                p = pt.participant
+                role_alias[pt.role_id] = f"{p.avatar_color} {p.avatar_animal}"
+
+        return role_alias
+
+
+
+          
+            
+    
+    async def chat_message(self, event):
+        message = event["message"]
+        await self.send(text_data=json.dumps(message))
+    
+    async def periodic_llm_call(self,group,turn):
+
+        # Check the group's condition id to decide whether and how LLM should respond
+
+        condition_id = await sync_to_async(lambda: group.condition._id)()
+        if condition_id==0:
+            return
+        last_intervention_analysis=datetime.datetime.now(datetime.timezone.utc)
+        turn_number = self.turn_number
+        group_id = self.group_id
+        sender_id = self.participant_id
+        if condition_id == 1:
+            participant = await sync_to_async(Participant.objects.get)(pk=sender_id)
+            self.participant_alias= participant.avatar_color + " " + participant.avatar_animal
+            print(f"[LLM] Starting periodic LLM call for participant {self.participant_alias} in group {group_id} for turn {turn_number}")
+            participant_turn=  await sync_to_async(ParticipantTurn.objects.get)(participant=participant,turn=turn)
+            role_id= participant_turn.role_id
+        elif condition_id == 2:
+            print('a')
+            role_map= await self.get_role_alias_dict()
+            print(role_map)
+            print(f"[LLM] Starting periodic LLM call for group {group_id} for turn {turn_number}")
+        while True:
+            await asyncio.sleep(10) # check every second
+            last_message=  await sync_to_async(lambda: Message.objects.filter(group=group, turn=turn).order_by('-timestamp').first())()
+            if last_message is None: #no messages no intervention
+                continue
+
+            if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
+                continue
+            if (datetime.datetime.now(datetime.timezone.utc) - last_intervention_analysis).total_seconds() < 20:
+                continue
+            last_intervention_analysis = datetime.datetime.now(datetime.timezone.utc)
+
+            if condition_id == 1:
                 # If the time period between the last non summerized LLM message and the current message is less than 30 seconds, do not respond
-                last_llm_message = await sync_to_async(lambda: LlmMessage.objects.filter(group=group, turn=turn, is_summary=False).order_by('-timestamp').first())()
+                last_llm_message = await sync_to_async(lambda: LlmMessage.objects.filter(group=self.group_id, turn=turn_number, is_summary=False).order_by('-timestamp').first())()
                 if last_llm_message and (datetime.datetime.now(datetime.timezone.utc) - last_llm_message.timestamp).total_seconds() < LLM_IDLE_TIME:
-                    return
+                    continue
 
 
-                while True:
-                    try:
-                        intervention_response, llm_message_id = await sync_to_async(self.openai_client.intervention_analyzer_response)( group_id, turn_number)
+                while True:#use  loop and try in case llm response format is not correct
+                    try: 
+                        intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,participant,private=True)                                              
                         print('inter')
-                        print(intervention_response)
+                        print(self.participant_alias)
                         intervention_response = json.loads(intervention_response)
 
 
                     
-                        if intervention_response["summarization"]['score'] >= 70:
-                            response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response)(sender_id, group_id, turn_number,"Summarization")
-                        elif intervention_response["nudging"]['score']  > 50:
-                            response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response)(sender_id, group_id, turn_number,"Nudging")
-                        elif intervention_response["devils_advocate"]['score']  >50:
-                            response, llm_message_id = await sync_to_async(self.openai_client.individual_level_response )(sender_id, group_id, turn_number,"Devils Advocate")
+                        if intervention_response["summarization"]['score'] >= 80:
+                            response, llm_message_id = await self.openai_client.individual_level_response(participant, group, turn,"Summarization",role_id)
+                        elif intervention_response["nudging"]['score']  > 80:
+                            response, llm_message_id = await self.openai_client.individual_level_response(participant, group, turn,"Nudging",role_id)
+                        elif intervention_response["devils_advocate"]['score']  >80:
+                            response, llm_message_id = await self.openai_client.individual_level_response(participant, group, turn,"Devils Advocate",role_id)
                         else:
                             # If no intervention is needed, do not respond
-                            return
-                        break
-                    except:
+                            break
+                    except Exception as e:
+                        print("LLM error:", e, flush=True)
+                        import traceback
+                        traceback.print_exc()
                         continue
+                    if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
+                        break # If there was a message before crafting the response dont send the message
+                    await self.channel_layer.send(
+                        self.channel_name,
+                        {
+                            "type": "chat_message",
+                            "message": {
+                                "type": "message",
+                                "content": {
+                                    "_id": str(llm_message_id),
+                                    "sender": {
+                                        "participant_id": -1,  
+                                    },
+                                    "content": response
+                                }
+                            }
+                        }
+                    )
 
-                # Send the message to the original sender only
-                await self.channel_layer.send(
-                    self.channel_name,
-                    {
-                        "type": "chat_message",
-                        "message": {
-                            "type": "message",
-                            "content": {
+
+            elif condition_id == 2:
+                last_llm_message = await sync_to_async(lambda: LlmMessage.objects.filter(group=self.group_id, turn=turn_number, is_summary=False).order_by('-timestamp').first())()
+                if last_llm_message and (datetime.datetime.now(datetime.timezone.utc) - last_llm_message.timestamp).total_seconds() < LLM_IDLE_TIME:
+                    continue
+
+
+                while True:#use  loop and try in case llm response format is not correct
+                    try: 
+                        intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,None,private=False)                                              
+                        print('inter')
+                        intervention_response = json.loads(intervention_response)
+                        print(1)
+
+
+                    
+                        if intervention_response["summarization"]['score'] >= 70:
+                            response, llm_message_id = await self.openai_client.group_level_response( group, turn,"Summarization",role_map)
+                        elif intervention_response["nudging"]['score']  > 70:
+                            response, llm_message_id = await self.openai_client.group_level_response( group, turn,"Nudging",role_map)
+                        elif intervention_response["devils_advocate"]['score']  >70:
+                            response, llm_message_id = await self.openai_client.group_level_response( group, turn,"Devils Advocate",role_map)
+                        else:
+                            # If no intervention is needed, do not respond
+                            break
+                    except Exception as e:
+                        print("LLM error:", e, flush=True)
+                        import traceback
+                        traceback.print_exc()
+                        continue
+                    if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
+                        break # If there was a message before crafting the response dont send the message
+
+
+                    
+                    # Broadcast the LLM response to the group
+                    await self.channel_layer.group_send(
+                        self.room_name,
+                        {
+                            "type": "chat_message",
+                            "message": {
+                                "type": "message",
+                                "content": {
                                 "_id": str(llm_message_id),
                                 "sender": {
                                     "participant_id": -1,  
                                 },
                                 "content": response
                             }
+                            }
                         }
-                    }
-                )
-                
-            
-            elif condition_id == 2:
-                # If the time period between the last non summerized LLM message and the current message is less than 30 seconds, do not respond
-                last_llm_message = await sync_to_async(lambda: LlmMessage.objects.filter(group=group, turn=turn, is_summary=False).order_by('-timestamp').first())()
-                if last_llm_message and (datetime.datetime.now(datetime.timezone.utc) - last_llm_message.timestamp).total_seconds() < LLM_IDLE_TIME:
-                    return
-                while True:
-                    try:
-                        intervention_response, llm_message_id = await sync_to_async(self.openai_client.intervention_analyzer_response)( group_id, turn_number)
-                        print('inter')
-                        print(intervention_response)
-                        intervention_response = json.loads(intervention_response)
+                    )
 
 
-                    
-                        if intervention_response["summarization"]['score'] >= 70:
-                            response, llm_message_id = await sync_to_async(self.openai_client.group_level_response)(sender_id, group_id, turn_number,"Summarization")
-                        elif intervention_response["nudging"]['score']  > 50:
-                            response, llm_message_id = await sync_to_async(self.openai_client.group_level_response)(sender_id, group_id, turn_number,"Nudging")
-                        elif intervention_response["devils_advocate"]['score']  >50:
-                            response, llm_message_id = await sync_to_async(self.openai_client.group_level_response )(sender_id, group_id, turn_number,"Devils Advocate")
-                        else:
-                            # If no intervention is needed, do not respond
-                            return
-                        break
-                    except:
-                        continue
 
 
                 
-                # Broadcast the LLM response to the group
-                await self.channel_layer.group_send(
-                    self.room_name,
-                    {
-                        "type": "chat_message",
-                        "message": {
-                            "type": "message",
-                            "content": {
-                            "_id": str(llm_message_id),
-                            "sender": {
-                                "participant_id": -1,  
-                            },
-                            "content": response
-                        }
-                        }
-                    }
-                )
             
-            
-    
-    async def chat_message(self, event):
-        message = event["message"]
-        await self.send(text_data=json.dumps(message))
-                
