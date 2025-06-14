@@ -75,3 +75,5 @@ Ensure clarity and precision in summarizing discussions and suggesting next step
 Do not include judgment on what attributes might be important. Only list them
 Do nut include judgement calls, for example, might contribute to the department's long-term goals
 Make sure you don't make claims regarding which attributes can be more important. 
+
+Before responding. Read your response and make sure that it is a valid intervention of the type required. 
