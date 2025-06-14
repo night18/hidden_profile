@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Count, F
-from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition, InitialRecord
+from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition, InitialRecord, PostSurvey
 from .serializers import CandidateProfileSerializer
 from datetime import datetime
 import csv
@@ -195,8 +195,61 @@ def candidate_profile_by_turn(request):
     }
     
     return JsonResponse(json, status=status.HTTP_200_OK)
-    
-    
+
+@api_view(['POST'])
+def record_post_survey(request):
+    """
+    Records the participant's responses to the post-survey.
+    """
+    participant_id = request.POST.get('participant_id', None)
+    if not participant_id:
+        return JsonResponse({'error': 'Missing participant_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        participant = Participant.objects.get(pk=participant_id)
+    except Participant.DoesNotExist:
+        return JsonResponse({'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        survey_data = {
+            'participant': participant,
+            'dialogue_management': request.POST.get('dialogue_management'),
+            'information_pooling': request.POST.get('information_pooling'),
+            'reaching_consensus': request.POST.get('reaching_consensus'),
+            'task_division': request.POST.get('task_division'),
+            'time_management': request.POST.get('time_management'),
+            'technical_coordination': request.POST.get('technical_coordination'),
+            'reciprocal_interaction': request.POST.get('reciprocal_interaction'),
+            'individual_task_orientation': request.POST.get('individual_task_orientation'),
+            'llm_collaboration': request.POST.get('llm_collaboration', None),
+            'llm_satisfaction': request.POST.get('llm_satisfaction', None),
+            'llm_quality': request.POST.get('llm_quality', None),
+            'llm_recommendation': request.POST.get('llm_recommendation', None),
+            'llm_future_use': request.POST.get('llm_future_use', None),
+        }
+
+        # Validate required fields
+        required_fields = [
+            'dialogue_management', 'information_pooling', 'reaching_consensus',
+            'task_division', 'time_management', 'technical_coordination',
+            'reciprocal_interaction', 'individual_task_orientation'
+        ]
+        for field in required_fields:
+            if survey_data[field] is None:
+                return JsonResponse({'error': f'Missing required field: {field}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Convert fields to integers
+        for key in survey_data:
+            if key != 'participant' and survey_data[key] is not None:
+                survey_data[key] = int(survey_data[key])
+
+        # Save the survey data
+        PostSurvey.objects.create(**survey_data)
+        return JsonResponse({'success': 'Post-survey responses recorded'}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @api_view(['POST'])
 def get_bonus(request):
     participant_id = request.POST.get('participant_id', None)
