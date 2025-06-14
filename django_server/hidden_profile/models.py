@@ -46,6 +46,10 @@ class Participant(models.Model):
     bonus = models.FloatField(default=0.0)
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True)
+    complete_initial = models.BooleanField(default=False)   
+    auto_llm = models.BooleanField(default=False)   
+
+
     
     def __str__(self):
         return str(self._id)
@@ -160,6 +164,7 @@ class LlmMessage(models.Model):
     is_summary = models.BooleanField(default=False)
     recipient = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="llm_private_messages", null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_intervention_analysis=models.BooleanField(default=False)
 
     def __str__(self):
         if self.is_private and self.recipient:

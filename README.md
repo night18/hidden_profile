@@ -25,4 +25,6 @@ The web application for the hidden profile task
 - [ ] Pre-survey.
 - [ ] Change the quori prompt to individual level and group level.
 - [ ] Waiting time bonus.
-- [ ] @Jose - please change the prompts.
+- [ ] Make sure that participants don't have the same alias
+- [ ] Include LLM messages in trancript given to LLM (so we don't have repeated interventions)
+- [ ] How to deal with table?

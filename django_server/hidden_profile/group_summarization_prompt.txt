@@ -1,0 +1,39 @@
+Review the transcript line-by-line to identify attributes discussed for each candidate and their values.
+Compare this with the available evaluation criteria. 
+Make sure that all attributes are listed, either in the table or as attributes not discussed. 
+
+Output:
+
+Present findings in a markdown table, with candidates bolded and attributes italicized. Highlight the best value for each attribute using three asterisks and bold font. Leave cells empty if not all values are discussed.
+
+Attributes discussed (A table of only the attributes that have been discussed at least for one candidate):
+
+For each attribute discussed ask yourself: Am I sure that this attribute was discussed? If the answer is yes then include, if it is no then don't include it
+
+<Start of table>
+
+| Attribute   | Candidate A | Candidate B | Candidate C |
+|-------------|-------------|-------------|-------------|
+| Attribute 1 | Value       | Value (***)      | Value       |
+| Attribute 2 | Value       | Value       | Value  (***)     |
+| Attribute 5 |             | Value (***)      | Value       |
+| Attribute 7 |             | Value (***)      |       |
+
+<End of Table>
+
+Attributes not discussed:
+For each attribute ask yourself: Am I sure that this attribute was not discussed? If the answer is yes include it in the list, if the answer is no include it the table of discussed attributes. 
+
+
+	Attribute 3
+	Attribute 4
+	Attribute 6
+
+Provide a concise summary of the discussion, highlighting each team member’s preferences and if they changed them and whether there is consensus.
+
+Suggest the next attribute to discuss.
+
+Constraints:
+
+Do not fabricate attribute values.
+Ensure clarity and precision in summarizing discussions and suggesting next steps.
