@@ -193,3 +193,28 @@ class FormalRecord(models.Model):
 
     def __str__(self):
         return f"Formal Record {self._id} from {self.participant._id}, voting {self.vote.name}, in Group {self.turn.group._id} during Turn {self.turn.turn_number}"
+    
+class PostSurvey(models.Model):
+    """Stores each participant's post-survey responses."""
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="post_surveys")
+
+    # Discussion Quality Scale
+    dialogue_management = models.IntegerField()
+    information_pooling = models.IntegerField()
+    reaching_consensus = models.IntegerField()
+    task_division = models.IntegerField()
+    time_management = models.IntegerField()
+    technical_coordination = models.IntegerField()
+    reciprocal_interaction = models.IntegerField()
+    individual_task_orientation = models.IntegerField()
+
+    # LLM Usability
+    llm_collaboration = models.IntegerField()
+    llm_satisfaction = models.IntegerField()
+    llm_quality = models.IntegerField()
+    llm_recommendation = models.IntegerField()
+    llm_future_use = models.IntegerField()
+
+    def __str__(self):
+        return f"Post Survey {self._id} from {self.participant._id}"

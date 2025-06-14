@@ -12,6 +12,7 @@ import NetiquetteRule from '@/views/NetiquetteRule.vue';
 import FormalInstruction from '@/views/FormalInstruction.vue';
 import ExitView from '@/views/ExitView.vue';
 import TeammateLeft from '@/views/errors/TeammateLeft.vue';
+import PostSurvey from '@/views/PostSurvey.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,6 +61,11 @@ const router = createRouter({
       path: '/GroupDiscussion',
       name: 'GroupDiscussion',
       component: GroupDiscussion,
+    },
+    {
+      path: '/PostSurvey',
+      name: 'PostSurvey',
+      component: PostSurvey,
     },
     {
       path: '/FailPairing',
