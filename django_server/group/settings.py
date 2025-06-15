@@ -32,6 +32,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
+    '72.31.8.72',
+    'django-env.eba-rbngjpjf.us-east-1.elasticbeanstalk.com',
 ]
 
 
@@ -63,6 +65,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
+    'https://django-env.eba-rbngjpjf.us-east-1.elasticbeanstalk.com',
     'http://127.0.0.1:8080',
     'https://127.0.0.1:8080'
 ]
@@ -163,7 +166,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "www", "static")
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
