@@ -165,6 +165,7 @@ class LlmMessage(models.Model):
     recipient = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="llm_private_messages", null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_intervention_analysis=models.BooleanField(default=False)
+    type_of_intervention = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         if self.is_private and self.recipient:

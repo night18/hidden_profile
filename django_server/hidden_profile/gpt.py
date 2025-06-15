@@ -2,7 +2,7 @@ from openai import AsyncOpenAI
 from .models import Group, Turn, ParticipantTurn, Message, LlmMessage, Participant
 import os
 from asgiref.sync import sync_to_async
-
+import heapq
 class OpenAIClient:
     def __init__(self):
         api_key = os.getenv("OPENAI_API_KEY")
@@ -35,7 +35,8 @@ class OpenAIClient:
         completion = await self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            max_tokens=self.max_tokens
+            max_tokens=self.max_tokens,
+            temperature=0.2,
         )
         print("completion")
         print(completion.choices[0].message.content)
@@ -45,7 +46,7 @@ class OpenAIClient:
         # Get the participant
         return participant.avatar_color + " " + participant.avatar_animal
     
-    def get_group_chat_history(self, group_id, turn_number):
+    def get_group_chat_history(self, group_id, turn_number, participant, private):
         # Get the group
         group = Group.objects.get(pk=group_id)
         
@@ -53,13 +54,26 @@ class OpenAIClient:
         turn = Turn.objects.get(group=group, turn_number=turn_number)
         
         # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = Message.objects.filter(group=group, turn=turn).order_by("timestamp")
-        
+        chat_messages = list(Message.objects.filter(group=group, turn=turn).order_by("timestamp"))
+        if private:
+            llm_messages = LlmMessage.objects.filter(group=group, turn=turn,recipient=participant,is_intervention_analysis=False).order_by("timestamp")
+        else:
+            llm_messages = LlmMessage.objects.filter(group=group, turn=turn,is_private=False,is_intervention_analysis=False).order_by("timestamp")
+        chat_messages.extend(llm_messages)
+        chat_messages.sort(key=lambda m: m.timestamp)
+
         # Format the messages for the OpenAI API
         formatted_messages = []
-        for chat_message in chat_messages:
-            sender_alias = self.get_participant_alias(chat_message.sender)
-            formatted_messages.append({"role": "user", "content": f"{sender_alias}: {chat_message.content}"})
+        for msg in chat_messages:
+            if isinstance(msg, Message):                 # human
+                alias = self.get_participant_alias(msg.sender)
+                formatted_messages.append(
+                    {"role": "user", "content": f"{alias}: {msg.content}"}
+                )
+            else:                                        # LLM
+                formatted_messages.append(
+                    {"role": 'user', "content": f"Assitant: {msg.content}. (This message was a {msg.type_of_intervention})"}
+                )
         
         return formatted_messages
 
@@ -144,7 +158,7 @@ class OpenAIClient:
         messages.append({"role": "user", "content": f"Intervention Type: {intervention_type}"})
         # Get the messages in the group. Sort by timestamp, the older messages come first
 
-        chat_messages = await sync_to_async(self.get_group_chat_history)(group._id, turn.turn_number)
+        chat_messages = await sync_to_async(self.get_group_chat_history)(group._id, turn.turn_number,participant, private=True)
 
         messages.extend(chat_messages)
         print("messages")
@@ -152,16 +166,8 @@ class OpenAIClient:
 
         response = await self.generate_response(messages)
         
-        # Store the response as new data in the database
-        llm_message = await sync_to_async(LlmMessage.objects.create)(
-            group=group, 
-            turn=turn, 
-            content=response, 
-            is_private=True, 
-            recipient=participant
-        )
-        
-        return response, str(llm_message._id)
+
+        return response
     
     async def group_level_response(self, group, turn, intervention_type, role_map):
         # Get the participants in the group
@@ -179,22 +185,16 @@ class OpenAIClient:
         messages.append({"role": "user", "content": f"Intervention Type: {intervention_type}"})
 
         # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = await sync_to_async(self.get_group_chat_history)(group._id, turn.turn_number)
+        chat_messages = await sync_to_async(self.get_group_chat_history)(group._id, turn.turn_number,participant=None, private=False)
         messages.extend(chat_messages)
         print("messages")
         print(messages)
 
         response = await self.generate_response(messages)
         
-        # Store the response as new data in the database
-        llm_message = await sync_to_async(LlmMessage.objects.create)(
-            group=group, 
-            turn=turn, 
-            content=response, 
-            is_private=False, 
-            recipient=None)
+
         
-        return response, llm_message._id
+        return response
     async def intervention_analyzer_response(self, group, turn, participant,private=True):
         # Get the group
         if private:#private assistant
@@ -213,7 +213,7 @@ class OpenAIClient:
         
         
         # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = await sync_to_async(self.get_group_chat_history)(group._id, turn.turn_number)
+        chat_messages = await sync_to_async(self.get_group_chat_history)(group._id, turn.turn_number,participant, private=private)
         messages.extend(chat_messages)
 
 
@@ -226,7 +226,7 @@ class OpenAIClient:
             group=group,
             turn=turn,
             content=response,
-            is_private=False,
+            is_private=private,
             is_intervention_analysis=True
         )        
         

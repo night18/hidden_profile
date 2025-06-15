@@ -445,7 +445,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             participant_turn=  await sync_to_async(ParticipantTurn.objects.get)(participant=participant,turn=turn)
             role_id= participant_turn.role_id
         elif condition_id == 2:
-            print('a')
             role_map= await self.get_role_alias_dict()
             print(role_map)
             print(f"[LLM] Starting periodic LLM call for group {group_id} for turn {turn_number}")
@@ -478,11 +477,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
                     
                         if intervention_response["summarization"]['score'] >= 80:
-                            response, llm_message_id = await self.openai_client.individual_level_response(participant, group, turn,"Summarization",role_id)
+                            response = await self.openai_client.individual_level_response(participant, group, turn,"Summarization",role_id)
+                            type_of_intervention   = "Summarization"
                         elif intervention_response["nudging"]['score']  > 80:
-                            response, llm_message_id = await self.openai_client.individual_level_response(participant, group, turn,"Nudging",role_id)
+                            response = await self.openai_client.individual_level_response(participant, group, turn,"Nudging",role_id)
+                            type_of_intervention = "Nudging"
                         elif intervention_response["devils_advocate"]['score']  >80:
-                            response, llm_message_id = await self.openai_client.individual_level_response(participant, group, turn,"Devils Advocate",role_id)
+                            response = await self.openai_client.individual_level_response(participant, group, turn,"Devils Advocate",role_id)
+                            type_of_intervention = "Devils Advocate"
                         else:
                             # If no intervention is needed, do not respond
                             break
@@ -509,6 +511,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             }
                         }
                     )
+                            # Store the response as new data in the database
+                    await sync_to_async(LlmMessage.objects.create)(
+                        group=group, 
+                        turn=turn, 
+                        content=response, 
+                        is_private=True, 
+                        recipient=participant,
+                        type_of_intervention=type_of_intervention,
+                    )
+        
 
 
             elif condition_id == 2:
@@ -527,11 +539,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
                     
                         if intervention_response["summarization"]['score'] >= 70:
-                            response, llm_message_id = await self.openai_client.group_level_response( group, turn,"Summarization",role_map)
+                            response = await self.openai_client.group_level_response( group, turn,"Summarization",role_map)
+                            type_of_intervention = "Summarization"
                         elif intervention_response["nudging"]['score']  > 70:
-                            response, llm_message_id = await self.openai_client.group_level_response( group, turn,"Nudging",role_map)
+                            response = await self.openai_client.group_level_response( group, turn,"Nudging",role_map)
+                            type_of_intervention = "Nudging"
                         elif intervention_response["devils_advocate"]['score']  >70:
-                            response, llm_message_id = await self.openai_client.group_level_response( group, turn,"Devils Advocate",role_map)
+                            response = await self.openai_client.group_level_response( group, turn,"Devils Advocate",role_map)
+                            type_of_intervention = "Devils Advocate"
                         else:
                             # If no intervention is needed, do not respond
                             break
@@ -563,8 +578,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         }
                     )
 
-
-
+                    # Store the response as new data in the database
+                    await sync_to_async(LlmMessage.objects.create)(
+                        group=group, 
+                        turn=turn, 
+                        content=response, 
+                        is_private=False, 
+                        recipient=None,
+                        type_of_intervention=type_of_intervention)
 
                 
             
