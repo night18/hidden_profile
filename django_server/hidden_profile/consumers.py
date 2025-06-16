@@ -2,15 +2,12 @@ import json
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.db import transaction
-from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
-from .serializers import CandidateProfileSerializer
 import random
 from .gpt import OpenAIClient
 import datetime
 import ast
-from datetime import  timedelta,timezone
+from datetime import timedelta, timezone
 import asyncio
-from channels.generic.websocket import AsyncWebsocketConsumer
 import uuid
 from channels.layers import get_channel_layer
 import contextlib   
@@ -22,17 +19,19 @@ LLM_IDLE_TIME = 10  # seconds
 class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
+        # Import models here to ensure Django is loaded
+        from .models import Group, Participant
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.openai_client = OpenAIClient()
-        self.watchdog_flag=False
+        self.watchdog_flag = False
         await self.channel_layer.group_add(
             self.room_name,
             self.channel_name
         )
-        
         await self.accept()
-        
+
     async def disconnect(self, close_code):
+        from .models import Group, Participant
         # Check when do they leave the room
         # case 1: leave when pairing
         # case 2: leave after pairing
@@ -84,6 +83,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     async def receive(self, text_data=None):
+        from .models import (
+            CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
+        )
+        from .serializers import CandidateProfileSerializer
         data = json.loads(text_data)
         type = data["type"]
         
@@ -401,6 +404,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     async def get_role_alias_dict(self):
+        from .models import ParticipantTurn
         queryset = (
             ParticipantTurn.objects
             .filter(turn_id=self.turn_id, participant__group_id=self.group_id)
@@ -428,7 +432,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(message))
     
     async def periodic_llm_call(self,group,turn):
-
+        from .models import Participant, ParticipantTurn, Message, LlmMessage
         # Check the group's condition id to decide whether and how LLM should respond
 
         condition_id = await sync_to_async(lambda: group.condition._id)()
@@ -587,5 +591,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         recipient=None,
                         type_of_intervention=type_of_intervention)
 
-                
-            
+
+

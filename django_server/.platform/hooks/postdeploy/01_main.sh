@@ -9,8 +9,9 @@ cd /var/app/current
 echo ">>> Step 1: Running migrations..."
 python manage.py migrate --noinput
 
-echo ">>> Step 2: Loading initial data..."
-python manage.py loaddata initial_database.json
+# Only the first time you deploy, you might want to load initial data.
+# echo ">>> Step 2: Loading initial data..."
+# python manage.py loaddata initial_database.json
 
 echo ">>> Step 3: Creating superuser if it doesn't exist..."
 python manage.py createsu

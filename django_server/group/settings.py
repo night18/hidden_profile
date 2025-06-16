@@ -32,8 +32,9 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '72.31.8.72',
-    'django-env.eba-rbngjpjf.us-east-1.elasticbeanstalk.com',
+    '172.31.17.19',
+    'hidden-profile-env-1.eba-saedd8ej.us-west-2.elasticbeanstalk.com',
+    'hiddenprofile.hci-study.com',
 ]
 
 
@@ -54,9 +55,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -64,8 +65,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ORIGIN_WHITELIST = [
     'https://django-env.eba-rbngjpjf.us-east-1.elasticbeanstalk.com',
+    "https://main.d1qr4h3bf4iz6s.amplifyapp.com",
     'http://127.0.0.1:8080',
     'https://127.0.0.1:8080'
 ]
@@ -95,8 +99,8 @@ CHANNEL_LAYERS = {
     'default' : {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            # "hosts": [('aws-my-1p3rgt1ppy60m.meelff.0001.use1.cache.amazonaws.com', 6379)],
-            "hosts": [('localhost', 6379)],
+            "hosts": [('hdpf-redis.6kcz6r.ng.0001.usw2.cache.amazonaws.com', 6379)],
+            # "hosts": [('localhost', 6379)],
         },
     }
 }

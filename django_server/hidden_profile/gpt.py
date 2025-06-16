@@ -1,8 +1,8 @@
 from openai import AsyncOpenAI
-from .models import Group, Turn, ParticipantTurn, Message, LlmMessage, Participant
 import os
 from asgiref.sync import sync_to_async
 import heapq
+
 class OpenAIClient:
     def __init__(self):
         api_key = os.getenv("OPENAI_API_KEY")
@@ -47,6 +47,7 @@ class OpenAIClient:
         return participant.avatar_color + " " + participant.avatar_animal
     
     def get_group_chat_history(self, group_id, turn_number, participant, private):
+        from .models import Group, Turn, ParticipantTurn, Message, LlmMessage
         # Get the group
         group = Group.objects.get(pk=group_id)
         
@@ -78,6 +79,7 @@ class OpenAIClient:
         return formatted_messages
 
     def quori_response(self, group_id, turn_number, caller_id=None, is_private=False):
+        from .models import Group, Turn, ParticipantTurn, LlmMessage
         group = Group.objects.get(pk=group_id)
         participants = group.participants.all()
         role_ids = []
@@ -196,6 +198,7 @@ class OpenAIClient:
         
         return response
     async def intervention_analyzer_response(self, group, turn, participant,private=True):
+        from .models import LlmMessage
         # Get the group
         if private:#private assistant
 
