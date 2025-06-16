@@ -77,58 +77,7 @@ class OpenAIClient:
         
         return formatted_messages
 
-    def quori_response(self, group_id, turn_number, caller_id=None, is_private=False):
-        group = Group.objects.get(pk=group_id)
-        participants = group.participants.all()
-        role_ids = []
-        turn = Turn.objects.get(group=group, turn_number=turn_number)
-        
-        # Find their roles in the current turn
-        for participant in participants:
-            participant_turn = ParticipantTurn.objects.get(participant=participant, turn=turn)
-            role_ids.append(participant_turn.role._id)
-            
-            
-        # Assgin the role to each participant
-        teaching_focus_id = None
-        research_focus_id = None
-        service_focus_id = None
-        
-        for participant_id, role_id in zip(participants, role_ids):
-            if role_id == 1:
-                teaching_focus_id = participant_id
-            elif role_id == 2:
-                research_focus_id = participant_id
-            elif role_id == 3:
-                service_focus_id = participant_id
-        
-        
-        system_prompt = self.quori_system_prompt_template.format(
-            teaching_focus_id=self.get_participant_alias(teaching_focus_id),
-            research_focus_id=self.get_participant_alias(research_focus_id),
-            service_focus_id=self.get_participant_alias(service_focus_id)
-            )
-        
-        messages = [
-            {"role": "system", "content": system_prompt},
-        ]
-        
-        # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = self.get_group_chat_history(group_id, turn_number)
-        messages.extend(chat_messages)
-        print("messages")
-        print(messages)
 
-        response = self.generate_response(messages)
-        
-        # Store the response as new data in the database
-        if is_private:
-            llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=is_private, recipient=caller_id)
-        else:
-            llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=is_private)
-        
-        
-        return response, str(llm_message._id)
     
 
     async def individual_level_response(self, participant, group, turn, intervention_type,role_id):

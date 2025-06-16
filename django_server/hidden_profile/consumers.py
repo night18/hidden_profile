@@ -216,7 +216,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Check the condition id to decide whether and how LLM should respond
             condition_id = await sync_to_async(lambda: group.condition._id)()
             if condition_id == 1 and "@quori" in content.lower():
-                
+
                 await self.channel_layer.send(
                     self.channel_name,
                     {
@@ -259,43 +259,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # When codition is 1, is_private is True, when condition is 2, is_private is False
                 is_private = condition_id == 1
                 
-                response, llm_message_id = await sync_to_async(self.openai_client.quori_response)(group_id, turn_number, is_private)
-                # if is_private is True, send the message to the original sender only
-                if is_private:
-                    await self.channel_layer.send(
-                        self.channel_name,
-                        {
-                            "type": "chat_message",
-                            "message": {
-                                "type": "message",
-                                "content": {
-                                    "_id": str(llm_message_id),
-                                    "sender": {
-                                        "participant_id": -1,  
-                                    },
-                                    "content": response
-                                }
-                            }
-                        }
-                    )
-                else:
-                    # Broadcast the LLM response to the group
-                    await self.channel_layer.group_send(
-                        self.room_name,
-                        {
-                            "type": "chat_message",
-                            "message": {
-                                "type": "message",
-                                "content": {
-                                    "_id": str(llm_message_id),
-                                    "sender": {
-                                        "participant_id": -1,  
-                                    },
-                                    "content": response
-                                }
-                            }
-                        }
-                    )
+
+                asyncio.create_task(self.quori_response(group, turn, sender, is_private))
+
+
+
 
 
 
@@ -429,8 +397,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     async def periodic_llm_call(self,group,turn):
 
-        # Check the group's condition id to decide whether and how LLM should respond
 
+        # Check the group's condition id to decide whether and how LLM should respond
         condition_id = await sync_to_async(lambda: group.condition._id)()
         if condition_id==0:
             return
@@ -444,9 +412,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(f"[LLM] Starting periodic LLM call for participant {self.participant_alias} in group {group_id} for turn {turn_number}")
             participant_turn=  await sync_to_async(ParticipantTurn.objects.get)(participant=participant,turn=turn)
             role_id= participant_turn.role_id
+            self.role_id= role_id
+            role_map= await self.get_role_alias_dict()
+            self.role_map= role_map
         elif condition_id == 2:
             role_map= await self.get_role_alias_dict()
-            print(role_map)
+            self.role_map= role_map
             print(f"[LLM] Starting periodic LLM call for group {group_id} for turn {turn_number}")
         while True:
             await asyncio.sleep(10) # check every second
@@ -471,6 +442,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     try: 
                         intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,participant,private=True)                                              
                         print('inter')
+                        print(intervention_response)
                         print(self.participant_alias)
                         intervention_response = json.loads(intervention_response)
 
@@ -495,24 +467,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         continue
                     if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
                         break # If there was a message before crafting the response dont send the message
-                    await self.channel_layer.send(
-                        self.channel_name,
-                        {
-                            "type": "chat_message",
-                            "message": {
-                                "type": "message",
-                                "content": {
-                                    "_id": str(llm_message_id),
-                                    "sender": {
-                                        "participant_id": -1,  
-                                    },
-                                    "content": response
-                                }
-                            }
-                        }
-                    )
                             # Store the response as new data in the database
-                    await sync_to_async(LlmMessage.objects.create)(
+                    llm_message = await sync_to_async(LlmMessage.objects.create)(
                         group=group, 
                         turn=turn, 
                         content=response, 
@@ -521,6 +477,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         type_of_intervention=type_of_intervention,
                     )
         
+
+
+
+
+                    await self.channel_layer.send(
+                        self.channel_name,
+                        {
+                            "type": "chat_message",
+                            "message": {
+                                "type": "message",
+                                "content": {
+                                    "_id": str(llm_message._id),
+                                    "sender": {
+                                        "participant_id": -1,  
+                                    },
+                                    "content": response
+                                }
+                            }
+                        }
+                    )
 
 
             elif condition_id == 2:
@@ -557,6 +533,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         continue
                     if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
                         break # If there was a message before crafting the response dont send the message
+                    # Store the response as new data in the database
+                    llm_message=await sync_to_async(LlmMessage.objects.create)(
+                        group=group, 
+                        turn=turn, 
+                        content=response, 
+                        is_private=False, 
+                        recipient=None,
+                        type_of_intervention=type_of_intervention)
 
 
                     
@@ -568,7 +552,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             "message": {
                                 "type": "message",
                                 "content": {
-                                "_id": str(llm_message_id),
+                                "_id": str(llm_message._id),
                                 "sender": {
                                     "participant_id": -1,  
                                 },
@@ -578,14 +562,73 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         }
                     )
 
-                    # Store the response as new data in the database
-                    await sync_to_async(LlmMessage.objects.create)(
-                        group=group, 
-                        turn=turn, 
-                        content=response, 
-                        is_private=False, 
-                        recipient=None,
-                        type_of_intervention=type_of_intervention)
 
                 
             
+    async def quori_response(self, group, turn, participant, private):
+        # Get the group
+        if private:
+            response = await self.openai_client.individual_level_response(participant, group, turn,"Summarization",self.role_id)
+
+
+            llm_message = await sync_to_async(LlmMessage.objects.create)(
+                group=group, 
+                turn=turn, 
+                content=response, 
+                is_private=True, 
+                recipient=participant,
+                type_of_intervention='Summarization',
+            )
+
+
+
+
+
+            await self.channel_layer.send(
+                self.channel_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "message",
+                        "content": {
+                            "_id": str(llm_message._id),
+                            "sender": {
+                                "participant_id": -1,  
+                            },
+                            "content": response
+                        }
+                    }
+                }
+            )
+        else:
+            response = await self.openai_client.group_level_response( group, turn,"Summarization",self.role_map)
+            type_of_intervention = "Summarization"
+
+
+            llm_message=await sync_to_async(LlmMessage.objects.create)(
+                group=group, 
+                turn=turn, 
+                content=response, 
+                is_private=False, 
+                recipient=None,
+                type_of_intervention=type_of_intervention)
+
+
+
+            # Broadcast the LLM response to the group
+            await self.channel_layer.group_send(
+                self.room_name,
+                {
+                    "type": "chat_message",
+                    "message": {
+                        "type": "message",
+                        "content": {
+                        "_id": str(llm_message._id),
+                        "sender": {
+                            "participant_id": -1,  
+                        },
+                        "content": response
+                    }
+                    }
+                }
+            )

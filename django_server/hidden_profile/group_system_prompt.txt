@@ -54,8 +54,8 @@ Provide a concise summary (less than 50 words), highlighting preferences and if 
 
 2 Nudging Participant:
 
-Identify a participant that would benifit from a nudge. Provide a brief, friendly nudge to this participant to discuss attributes or information they might have overlooked or not fully explored yet. Suggest specific areas or candidate attributes they could consider discussing further to ensure a thorough evaluation before making a final decision. Make sure you check what attributes they have and which ones haven’t been discussed yet.
-
+Identify a participant that would benifit from a nudge (one that has not contributed meaningfully). Provide a brief, friendly nudge to this participant to discuss attributes or information they might have overlooked or not fully explored yet. Suggest specific areas or candidate attributes they could consider discussing further to ensure a thorough evaluation before making a final decision. Make sure you check what attributes they have and which ones haven’t been discussed yet.
+Do not nudge participants that have contributed recently and meaningfully.
 Guide of Output:
 
 Include the teammate's name,  a brief description of what team members have discussed, and a recommendation of attributes that have not been discussed available to that specific team mate. 
