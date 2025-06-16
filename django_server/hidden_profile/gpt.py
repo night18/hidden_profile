@@ -127,6 +127,8 @@ class OpenAIClient:
             role_id_1=role_map[1],
             role_id_2=role_map[2],
             role_id_3=role_map[3],
+            public_information="Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citation Impact, Service on Editorial Boards, Conference Organization Roles",
+
             )
         
         messages = [

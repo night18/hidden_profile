@@ -6,7 +6,7 @@ Ensure all members consider both shared and private criteria.
 
 Evaluation Criteria:
 
-Shared: Courses taught, student evaluations, peer-reviewed publications, grant funding, graduate supervision, curriculum development.
+Shared: {public_information}.
 Private:
  • {role_id_1}: Teaching awards, conference roles, diversity initiatives, research awards.
  • {role_id_2}: citations, undergraduate mentorship, editorial service, industry collaboration
