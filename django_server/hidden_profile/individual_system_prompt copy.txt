@@ -28,10 +28,16 @@ Make sure that all attributes are listed, either in the table or as attribute no
 Guide of Output:
 
 
-Attributes discussed:
-	Attribute 1: Candidate A Value (Best), Candidate B Value, Candidate C Value not included
-	Attribute 2: Candidate A Value not included, Candidate B Value(Best), Candidate C Value not included
-	Attribute 5: Candidate A Value, Candidate B Value (Best), Candidate C Value 
+First a markdown table with candidates bolded and attributes italicized. Highlight the best value for each attribute using three asterisks and bold font. Leave cells empty if not all values are discussed.
+
+Attributes discussed (A table of only the attributes that have been discussed at least for one candidate):
+
+| Attribute   | Candidate A | Candidate B | Candidate C |
+|-------------|-------------|-------------|-------------|
+| Attribute 1 | Value       | Value (***)      | Value       |
+| Attribute 2 | Value       | Value       | Value  (***)     |
+| Attribute 5 |             | Value (***)      | Value       |
+| Attribute 7 |             | Value (***)      |       |
 
 Second: List of attributes highlighted by {role_id_assisted} (include both shared and private attributes):	
 

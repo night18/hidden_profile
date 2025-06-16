@@ -9,8 +9,8 @@ class OpenAIClient:
         if not api_key:
             raise ValueError("OPENAI_API_KEY is not set")
         self.client = AsyncOpenAI(api_key=api_key)
-        self.model = "gpt-4o"
-        self.max_tokens = 300
+        self.model = "o3-mini-2025-01-31"
+        self.max_tokens = 20000
         # Load system prompts and templates at initialization
         self.group_system_prompt = self._load_prompt("group_system_prompt.txt")
         self.individual_system_prompt = self._load_prompt("individual_system_prompt.txt")
@@ -35,11 +35,12 @@ class OpenAIClient:
         completion = await self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            max_tokens=self.max_tokens,
-            temperature=0.2,
+            max_completion_tokens=self.max_tokens,
         )
         print("completion")
         print(completion.choices[0].message.content)
+
+
         return completion.choices[0].message.content
     
     def get_participant_alias(self, participant):
@@ -72,7 +73,7 @@ class OpenAIClient:
                 )
             else:                                        # LLM
                 formatted_messages.append(
-                    {"role": 'user', "content": f"Assitant: {msg.content}. (This message was a {msg.type_of_intervention})"}
+                    {"role": 'assistant', "content": f"Assitant: {msg.content}. (This message was a {msg.type_of_intervention})"}
                 )
         
         return formatted_messages

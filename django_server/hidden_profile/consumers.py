@@ -313,11 +313,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             group = await sync_to_async(Group.objects.get)(pk=group_id)
             condition_id = await sync_to_async(lambda: group.condition._id)()
+
+            role_map= await self.get_role_alias_dict()
+            self.role_map= role_map
+
             if condition_id == 1:
                 # Every participant gets their own LLM task
                 print(f"[LLM] Starting individual LLM (condition 1) for participant {self.participant_id}")
                 self.auto_llm_task = asyncio.create_task(self.periodic_llm_call(group, turn))
-
 
 
 
@@ -421,10 +424,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(f"[LLM] Starting periodic LLM call for group {group_id} for turn {turn_number}")
         while True:
             await asyncio.sleep(10) # check every second
-            last_message=  await sync_to_async(lambda: Message.objects.filter(group=group, turn=turn).order_by('-timestamp').first())()
-            if last_message is None: #no messages no intervention
+            message_count = await sync_to_async(
+                lambda: Message.objects.filter(group=group, turn=turn).count()
+            )()
+
+            # less than 5 messages? → skip the intervention loop iteration
+            if message_count < 5:
                 continue
 
+            last_message=  await sync_to_async(lambda: Message.objects.filter(group=group, turn=turn).order_by('-timestamp').first())()
             if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
                 continue
             if (datetime.datetime.now(datetime.timezone.utc) - last_intervention_analysis).total_seconds() < 20:
@@ -448,13 +456,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
                     
-                        if intervention_response["summarization"]['score'] >= 80:
+                        if intervention_response["summarization"]['score'] >= 70:
                             response = await self.openai_client.individual_level_response(participant, group, turn,"Summarization",role_id)
                             type_of_intervention   = "Summarization"
-                        elif intervention_response["nudging"]['score']  > 80:
+                        elif intervention_response["nudging"]['score']  > 70:
                             response = await self.openai_client.individual_level_response(participant, group, turn,"Nudging",role_id)
                             type_of_intervention = "Nudging"
-                        elif intervention_response["devils_advocate"]['score']  >80:
+                        elif intervention_response["devils_advocate"]['score']  >75:
                             response = await self.openai_client.individual_level_response(participant, group, turn,"Devils Advocate",role_id)
                             type_of_intervention = "Devils Advocate"
                         else:
@@ -509,15 +517,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     try: 
                         intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,None,private=False)                                              
                         print('inter')
+                        print(intervention_response)
+
                         intervention_response = json.loads(intervention_response)
-                        print(1)
 
 
                     
-                        if intervention_response["summarization"]['score'] >= 70:
+                        if intervention_response["summarization"]['score'] >= 65:
                             response = await self.openai_client.group_level_response( group, turn,"Summarization",role_map)
                             type_of_intervention = "Summarization"
-                        elif intervention_response["nudging"]['score']  > 70:
+                        elif intervention_response["nudging"]['score']  > 65:
                             response = await self.openai_client.group_level_response( group, turn,"Nudging",role_map)
                             type_of_intervention = "Nudging"
                         elif intervention_response["devils_advocate"]['score']  >70:
