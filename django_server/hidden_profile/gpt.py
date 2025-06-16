@@ -9,8 +9,8 @@ class OpenAIClient:
         if not api_key:
             raise ValueError("OPENAI_API_KEY is not set")
         self.client = AsyncOpenAI(api_key=api_key)
-        self.model = "gpt-4o"
-        self.max_tokens = 300
+        self.model = "o3-mini-2025-01-31"
+        self.max_tokens = 20000
         # Load system prompts and templates at initialization
         self.group_system_prompt = self._load_prompt("group_system_prompt.txt")
         self.individual_system_prompt = self._load_prompt("individual_system_prompt.txt")
@@ -35,11 +35,12 @@ class OpenAIClient:
         completion = await self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            max_tokens=self.max_tokens,
-            temperature=0.2,
+            max_completion_tokens=self.max_tokens,
         )
         print("completion")
         print(completion.choices[0].message.content)
+
+
         return completion.choices[0].message.content
     
     def get_participant_alias(self, participant):
@@ -73,64 +74,12 @@ class OpenAIClient:
                 )
             else:                                        # LLM
                 formatted_messages.append(
-                    {"role": 'user', "content": f"Assitant: {msg.content}. (This message was a {msg.type_of_intervention})"}
+                    {"role": 'assistant', "content": f"Assitant: {msg.content}. (This message was a {msg.type_of_intervention})"}
                 )
         
         return formatted_messages
 
-    def quori_response(self, group_id, turn_number, caller_id=None, is_private=False):
-        from .models import Group, Turn, ParticipantTurn, LlmMessage
-        group = Group.objects.get(pk=group_id)
-        participants = group.participants.all()
-        role_ids = []
-        turn = Turn.objects.get(group=group, turn_number=turn_number)
-        
-        # Find their roles in the current turn
-        for participant in participants:
-            participant_turn = ParticipantTurn.objects.get(participant=participant, turn=turn)
-            role_ids.append(participant_turn.role._id)
-            
-            
-        # Assgin the role to each participant
-        teaching_focus_id = None
-        research_focus_id = None
-        service_focus_id = None
-        
-        for participant_id, role_id in zip(participants, role_ids):
-            if role_id == 1:
-                teaching_focus_id = participant_id
-            elif role_id == 2:
-                research_focus_id = participant_id
-            elif role_id == 3:
-                service_focus_id = participant_id
-        
-        
-        system_prompt = self.quori_system_prompt_template.format(
-            teaching_focus_id=self.get_participant_alias(teaching_focus_id),
-            research_focus_id=self.get_participant_alias(research_focus_id),
-            service_focus_id=self.get_participant_alias(service_focus_id)
-            )
-        
-        messages = [
-            {"role": "system", "content": system_prompt},
-        ]
-        
-        # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = self.get_group_chat_history(group_id, turn_number)
-        messages.extend(chat_messages)
-        print("messages")
-        print(messages)
 
-        response = self.generate_response(messages)
-        
-        # Store the response as new data in the database
-        if is_private:
-            llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=is_private, recipient=caller_id)
-        else:
-            llm_message = LlmMessage.objects.create(group=group, turn=turn, content=response, is_private=is_private)
-        
-        
-        return response, str(llm_message._id)
     
 
     async def individual_level_response(self, participant, group, turn, intervention_type,role_id):
@@ -179,6 +128,8 @@ class OpenAIClient:
             role_id_1=role_map[1],
             role_id_2=role_map[2],
             role_id_3=role_map[3],
+            public_information="Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citation Impact, Service on Editorial Boards, Conference Organization Roles",
+
             )
         
         messages = [
