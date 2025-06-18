@@ -55,7 +55,7 @@ generateAvatar();
                 <li>Review the candidate profiles and make your initial decision on your own.</li>
                 <li>Discuss with other members in your group and vote for the best candidate.</li>
             </ol>
-            <p>As a reminder, for each group task, you can earn <b>$1.5</b> as an additional bonus only if your group's final decision is the candidate who wins on more attributes than the other candidates. </p>
+            <p>As a reminder, for each group task, you can earn <b>$1.50</b> as an additional bonus only if your group's final decision is the best candidate. You will not earn the bonus if the group's final prediction is a tie.</p>
             <p>To protect your identity, we would assign you an avatar to represent you in your group throughout the rest of this study. If you are not satisfied with the assigned avatar, please click the <b>Refresh</b> button to get a new one.</p>
             <div class="avatar-area">
                 Your anonymous avatar is: <b>{{ avatar_color }} {{ avatar_animal }}</b> <br>

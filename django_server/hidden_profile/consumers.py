@@ -10,7 +10,11 @@ from datetime import timedelta, timezone
 import asyncio
 import uuid
 from channels.layers import get_channel_layer
-import contextlib   
+import contextlib  
+from .models import (
+    CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
+)
+from .serializers import CandidateProfileSerializer 
 TOTAL_TURNS = 1
 LLM_START_TIME = 10  # seconds
 LLM_IDLE_TIME = 10  # seconds
@@ -83,10 +87,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     async def receive(self, text_data=None):
-        from .models import (
-            CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
-        )
-        from .serializers import CandidateProfileSerializer
+
         data = json.loads(text_data)
         type = data["type"]
         
@@ -590,7 +591,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 content=response, 
                 is_private=True, 
                 recipient=participant,
-                type_of_intervention='Summarization',
+                type_of_intervention='Summarization'
             )
 
 

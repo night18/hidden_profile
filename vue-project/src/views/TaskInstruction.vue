@@ -40,8 +40,6 @@ function goExample() {
           </div>
         </div>
 
-          
-
       <div class="mt-4">
           <button class="btn btn-primary btn-lg" @click="goExample">Next</button>
       </div>
