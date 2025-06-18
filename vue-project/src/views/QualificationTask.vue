@@ -40,15 +40,7 @@ const candidates = [
 ];
 
 // Define highlighted cells
-const highlightedCells = [
-  { name: "Candidate B", attribute: "Number of Courses Taught" },
-  { name: "Candidate B", attribute: "Student Teaching Evaluations" },
-  { name: "Candidate C", attribute: "Number of Peer-Reviewed Publications" },
-  { name: "Candidate C", attribute: "Citation Impact" },
-  { name: "Candidate A", attribute: "Service on Editorial Boards" },
-  { name: "Candidate C", attribute: "Service on Editorial Boards" },
-  { name: "Candidate A", attribute: "Conference Organization Roles" },
-];
+const highlightedCells = ref([]);
 
 watch(selectedCandidate, (newValue, oldValue) => {
   is_submit.value = false;
@@ -56,11 +48,30 @@ watch(selectedCandidate, (newValue, oldValue) => {
 
 function submit() {
   is_submit.value = true;
+  if (selectedCandidate.value === 'Candidate B') {
+    highlightedCells.value = [
+      { name: "Candidate A", attribute: "Conference Organization Roles" },
+      { name: "Candidate B", attribute: "Conference Organization Roles" },
+      { name: "Candidate A", attribute: "Service on Editorial Boards" },
+      { name: "Candidate B", attribute: "Service on Editorial Boards" },
+      { name: "Candidate C", attribute: "Service on Editorial Boards" },
+      { name: "Candidate C", attribute: "Citation Impact" },
+      { name: "Candidate C", attribute: "Number of Peer-Reviewed Publications" },
+      { name: "Candidate B", attribute: "Student Teaching Evaluations" },
+      { name: "Candidate B", attribute: "Number of Courses Taught" }
+    ]; 
+  }
 }
 
 function validationMessage() {
   if (selectedCandidate.value === 'Candidate B') {
     return 'Congratulations! You have selected the best candidate.';
+  }
+  if (selectedCandidate.value === 'Candidate A') {
+    return 'Candidate A is strong in "Conference Organization Roles" and "Service on Editorial Boards", but lower in other four evaluations. Please review all qualifications carefully.';
+  }
+  if (selectedCandidate.value === 'Candidate C') {
+    return 'Candidate C has strong in "Service on Editorial Boards", "Citation Impact", and "Number of Peer-Reviewed Publications" and less experience in other areas. Please review all qualifications carefully.';
   }
   return 'Your selection is not the best candidate. Please review the candidates and select the most qualified one.';
 }
@@ -77,7 +88,7 @@ function next() {
       <h2>Qualification Task</h2>
       <div class="content-area">
         <p>You are serving on a university search committee tasked with selecting the most qualified candidate for a faculty position. You will review three candidate profiles and work with other committee members to evaluate their qualifications and make a hiring decision.</p>
-        <CandidateTable :candidates="candidates" />
+        <CandidateTable :candidates="candidates" :highlightedCells="highlightedCells"/>
         <div>
           <strong>Select the best candidate:</strong>
           <div

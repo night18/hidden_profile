@@ -65,7 +65,7 @@ function next() {
         <CandidateTable :candidates="example_candidates" :highlightedCells="highlightedCells"/>
         <p>In this example, the highlighted cells indicate the attributes where each candidate excels. Use this information to compare the candidates and make an informed decision. Remember to consider all attributes and evaluate the candidates holistically to make the best decision.</p>
         <p><strong>Candidate C</strong> excels in more attributes compared to the other candidates. Based on this information, Candidate C may be considered the best candidate in this scenario.</p>
-        <button class="btn btn-primary btn-lg" @click="next">Next</button>
+        <button class="btn btn-primary btn-lg" @click="next">Try it by yourself</button>
       </div>
     </div>
   </div>

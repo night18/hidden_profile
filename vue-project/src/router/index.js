@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 /* Participant related */
 import EntranceView from '@/views/EntranceView.vue';
 import TaskInstruction from '@/views/TaskInstruction.vue';
+import TaskInstructionCont from '@/views/TaskInstructionCont.vue';
 import CandidateExample from '@/views/CandidateExample.vue';
 import QualificationTask from '@/views/QualificationTask.vue';
 import WaitingRoom from '@/views/WaitingRoom.vue';
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/TaskInstruction',
       name: 'TaskInstruction',
       component: TaskInstruction,
+    },
+    {
+      path: '/TaskInstructionCont',
+      name: 'TaskInstructionCont',
+      component: TaskInstructionCont,
     },
     {
       path: '/CandidateExample',
