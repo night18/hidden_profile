@@ -99,8 +99,8 @@ CHANNEL_LAYERS = {
     'default' : {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('hdpf-redis.6kcz6r.ng.0001.usw2.cache.amazonaws.com', 6379)],
-            # "hosts": [('localhost', 6379)],
+            # "hosts": [('hdpf-redis.6kcz6r.ng.0001.usw2.cache.amazonaws.com', 6379)],
+            "hosts": [('localhost', 6379)],
         },
     }
 }
