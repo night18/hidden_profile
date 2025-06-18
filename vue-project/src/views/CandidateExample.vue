@@ -61,7 +61,7 @@ function next() {
         <p>You are serving on a university search committee tasked with selecting the most qualified candidate for a faculty position. You will review three candidate profiles and work with other committee members to evaluate their qualifications and make a hiring decision. Here is an example of how the candidate profiles will be presented to you.</p>
         <CandidateTable :candidates="example_candidates"/>
         <strong>In this example, how can we determine who is the best candidate?</strong>
-        <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. Remember that each attribute is equally important in the decision-making process.</p>
+        <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. <strong>Remember that each attribute is equally important in the decision-making process</strong> .</p>
         <CandidateTable :candidates="example_candidates" :highlightedCells="highlightedCells"/>
         <p>In this example, the highlighted cells indicate the attributes where each candidate excels. Use this information to compare the candidates and make an informed decision. Remember to consider all attributes and evaluate the candidates holistically to make the best decision.</p>
         <p><strong>Candidate C</strong> excels in more attributes compared to the other candidates. Based on this information, Candidate C may be considered the best candidate in this scenario.</p>

@@ -62,7 +62,7 @@ function validationMessage() {
   if (selectedCandidate.value === 'Candidate B') {
     return 'Congratulations! You have selected the best candidate.';
   }
-  return 'Your selection is not the best candidate. Please review the candidates and select the most qualified one.';
+  return 'Your current choice isn’t the strongest overall—another candidate excels on more attributes. Please review all candidates and choose the one who is most qualified.';
 }
 
 function next() {
