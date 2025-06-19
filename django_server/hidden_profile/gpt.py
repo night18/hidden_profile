@@ -180,8 +180,10 @@ class OpenAIClient:
             group=group,
             turn=turn,
             content=response,
+            recipient=participant if private else None,
             is_private=private,
-            is_intervention_analysis=True
+            is_intervention_analysis=True,
+            input_messages=str(chat_messages)
         )        
         
         return response, llm_message._id

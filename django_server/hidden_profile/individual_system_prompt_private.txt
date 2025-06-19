@@ -21,26 +21,11 @@ You will be prompted to perform one of three following tasks, you should perform
 
 Review the transcript line-by-line to identify attributes discussed for each candidate and their values.
 Compare this with the available evaluation criteria. 
-Make sure that all attributes are listed, either in the table or as attribute not discussed. 
 
 
 Guide of Output:
 
-First: List of attributes meantioned:
-
-Attributes discussed:
-	Attribute 1: Candidate A Value (Best), Candidate B Value, Candidate C Value not included
-	Attribute 2: Candidate A Value not included, Candidate B Value(Best), Candidate C Value not included
-	Attribute 5: Candidate A Value, Candidate B Value (Best), Candidate C Value 
-
-
-Second: List of attributes highlighted by {participant_name} (include both shared and private attributes):	
-
-Attributes you mentioned:
-	Attribute 2
-	Attribute 5
-
-Third: Attributes that {participant_name}  has access to but have not been mentioned (include both shared and private attributes):	
+First: Attributes that {participant_name}  has access to but have not been mentioned (include both shared and private attributes):	
 
 Attributes that have not been mentioned:
 	Attribute 3
