@@ -18,25 +18,24 @@ function goExample() {
           <!-- Overview Section -->
           <div >
               <h3>What You'll Do</h3>
-              <p>
-                  Your committee is reviewing <b>three finalists</b> for a faculty position. Each candidate brings a unique set of strengths in three important areas:
+              <p> Your committee is reviewing <b>three finalists</b> for a faculty position. Each candidate brings a unique set of strengths in three important areas:</p>
                   <ul>
                     <li><strong>Research Contributions</strong> - Courses taught, student engagement, and innovation in pedagogy.</li>
                     <li><strong>Teaching Experience</strong> - Publications, research impact, and alignment with the department's needs.</li>
                     <li><strong>Service & Leadership</strong> - Contributions to mentorship, departmental service, and broader academic community involvement.</li>
                   </ul>
-                  As a committee member in a specific area, you will focus on just one of these areas in the beginning.That means:
+              <p> As a committee member in a specific area, you will focus on just one of these areas in the beginning.That means:</p>
                   <ul>
                     <li>You'll review detailed information about candidates in <b>your assigned focus area</b>.</li>
                     <li>You <b>won't see</b> the full profile. Your teammates (other committee members) will bring insights from other areas.</li>
                   </ul>
-                  Your job is to:
+              <p>Your job is to:</p>
                   <ul>
                     <li><b>Review</b> the candidate information provided to you.</li>
                     <li><b>Discuss</b> with other committee members to share your perspective and hear theirs.</li>
                     <li><b>Help your team reach a group decision</b> on the most qualified candidate overall.</li>
                   </ul>
-              </p>
+              
           </div>
         </div>
 

@@ -78,6 +78,12 @@ function get_group_condition() {
   return groupStore.getCondition() !== 0;
 }
 
+function get_group_condition_private() {
+  // Get the group condition from the groupStore
+  return groupStore.getCondition() == 1;
+}
+
+
 </script>
 <template>
   <div class="chat-room">
@@ -109,9 +115,10 @@ function get_group_condition() {
     </div>
     <div class="room-area" ref="roomarea">
       <div v-if="get_group_condition()" class="chat-info">
-        After 1 minute, there will be an LLM assistant, Quori, to participate in the discussion. You can call the LLM assistant to summarize the conversation by typing "<b>@Quori</b>" in the message box. <br>
+        You can call the LLM assistant to summarize the conversation by typing "<b>@Quori</b>" in the message box. <br>
       </div>
       <div v-for="message in messages" :key="message.id" class="message-card">
+        
         <!-- message from LLM asssitant -->
         <div class="row" v-if="message.sender.participant_id === -1">
           <div class="col-1 icon-div">
@@ -121,10 +128,10 @@ function get_group_condition() {
           </div>
           <div class="col-9">
             <div class="row">
-              <div class="message-avatar-name">Quori</div>
+              <div class="message-avatar-name">Quori<span v-if="get_group_condition_private()"> (PRIVATE MESSAGE)</span></div>
             </div>
             <div class="row">
-              <div class="message-content">
+              <div :class="get_group_condition_private() ? 'llm-message-private' : 'llm-message'">
                 <span v-html="formatMessageContent(message.content)"></span>
               </div>
             </div>
@@ -315,6 +322,39 @@ function get_group_condition() {
     display: inline-block;
   }
 
+  .llm-message {
+    background:#ffefc1;          /* distinguishable */
+    border-left:3px solid #f0b90b;/* accent */
+    padding:3px 15px;
+    border-radius:15px;
+    max-width:70%;
+    opacity:0.92;
+  }
+
+  .llm-message-private{
+    background:#ffefc1;          /* distinguishable */
+    border-left:3px solid #f0b90b;/* accent */
+    padding:3px 15px;
+    border-radius:15px;
+    max-width:70%;
+    opacity:0.92;
+    position: relative;      /* ⬅️ enables absolute child */
+
+  }
+  
+  .llm-message-private::after {
+    content: "PRIVATE";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.8em;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #555;
+    opacity: 0.25;           /* subtle */
+    pointer-events:none;
+    z-index:1;  }
   .own_message {
     margin-left: 0px;
     background-color: #0184ff;

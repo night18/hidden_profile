@@ -17,14 +17,13 @@ function goExample() {
       <!-- Overview Section -->
       <div >
           <h3>What Makes a Strong Candidate?</h3>
-          <p>
-            Each candidate has been evaluated on 18 total attributes, drawn from three key areas:
+          <p> Each candidate has been evaluated on 18 total attributes, drawn from three key areas:</p>
             <ul>
               <li>Research (e.g., publications, research impact, grant record)</li>
               <li>Teaching (e.g., course development, student feedback, teaching awards)</li>
               <li>Service & Leadership (e.g., mentoring, academic service, community involvement)</li>
             </ul>
-          </p>
+          
           <p>
             As a committee member, you will only see <b>10 of these 18 attributes</b>, focused on your assigned evaluation area. Other members will see different sets of information.
           </p>
