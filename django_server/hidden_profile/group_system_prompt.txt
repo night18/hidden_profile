@@ -26,16 +26,10 @@ Make sure that all attributes are listed, either in the table or as attribute no
 
 
 Guide of Output:
-First: A list of attributes that have been discussed:
 
-Attributes discussed:
-	Attribute 1: Candidate A Value (Best), Candidate B Value, Candidate C Value not included
-	Attribute 2: Candidate A Value not included, Candidate B Value(Best), Candidate C Value not included
-	Attribute 5: Candidate A Value, Candidate B Value (Best), Candidate C Value 
+First: Attributes that have not been mentioned (include both shared and private attributes):	
 
-Second: Attributes that have not been mentioned (include both shared and private attributes):	
-
-Attributes not discussed:
+Attributes that have not been mentioned:
 	Attribute 3
 	Attribute 4
 	Attribute 6

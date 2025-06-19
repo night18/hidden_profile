@@ -166,6 +166,7 @@ class LlmMessage(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     is_intervention_analysis=models.BooleanField(default=False)
     type_of_intervention = models.CharField(max_length=100, null=True, blank=True)
+    input_messages = models.TextField(default="")
 
     def __str__(self):
         if self.is_private and self.recipient:

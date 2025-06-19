@@ -11,9 +11,7 @@ import asyncio
 import uuid
 from channels.layers import get_channel_layer
 import contextlib  
-from .models import (
-    CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
-)
+
 from .serializers import CandidateProfileSerializer 
 TOTAL_TURNS = 1
 LLM_START_TIME = 10  # seconds
@@ -87,7 +85,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     async def receive(self, text_data=None):
-
+        from .models import (
+            CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition
+        )
         data = json.loads(text_data)
         type = data["type"]
         
@@ -404,6 +404,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(message))
     
     async def periodic_llm_call(self,group,turn):
+
+
+
         from .models import Participant, ParticipantTurn, Message, LlmMessage
 
         # Check the group's condition id to decide whether and how LLM should respond
@@ -454,9 +457,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 while True:#use  loop and try in case llm response format is not correct
                     try: 
                         intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,participant,private=True)                                              
-                        print('inter')
-                        print(intervention_response)
-                        print(self.participant_alias)
                         intervention_response = json.loads(intervention_response)
 
 
@@ -580,7 +580,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 
             
     async def quori_response(self, group, turn, participant, private):
-        # Get the group
+        from .models import (
+            LlmMessage
+        )        # Get the group
         if private:
             response = await self.openai_client.individual_level_response(participant, group, turn,"Summarization",self.role_id)
 

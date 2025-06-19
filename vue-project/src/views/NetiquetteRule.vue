@@ -13,7 +13,7 @@ function submit() {
 <template>
 <div class="container">
     <div class="jumbotron container">
-        <h2>Discussion Netiquette and Rules</h2>
+        <h2>Discussion and Etiquette Rules</h2>
         <div class="content-area">
             In the group phase, you will need to discuss with other members of your group and vote for the best candidate. To encourage a safe and healthy discussion environment, we'd like to remind you of a few rules you should follow during the discussion:
             <ol>

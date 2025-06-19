@@ -52,7 +52,7 @@
             "number_of_peer_reviewed_publications": "28",
             "citations": "1200",
             "service_on_editorial_boards": "Yes",
-            "conference_organization_roles": "Co-Chair of a National Conference",
+            "conference_organization_roles": "Chair of a National Conference",
             "undergraduate_mentorship_success": "12 students pursued grad studies",
             "graduate_thesis_supervision": "10 theses supervised",
             "curriculum_development": "Developed/redesigned 4 courses",
@@ -78,7 +78,7 @@
             "number_of_peer_reviewed_publications": "35",
             "citations": "1400",
             "service_on_editorial_boards": "Yes",
-            "conference_organization_roles": "Member of Program Committee",
+            "conference_organization_roles": "None",
             "undergraduate_mentorship_success": "5 students pursued grad studies",
             "graduate_thesis_supervision": "4 theses supervised",
             "curriculum_development": "Redesigned 1 course",
@@ -86,11 +86,11 @@
             "grant_funding_secured": "$1.5M",
             "impact_of_research_publications": "8 top-tier publications",
             "interdisciplinary_research": "Limited interdisciplinary work",
-            "research_awards": "Won 1 research award",
+            "research_awards": "Won 'Best Paper Award' once",
             "invited_talks": "Delivered 5 keynote speeches",
             "industry_collaboration": "Partnership with 1 company",
             "university_committee_service": "Member of 1 committee",
-            "diversity_and_inclusion_initiatives": "Organized one D&I workshop"
+            "diversity_and_inclusion_initiatives": "None"
         }
     },
     {
@@ -112,7 +112,7 @@
             "grant_funding_secured": "$1M",
             "impact_of_research_publications": "5 top-tier publications",
             "interdisciplinary_research": "Collaborated across AI and education",
-            "research_awards": "Won 2 research awards",
+            "research_awards": "Won 'Best Paper Award' twice",
             "invited_talks": "Delivered 8 invited talks",
             "industry_collaboration": "Partnership with 2 companies",
             "university_committee_service": "Member of 2 committees",

@@ -343,10 +343,10 @@ function get_group_condition_private() {
   }
   
   .llm-message-private::after {
-    content: "PRIVATE";
+    content: "PRIVATE LLM MESSAGE  (only visible to you)";
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: 150%;
     transform: translate(-50%, -50%);
     font-size: 0.8em;
     font-weight: 600;
