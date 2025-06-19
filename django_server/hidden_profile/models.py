@@ -212,11 +212,11 @@ class PostSurvey(models.Model):
     individual_task_orientation = models.IntegerField()
 
     # LLM Usability
-    llm_collaboration = models.IntegerField()
-    llm_satisfaction = models.IntegerField()
-    llm_quality = models.IntegerField()
-    llm_recommendation = models.IntegerField()
-    llm_future_use = models.IntegerField()
+    llm_collaboration = models.IntegerField(null=True, blank=True)
+    llm_satisfaction = models.IntegerField(null=True, blank=True)
+    llm_quality = models.IntegerField(null=True, blank=True)
+    llm_recommendation = models.IntegerField(null=True, blank=True)
+    llm_future_use = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"Post Survey {self._id} from {self.participant._id}"

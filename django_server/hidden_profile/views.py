@@ -202,6 +202,7 @@ def record_post_survey(request):
     Records the participant's responses to the post-survey.
     """
     participant_id = request.POST.get('participant_id', None)
+    # print(participant_id)
     if not participant_id:
         return JsonResponse({'error': 'Missing participant_id'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -210,45 +211,88 @@ def record_post_survey(request):
     except Participant.DoesNotExist:
         return JsonResponse({'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    # Extract survey responses from the request
     try:
+        # Discussion Quality Scale fields
+        dialogue_management = request.POST.get('dialogue_management')
+        information_pooling = request.POST.get('information_pooling')
+        reaching_consensus = request.POST.get('reaching_consensus')
+        task_division = request.POST.get('task_division')
+        time_management = request.POST.get('time_management')
+        technical_coordination = request.POST.get('technical_coordination')
+        reciprocal_interaction = request.POST.get('reciprocal_interaction')
+        individual_task_orientation = request.POST.get('individual_task_orientation')
+
+        # LLM Usability fields
+        llm_collaboration = request.POST.get('llm_collaboration')
+        llm_satisfaction = request.POST.get('llm_satisfaction')
+        llm_quality = request.POST.get('llm_quality')
+        llm_recommendation = request.POST.get('llm_recommendation')
+        llm_future_use = request.POST.get('llm_future_use')
+
+        # print(f"Received post-survey data for participant {participant_id}: "
+        #       f"dialogue_management={dialogue_management}, "
+        #         f"information_pooling={information_pooling}, "
+        #         f"reaching_consensus={reaching_consensus}, "
+        #         f"task_division={task_division}, "
+        #         f"time_management={time_management}, "
+        #         f"technical_coordination={technical_coordination}, "
+        #         f"reciprocal_interaction={reciprocal_interaction}, "
+        #         f"individual_task_orientation={individual_task_orientation}, "
+        #         f"llm_collaboration={llm_collaboration}, "
+        #         f"llm_satisfaction={llm_satisfaction}, "
+        #         f"llm_quality={llm_quality}, "
+        #         f"llm_recommendation={llm_recommendation}, "
+        #         f"llm_future_use={llm_future_use}")
+        
+
+        # Validate that all required fields are present
+        required_fields = [
+            dialogue_management, information_pooling, reaching_consensus, task_division,
+            time_management, technical_coordination, reciprocal_interaction, individual_task_orientation
+        ]
+        
+        if any(field is None or field == '' for field in required_fields):
+            return JsonResponse({'error': 'Missing required survey fields'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Convert to integers and validate range (assuming 1-7 Likert scale)
         survey_data = {
-            'participant': participant,
-            'dialogue_management': request.POST.get('dialogue_management'),
-            'information_pooling': request.POST.get('information_pooling'),
-            'reaching_consensus': request.POST.get('reaching_consensus'),
-            'task_division': request.POST.get('task_division'),
-            'time_management': request.POST.get('time_management'),
-            'technical_coordination': request.POST.get('technical_coordination'),
-            'reciprocal_interaction': request.POST.get('reciprocal_interaction'),
-            'individual_task_orientation': request.POST.get('individual_task_orientation'),
-            'llm_collaboration': request.POST.get('llm_collaboration', None),
-            'llm_satisfaction': request.POST.get('llm_satisfaction', None),
-            'llm_quality': request.POST.get('llm_quality', None),
-            'llm_recommendation': request.POST.get('llm_recommendation', None),
-            'llm_future_use': request.POST.get('llm_future_use', None),
+            'dialogue_management': int(dialogue_management),
+            'information_pooling': int(information_pooling),
+            'reaching_consensus': int(reaching_consensus),
+            'task_division': int(task_division),
+            'time_management': int(time_management),
+            'technical_coordination': int(technical_coordination),
+            'reciprocal_interaction': int(reciprocal_interaction),
+            'individual_task_orientation': int(individual_task_orientation),
+            'llm_collaboration': int(llm_collaboration),
+            'llm_satisfaction': int(llm_satisfaction),
+            'llm_quality': int(llm_quality),
+            'llm_recommendation': int(llm_recommendation),
+            'llm_future_use': int(llm_future_use)
         }
 
-        # Validate required fields
-        required_fields = [
-            'dialogue_management', 'information_pooling', 'reaching_consensus',
-            'task_division', 'time_management', 'technical_coordination',
-            'reciprocal_interaction', 'individual_task_orientation'
-        ]
-        for field in required_fields:
-            if survey_data[field] is None:
-                return JsonResponse({'error': f'Missing required field: {field}'}, status=status.HTTP_400_BAD_REQUEST)
+        # Validate that all values are within expected range (1-7 for Likert scale)
+        for field, value in survey_data.items():
+            if not (1 <= value <= 7):
+                return JsonResponse({'error': f'Invalid value for {field}: must be between 1 and 7'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Convert fields to integers
-        for key in survey_data:
-            if key != 'participant' and survey_data[key] is not None:
-                survey_data[key] = int(survey_data[key])
+        # Check if participant already has a post-survey record
+        if PostSurvey.objects.filter(participant=participant).exists():
+            return JsonResponse({'error': 'Post-survey already completed for this participant'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Save the survey data
-        PostSurvey.objects.create(**survey_data)
-        return JsonResponse({'success': 'Post-survey responses recorded'}, status=status.HTTP_200_OK)
+        # Create and save the PostSurvey record
+        post_survey = PostSurvey.objects.create(
+            participant=participant,
+            **survey_data
+        )
 
+        return JsonResponse({'message': 'Post-survey recorded successfully', 'survey_id': str(post_survey._id)}, status=status.HTTP_200_OK)
+
+    except ValueError as e:
+        return JsonResponse({'error': f'Invalid data format: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse({'error': f'An error occurred while saving the survey: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 def get_bonus(request):
