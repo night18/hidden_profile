@@ -179,3 +179,11 @@ cython_debug/
 # Large icon
 icons/
 .DS_Store
+group/__pycache__/asgi.cpython-313.pyc
+group/__pycache__/settings.cpython-313.pyc
+group/__pycache__/urls.cpython-313.pyc
+hidden_profile/__pycache__/admin.cpython-313.pyc
+hidden_profile/__pycache__/consumers.cpython-313.pyc
+hidden_profile/__pycache__/gpt.cpython-313.pyc
+hidden_profile/__pycache__/models.cpython-313.pyc
+hidden_profile/__pycache__/views.cpython-313.pyc
