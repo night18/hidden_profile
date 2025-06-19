@@ -149,6 +149,7 @@ class Message(models.Model):
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE, related_name="messages")
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    quori_included = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Message {self._id} from {self.sender._id} in Group {self.group._id} during Turn {self.turn.turn_number}"

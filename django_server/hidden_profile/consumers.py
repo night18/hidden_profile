@@ -214,7 +214,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             turn = await sync_to_async(Turn.objects.get)(group=group, turn_number=turn_number)
             
             # Save the message to the database
-            message = await sync_to_async(Message.objects.create)(group=group, sender=sender, turn=turn, content=content)
+            quori_included = False
+            if "@quori" in content.lower():
+                quori_included = True
+            message = await sync_to_async(Message.objects.create)(group=group, sender=sender, turn=turn, content=content,quori_included=quori_included)
             message_id = str(message._id)
 
             # Check the condition id to decide whether and how LLM should respond
@@ -461,13 +464,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
                     
-                        if intervention_response["summarization"]['score'] >= 70:
+                        if intervention_response["summarization"]['score'] >= 60:
                             response = await self.openai_client.individual_level_response(participant, group, turn,"Summarization",role_id)
                             type_of_intervention   = "Summarization"
-                        elif intervention_response["nudging"]['score']  > 70:
+                        elif intervention_response["nudging"]['score']  > 60:
                             response = await self.openai_client.individual_level_response(participant, group, turn,"Nudging",role_id)
                             type_of_intervention = "Nudging"
-                        elif intervention_response["devils_advocate"]['score']  >75:
+                        elif intervention_response["devils_advocate"]['score']  >60:
                             response = await self.openai_client.individual_level_response(participant, group, turn,"Devils Advocate",role_id)
                             type_of_intervention = "Devils Advocate"
                         else:
