@@ -27,16 +27,16 @@ Make sure that all attributes are listed, either in the table or as attribute no
 
 Guide of Output:
 
-First: Attributes that have not been mentioned (include both shared and private attributes):	
+First: Provide a concise summary (less than 50 words), highlighting preferences and if they have changed.
+
+
+Finally: List of attributes that have not been mentioned (include both shared and private attributes, but do not say which one is shared and which one is private):	
 
 Attributes that have not been mentioned:
 	Attribute 3
 	Attribute 4
 	Attribute 6
 
-Finally:
-
-Provide a concise summary (less than 50 words), highlighting preferences and if they have changed.
 
 
 

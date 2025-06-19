@@ -2,6 +2,7 @@ from openai import AsyncOpenAI
 import os
 from asgiref.sync import sync_to_async
 import heapq
+from .models import Group, Turn, ParticipantTurn, Message, LlmMessage
 
 class OpenAIClient:
     def __init__(self):
@@ -56,7 +57,7 @@ class OpenAIClient:
         turn = Turn.objects.get(group=group, turn_number=turn_number)
         
         # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = list(Message.objects.filter(group=group, turn=turn).order_by("timestamp"))
+        chat_messages = list(Message.objects.filter(group=group, turn=turn,quori_included=False).order_by("timestamp"))
         if private:
             llm_messages = LlmMessage.objects.filter(group=group, turn=turn,recipient=participant,is_intervention_analysis=False).order_by("timestamp")
         else:
