@@ -55,8 +55,10 @@ onMounted(() => {
           });
           return;
         }
+        let candidate_profiles = response.data.candidate_profiles;
+        candidate_profiles.sort((a, b) => a.name.localeCompare(b.name));
 
-        candidateProfileStore.setCandidateProfiles(response.data.candidate_profiles);
+        candidateProfileStore.setCandidateProfiles(candidate_profiles);
       });
   });
 

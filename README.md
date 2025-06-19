@@ -28,3 +28,4 @@ The web application for the hidden profile task
 - [ ] Make sure that participants don't have the same alias
 - [ ] Include LLM messages in trancript given to LLM (so we don't have repeated interventions)
 - [ ] How to deal with table?
+- [ ] In the initial individual decision, what to do after the allowed time (2 minutes).

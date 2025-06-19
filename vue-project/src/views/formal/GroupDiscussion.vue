@@ -181,8 +181,19 @@ onMounted(() => {
               v-if="showCandidateTable"
               class="floating-table"
             >
-              <button class="close-button" @click="closeCandidateTable">x</button>
-              <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
+              <div class="floating-table-header">
+                <div class="row">
+                  <div class="col-11">
+                    Candidate Profiles
+                  </div>
+                  <div class="col-1 text-end">
+                    <button class="close-button" @click="closeCandidateTable">X</button>
+                  </div>
+                </div>
+              </div>
+              <div class="floating-table-content">
+                <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
+              </div>
             </div>
             <div v-if="!showCandidateSelection" class="ready-area">
               <p>You must discuss with the other search committee members for at least 2 minutes. Once you have fully discussed, please click the 'Ready to Vote' button.</p>
@@ -263,13 +274,23 @@ onMounted(() => {
   padding: 10px;
 }
 
+.floating-table-header {
+  display: block;
+  border-bottom: 1px solid #ccc;
+}
+
 .close-button {
-  position: absolute;
-  top: 5px;
-  right: 5px;
   background: none;
   border: none;
   font-size: 16px;
   cursor: pointer;
 }
+
+.floating-table-content {
+  padding: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+
 </style>
