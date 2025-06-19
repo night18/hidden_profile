@@ -156,13 +156,15 @@ function get_group_condition_private() {
             </div>
             <div class="row">
               <div class="message-content">
-                <span v-html="formatMessageContent(message.content)"></span>
+                <div class="message-border">
+                  <span v-html="formatMessageContent(message.content)"></span>
+                </div>
               </div>
             </div>
           </div>
         </div>
         <!-- message from the participant himself or herself -->
-        <div class="row" v-else>
+        <div class="row own_message" v-else>
           <div class="col-2"></div>
           <div class="col-9">
             <div class="row">
@@ -171,8 +173,10 @@ function get_group_condition_private() {
               </div>
             </div>
             <div class="row">
-              <div class="message-content own_message">
-                <span v-html="formatMessageContent(message.content)"></span>
+              <div class="message-content">
+                <div class="message-border">
+                  <span v-html="formatMessageContent(message.content)"></span>
+                </div>
               </div>
             </div>
           </div>
@@ -316,11 +320,19 @@ function get_group_condition_private() {
   }
 
   .message-content {
-    background-color: #E4E6EB;
-    padding: 3px 15px;
-    border-radius: 15px;
     display: inline-block;
   }
+
+  .message-border {
+    width: fit-content;
+    background-color: #0184ff;
+    color:  #ffffff;
+    padding: 3px 15px;
+    border-radius: 15px;
+    margin-right: auto;
+    margin-left: 0;
+  }
+
 
   .llm-message {
     background:#ffefc1;          /* distinguishable */
@@ -355,14 +367,37 @@ function get_group_condition_private() {
     opacity: 0.25;           /* subtle */
     pointer-events:none;
     z-index:1;  }
+    
   .own_message {
-    margin-left: 0px;
+    text-align: right;
+  }
+
+  .own_message > .col-2{
+    margin-right: 0; /* reduce or remove right margin */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    /* border-radius: 15px; */
+  }
+
+    .own_message > .col-9 {
+    margin-right: 0; /* reduce or remove right margin */
+    padding-left: 0 !important;
+    padding-right: 0px !important;
+    /* border-radius: 15px; */
+  }
+
+  .own_message .message-content {
+    text-align: right;
+  }
+
+  .own_message .message-border {
+    width: fit-content;
     background-color: #0184ff;
     color:  #ffffff;
-    margin-left: auto;
-    margin-right: -25px; /* reduce or remove right margin */
-    padding-right: 12px; /* you can tweak this as needed */
+    padding: 3px 15px;
     border-radius: 15px;
+    margin-left: auto;
+    margin-right: 0;
   }
 
   .own_message .col {

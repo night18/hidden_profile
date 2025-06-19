@@ -133,7 +133,7 @@ onMounted(() => {
       if (turnStore.isTurnFinished()) {
         // Close the chat room
         chatStore.closeWebSocket();
-        router.push( {name: 'exit'} );
+        router.push( {name: 'PostSurvey'} );
       } else {
         router.push( {name: 'FormalCandidate' } );
       }
