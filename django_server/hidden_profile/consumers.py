@@ -12,7 +12,6 @@ import uuid
 from channels.layers import get_channel_layer
 import contextlib  
 
-from .serializers import CandidateProfileSerializer 
 TOTAL_TURNS = 1
 LLM_START_TIME = 10  # seconds
 LLM_IDLE_TIME = 10  # seconds
