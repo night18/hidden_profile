@@ -129,7 +129,7 @@ function next() {
         <p>You are serving on a university search committee tasked with selecting the most qualified candidate for a faculty position. You will review three candidate profiles and work with other committee members to evaluate their qualifications and make a hiring decision.</p>
         <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
         
-        <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. Remember that each attribute is equally important in the decision-making process.</p>
+        <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. Remember that each attribute is equally important in the decision-making process. Also, other participants on the committee have additional information that is critical for identifying the best candidate overall.</p>
         <div
           v-if="candidateProfileStore.candidate_profiles !== null"
           v-for="(candidate, index) in candidateProfileStore.candidate_profiles"

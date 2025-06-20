@@ -17,7 +17,7 @@ function goExample() {
       <!-- Overview Section -->
       <div >
           <h3>What Makes a Strong Candidate?</h3>
-          <p> Each candidate has been evaluated on 18 total attributes, drawn from three key areas:</p>
+          <p> There is information on <b>18 total attributes</b> about each candidate, drawn from three key areas:</p>
             <ul>
               <li>Research (e.g., publications, research impact, grant record)</li>
               <li>Teaching (e.g., course development, student feedback, teaching awards)</li>

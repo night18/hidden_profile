@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '172.31.17.19',
+    '172.31.62.11',
     'hidden-profile-env-1.eba-saedd8ej.us-west-2.elasticbeanstalk.com',
     'hiddenprofile.hci-study.com',
 ]

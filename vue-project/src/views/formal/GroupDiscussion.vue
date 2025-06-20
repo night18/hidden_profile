@@ -166,8 +166,7 @@ onMounted(() => {
         <div class="col-md-6">
           <h2> Group Discussion </h2>
           <div class="content-area">
-            <p>In this task, you will be paired with committee members to discuss the best candidate. You will have 15 minutes to discuss the topic.</p>
-            <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. Remember that each attribute is equally important in the decision-making process.</p>
+            <p>In this task, you will be paired with committee members to discuss the best candidate.</p>
             
             <p>
               <button
@@ -196,7 +195,7 @@ onMounted(() => {
               </div>
             </div>
             <div v-if="!showCandidateSelection" class="ready-area">
-              <p>You must discuss with the other search committee members for at least 2 minutes. Once you have fully discussed, please click the 'Ready to Vote' button.</p>
+              <p>You must discuss with the other search committee members for at least 2 minutes. Once the three of you agree that you reached an agreement on who is the best candidate, please click the 'Ready to Vote' button.</p>
               <button class="btn btn-primary btn-lg" @click="ready" :disabled="!countdownFinished || isReady">
                 <span v-if="!countdownFinished">
                   <CountdownTimer :remain_time="countdownTime" />

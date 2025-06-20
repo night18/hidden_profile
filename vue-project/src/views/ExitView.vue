@@ -44,7 +44,7 @@ onMounted(() => {
               <tr>
                 <th>Turn</th>
                 <th>Vote Result</th>
-                <th>Ground Truth</th>
+                <th>Best Candidate</th>
                 <th>Bonus</th>
               </tr>
             </thead>

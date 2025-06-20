@@ -339,7 +339,7 @@ function get_group_condition_private() {
     border-left:3px solid #f0b90b;/* accent */
     padding:3px 15px;
     border-radius:15px;
-    max-width:70%;
+    max-width:90%;
     opacity:0.92;
   }
 

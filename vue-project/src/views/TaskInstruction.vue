@@ -24,9 +24,8 @@ function goExample() {
                     <li><strong>Teaching Experience</strong> - Publications, research impact, and alignment with the department's needs.</li>
                     <li><strong>Service & Leadership</strong> - Contributions to mentorship, departmental service, and broader academic community involvement.</li>
                   </ul>
-              <p> As a committee member in a specific area, you will focus on just one of these areas in the beginning.That means:</p>
+              <p> As a committee member in a specific area, you will focus on just one of these areas <b>in the applicant materials made available to you</b>. That means:</p>
                   <ul>
-                    <li>You'll review detailed information about candidates in <b>your assigned focus area</b>.</li>
                     <li>You <b>won't see</b> the full profile. Your teammates (other committee members) will bring insights from other areas.</li>
                   </ul>
               <p>Your job is to:</p>
@@ -35,7 +34,7 @@ function goExample() {
                     <li><b>Discuss</b> with other committee members to share your perspective and hear theirs.</li>
                     <li><b>Help your team reach a group decision</b> on the most qualified candidate overall.</li>
                   </ul>
-              
+              <p>As a reminder, for each group task, you can earn $1.5 as an additional bonus only if your group's final decision is the candidate who wins on more attributes than the other candidates. </p>
           </div>
         </div>
 
