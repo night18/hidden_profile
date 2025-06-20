@@ -69,7 +69,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ORIGIN_WHITELIST = [
     'https://django-env.eba-rbngjpjf.us-east-1.elasticbeanstalk.com',
-    "https://main.d1qr4h3bf4iz6s.amplifyapp.com",
+    'https://main.d1qr4h3bf4iz6s.amplifyapp.com',
     'http://127.0.0.1:8080',
     'https://127.0.0.1:8080'
 ]

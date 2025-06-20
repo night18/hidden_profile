@@ -2,7 +2,6 @@ from openai import AsyncOpenAI
 import os
 from asgiref.sync import sync_to_async
 import heapq
-from .models import Group, Turn, ParticipantTurn, Message, LlmMessage
 
 class OpenAIClient:
     def __init__(self):
