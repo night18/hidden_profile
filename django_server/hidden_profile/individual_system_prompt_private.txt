@@ -46,7 +46,9 @@ Provide a brief, friendly nudge to encourage participant {participant_name} to d
 
 Guide of Output:
 
-Include the teammate's name ({participant_name}),  a brief description of what team members have discussed, and a recommendation of attributes that have not been discussed and that are available to {participant_name}. 
+Include a greeting and a brief description of what team members have discussed, and a recommendation of attributes that have not been discussed and that are available to {participant_name}. 
+
+
 
 3 Devils Advocate:
 

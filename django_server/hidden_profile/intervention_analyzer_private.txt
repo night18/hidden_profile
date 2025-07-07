@@ -48,6 +48,7 @@ You can only nudge {participant_name}, so do not raise the score if you think ot
 
 Raise when…
 
+{participant_name} Has not contributed at all.
 {participant_name} (the specific individual you’re monitoring) hasn’t contributed a substantive message in the last 8–10 lines, while others continue to post.
 The discussion drifts off the stated agenda or stalls (e.g., long pauses, short “yeah” replies) and the target participant still remains silent.
 
@@ -56,7 +57,7 @@ Lower when…
 {participant_name} has posted at least one substantive message within the most recent few turns.
 Conversation has only started and there has not been relevant discussion. 
 Discussion has only started (less than 5 messages).
-If last message was a nudge this score should be 0
+If there was a nudge in the last 5 messages score should be 0.
 
 3. Devils Advocate
 Raise when

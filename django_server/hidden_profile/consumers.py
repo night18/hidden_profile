@@ -468,18 +468,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         intervention_response = json.loads(intervention_response)
 
 
-                    
-                        if intervention_response["summarization"]['score'] >= 60:
-                            response = await self.openai_client.individual_level_response(participant, group, turn,"Summarization",role_id)
-                            type_of_intervention   = "Summarization"
-                        elif intervention_response["nudging"]['score']  > 60:
-                            response = await self.openai_client.individual_level_response(participant, group, turn,"Nudging",role_id)
-                            type_of_intervention = "Nudging"
-                        elif intervention_response["devils_advocate"]['score']  >60:
-                            response = await self.openai_client.individual_level_response(participant, group, turn,"Devils Advocate",role_id)
-                            type_of_intervention = "Devils Advocate"
+                        intervention_response["summarization"]['score']*=1
+                        intervention_response["summarization"]['score']*=1
+                        intervention_response["summarization"]['score']*=1
+
+                        max_intervention = max(intervention_response, key=lambda k: intervention_response[k]["score"])
+
+
+                        if intervention_response[max_intervention]['score']>= 65:
+                            response = await self.openai_client.individual_level_response(participant, group, turn,max_intervention,role_id)        
+                            type_of_intervention = max_intervention
                         else:
-                            # If no intervention is needed, do not respond
                             break
                     except Exception as e:
                         print("LLM error:", e, flush=True)
@@ -535,19 +534,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
                         intervention_response = json.loads(intervention_response)
 
+                        intervention_response["summarization"]['score']*=1
+                        intervention_response["summarization"]['score']*=1
+                        intervention_response["summarization"]['score']*=1
 
-                    
-                        if intervention_response["summarization"]['score'] >= 65:
-                            response = await self.openai_client.group_level_response( group, turn,"Summarization",role_map)
-                            type_of_intervention = "Summarization"
-                        elif intervention_response["nudging"]['score']  > 65:
-                            response = await self.openai_client.group_level_response( group, turn,"Nudging",role_map)
-                            type_of_intervention = "Nudging"
-                        elif intervention_response["devils_advocate"]['score']  >70:
-                            response = await self.openai_client.group_level_response( group, turn,"Devils Advocate",role_map)
-                            type_of_intervention = "Devils Advocate"
+                        max_intervention = max(intervention_response, key=lambda k: intervention_response[k]["score"])
+
+
+                        if intervention_response[max_intervention]['score']>= 65:
+                            response = await self.openai_client.group_level_response( group, turn,max_intervention,role_map)        
+                            type_of_intervention = max_intervention
                         else:
-                            # If no intervention is needed, do not respond
                             break
                     except Exception as e:
                         print("LLM error:", e, flush=True)
