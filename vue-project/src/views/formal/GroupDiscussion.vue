@@ -166,7 +166,7 @@ onMounted(() => {
         <div class="col-md-6">
           <h2> Group Discussion </h2>
           <div class="content-area">
-            <p>In this task, you will be paired with committee members to discuss the best candidate.</p>
+            <p>Each committee member has made their own initial decisions on the best candidate to select. Now it's the time to have a discussion within your committee and decide who is the best candidate overall! You will have 15 minutes for this discussion. </p>
             
             <p>
               <button
@@ -183,7 +183,7 @@ onMounted(() => {
               <div class="floating-table-header">
                 <div class="row">
                   <div class="col-11">
-                    Candidate Profiles
+                    Candidate Profiles (Attributes available to YOU)
                   </div>
                   <div class="col-1 text-end">
                     <button class="close-button" @click="closeCandidateTable">X</button>

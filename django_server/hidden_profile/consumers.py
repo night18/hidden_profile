@@ -432,6 +432,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             role_map= await self.get_role_alias_dict()
             self.role_map= role_map
             print(f"[LLM] Starting periodic LLM call for group {group_id} for turn {turn_number}")
+        last_message_analyzed=None
+
         while True:
             await asyncio.sleep(10) # check every second
             message_count = await sync_to_async(
@@ -448,6 +450,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if (datetime.datetime.now(datetime.timezone.utc) - last_intervention_analysis).total_seconds() < 20:
                 continue
             last_intervention_analysis = datetime.datetime.now(datetime.timezone.utc)
+            if last_message == last_message_analyzed:
+                continue
+            last_message_analyzed = last_message
+
 
             if condition_id == 1:
                 # If the time period between the last non summerized LLM message and the current message is less than 30 seconds, do not respond
@@ -512,6 +518,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             }
                         }
                     )
+                    break
 
 
             elif condition_id == 2:
@@ -577,6 +584,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             }
                         }
                     )
+                    break
 
 
                 

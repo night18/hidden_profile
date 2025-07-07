@@ -11,30 +11,28 @@ function goExample() {
 <template>
 <div class="container">
   <div class="jumbotron container">
-    <h2>Faculty Search Committee Task Instruction</h2>
+    <h2>Faculty Search Task Instruction</h2>
     <div class="content-area">
-      <p>In this task, you'll take on the role of a <b>university search committee member</b> responsible for hiring a new professor. Your goal is to evaluate three candidates and <b>collaboratively</b> select the most qualified individual for a faculty position.</p>
+
       <div>
           <!-- Overview Section -->
           <div >
               <h3>What You'll Do</h3>
-              <p> Your committee is reviewing <b>three finalists</b> for a faculty position. Each candidate brings a unique set of strengths in three important areas:</p>
+              <p>Your committee is reviewing three finalists for a faculty position. Each candidate needs to be evaluated using several attributes, for example: Research publications, Teaching Evaluation or mentoring experience.</p>
+
+
+              <p> Each candidate is required to provide some of this information in their application materials; such information becomes available to <i>all</i> committee members. However, when meeting with candidates one-on-one, each committee member also collects additional information about the candidates; this information is <i>only available to the committee member who collected the information</i> before the committee discussion. In other words:</p>
                   <ul>
-                    <li><strong>Research Contributions</strong> - Courses taught, student engagement, and innovation in pedagogy.</li>
-                    <li><strong>Teaching Experience</strong> - Publications, research impact, and alignment with the department's needs.</li>
-                    <li><strong>Service & Leadership</strong> - Contributions to mentorship, departmental service, and broader academic community involvement.</li>
+                    <li>As one of the committee members, you <strong>will not see</strong> the full set of information  for each candidate. Your teammates (other committee members) will bring important insights on some aspects that you may have not evaluated on.</li>
+
                   </ul>
-              <p> As a committee member in a specific area, you will focus on just one of these areas <b>in the applicant materials made available to you</b>. That means:</p>
-                  <ul>
-                    <li>You <b>won't see</b> the full profile. Your teammates (other committee members) will bring insights from other areas.</li>
-                  </ul>
-              <p>Your job is to:</p>
+              <p>Since you do not get the full candidate information, in this task, your job is to:</p>
                   <ul>
                     <li><b>Review</b> the candidate information provided to you.</li>
                     <li><b>Discuss</b> with other committee members to share your perspective and hear theirs.</li>
                     <li><b>Help your team reach a group decision</b> on the most qualified candidate overall.</li>
                   </ul>
-              <p>As a reminder, for each group task, you can earn $1.5 as an additional bonus only if your group's final decision is the candidate who wins on more attributes than the other candidates. </p>
+
           </div>
         </div>
 

@@ -101,7 +101,7 @@ onMounted(() => {
     <div class="jumbotron container">
       <h2> Waiting Room </h2>
       <div class="content-area">
-        <p>We are currently waiting for other participants to join the task. Please wait until the task begins.</p>
+        <p>We are currently waiting for other participants to join your committee. Please wait until we gather three members for your group.</p>
         <p>If you wait for more than 5 minutes, you will be redirected to the end page. We will pay you for your time.</p>
         <CountdownTimer :remain_time="300" />
         <p>{{ message }}</p>

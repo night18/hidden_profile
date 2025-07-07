@@ -17,21 +17,12 @@ function goExample() {
       <!-- Overview Section -->
       <div >
           <h3>What Makes a Strong Candidate?</h3>
-          <p> There is information on <b>18 total attributes</b> about each candidate, drawn from three key areas:</p>
-            <ul>
-              <li>Research (e.g., publications, research impact, grant record)</li>
-              <li>Teaching (e.g., course development, student feedback, teaching awards)</li>
-              <li>Service & Leadership (e.g., mentoring, academic service, community involvement)</li>
-            </ul>
-          
+
           <p>
-            As a committee member, you will only see <b>10 of these 18 attributes</b>, focused on your assigned evaluation area. Other members will see different sets of information.
+            As the discussion proceeds, your team will reveal each candidate's performance on different aspects (e.g., number of peer-reviewed publications, student teaching evaluations, conference organization services). The strongest candidate is the one who performs best across the <strong>most</strong> aspects compared to others. Your team's goal is to combine your different perspectives to reveal candidates' performance on as many aspects as possible, and then figure out which candidate stands out overall.
           </p>
           <p>
-            The strongest candidate is the one who <b>performs best across the most attributes</b> compared to others. Your team's goal is to combine your different perspectives to figure out which candidate stands out overall.
-          </p>
-          <p>
-            No single attribute or area should dominate the decision. We look for well-rounded excellence.
+            Note that no single attribute or area should dominate the decision. We look for well-rounded excellence.
           </p>
           <h3>Tips for Discussion</h3>          <ul>
             <li><b>Share what you know</b>. You're the expert in your area—your teammates are counting on you.</li>

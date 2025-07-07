@@ -47,7 +47,7 @@ class OpenAIClient:
         # Get the participant
         return participant.avatar_color + " " + participant.avatar_animal
     
-    def get_group_chat_history(self, group_id, turn_number, participant, private):
+    def get_group_chat_history(self, group_id, turn_number, participant, private, is_intervention_analysis=False):
         from .models import Group, Turn, ParticipantTurn, Message, LlmMessage
         # Get the group
         group = Group.objects.get(pk=group_id)
@@ -73,8 +73,9 @@ class OpenAIClient:
                     {"role": "user", "content": f"{alias}: {msg.content}"}
                 )
             else:                                        # LLM
+                msg_content = f"{msg.content}. (This message was a {msg.type_of_intervention})" if is_intervention_analysis else msg.content
                 formatted_messages.append(
-                    {"role": 'assistant', "content": f"Assitant: {msg.content}. (This message was a {msg.type_of_intervention})"}
+                    {"role": 'assistant', "content": msg_content}
                 )
         
         return formatted_messages
@@ -167,7 +168,7 @@ class OpenAIClient:
         
         
         # Get the messages in the group. Sort by timestamp, the older messages come first
-        chat_messages = await sync_to_async(self.get_group_chat_history)(group._id, turn.turn_number,participant, private=private)
+        chat_messages = await sync_to_async(self.get_group_chat_history)(group._id, turn.turn_number,participant, private=private, is_intervention_analysis=True)
         messages.extend(chat_messages)
 
 

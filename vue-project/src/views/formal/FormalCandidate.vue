@@ -124,12 +124,14 @@ function next() {
       <CountdownTimer :remain_time="120" />
     </div>
     <div class="jumbotron container">
-      <h2> Formal Task</h2>
+      <h2> Faculty Search: Formal Task
+      </h2>
       <div class="content-area">
         <p>You are serving on a university search committee tasked with selecting the most qualified candidate for a faculty position. You will review three candidate profiles and work with other committee members to evaluate their qualifications and make a hiring decision.</p>
         <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
         
-        <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. Remember that each attribute is equally important in the decision-making process. Also, other participants on the committee have additional information that is critical for identifying the best candidate overall.</p>
+        <p>Consider the information that is available to you about each candidate and evaluate their qualifications based on the information presented. Remember that each aspect is equally important in the decision-making process. Also, other participants on the committee may have additional information that is only available to them but critical for identifying the best candidate overall; you should try to uncover that information in your later discussion with them.</p>
+        <p>Based on the information that is available to you, who is the best candidate to select?</p>
         <div
           v-if="candidateProfileStore.candidate_profiles !== null"
           v-for="(candidate, index) in candidateProfileStore.candidate_profiles"

@@ -87,7 +87,7 @@ function next() {
     <div class="jumbotron container">
       <h2>Qualification Task</h2>
       <div class="content-area">
-        <p>You are serving on a university search committee tasked with selecting the most qualified candidate for a faculty position. You will review three candidate profiles and work with other committee members to evaluate their qualifications and make a hiring decision.</p>
+        <p>Suppose after some discussion, your committee uncovered the following information about each of the three candidates. If at this point, your committee decides to not have any further discussion and wants to make a hiring decision, which candidate would be the best one to select?</p>
         <CandidateTable :candidates="candidates" :highlightedCells="highlightedCells"/>
         <div>
           <strong>Select the best candidate:</strong>

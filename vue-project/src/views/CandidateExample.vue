@@ -58,12 +58,16 @@ function next() {
     <div class="jumbotron container">
       <h2> Faculty Search Example </h2>
       <div class="content-area">
-        <p>You are serving on a university search committee tasked with selecting the most qualified candidate for a faculty position. You will review three candidate profiles and work with other committee members to evaluate their qualifications and make a hiring decision. Here is an example of how the candidate profiles will be presented to you.</p>
+        <p>At some point during your committee discussion, your team has collectively revealed the candidates’ performance on six aspects, as shown in the table below: </p>
         <CandidateTable :candidates="example_candidates"/>
-        <strong>In this example, how can we determine who is the best candidate?</strong>
-        <p>Consider the attributes provided for each candidate and evaluate their qualifications based on the information presented. <strong>Remember that each attribute is equally important in the decision-making process</strong> .</p>
+        <strong>Suppose the team wants to make a decision based on the information revealed thus far. How can you  determine who is the best candidate?</strong>
+        <p>The team should consider all the six aspects revealed thus far  and evaluate each candidate’s qualification based on their performance on these aspects. <strong>Remember that each attribute is equally important in the decision-making process</strong> .</p>
         <CandidateTable :candidates="example_candidates" :highlightedCells="highlightedCells"/>
-        <p>In this example, the highlighted cells indicate the attributes where each candidate excels. Candidate C excels in more attributes compared to the other candidates. Since all attributes are weighed the same, Candidate C is considered the best candidate in this scenario.</p>
+        <p>In this example, the highlighted cells indicate the aspects where each candidate excels. Candidate C excels in more aspects compared to the other two candidates. Since all aspects are equally important, Candidate C should be considered as the best candidate at this point.</p>
+
+        <p>However, note that Candidate C may still not be the most qualified candidate overall! This is because we do not know at this point if the discussion within the team is thorough enough to cover all aspects of evaluation; if not, it is possible that another candidate is a better choice once more information gets revealed! So, it is very important to have a comprehensive discussion before making any decisions!
+        </p>
+
         <button class="btn btn-primary btn-lg" @click="next">Try it by yourself</button>
       </div>
     </div>
