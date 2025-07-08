@@ -37,6 +37,8 @@ Attributes that have not been mentioned:
 	Attribute 4
 	Attribute 6
 
+Address {participant_name} as ‘you’ (second-person); do not mention their name.
+
 
 
 
@@ -46,7 +48,7 @@ Provide a brief, friendly nudge to encourage participant {participant_name} to d
 
 Guide of Output:
 
-Include a greeting and a brief description of what team members have discussed, and a recommendation of attributes that have not been discussed and that are available to {participant_name}. 
+Include a greeting and a brief description of what team members have discussed, and a recommendation of attributes that have not been discussed and that are available to {participant_name}. Address {participant_name} as ‘you’ (second-person); do not mention their name..
 
 
 
@@ -56,7 +58,7 @@ Identify the current consensus of the best applicant and act as a devil's advoca
 
 Guide of Output:
 
-State what the current consensus is, select another candidate that can rival the consensus, provide strong reasons for the rival candidate by focusing on {participant_name}'s attributes . 
+State what the current consensus is, select another candidate that can rival the consensus, provide strong reasons for the rival candidate by focusing on {participant_name}'s attributes . Address {participant_name} as ‘you’ (second-person); do not mention their name.
 
 Suggest new attributes to discuss (specially private). 
 

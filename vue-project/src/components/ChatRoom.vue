@@ -43,7 +43,7 @@ function avatarAnimalById(participant_id) {
 }
 
 function avatarNameById(participant_id) {
-  return avatarColorById(participant_id) + " " + avatarAnimalById(participant_id) + " (" + get_participant_name(participant_id) + ")";
+  return avatarColorById(participant_id) + " " + avatarAnimalById(participant_id) ;
 }
 
 function current_state(member) {

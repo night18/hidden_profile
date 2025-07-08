@@ -21,14 +21,14 @@ class CandidateProfile(models.Model):
     teaching_awards = models.CharField(max_length=100)
     
     grant_funding_secured = models.CharField(max_length=100)
-    impact_of_research_publications = models.CharField(max_length=100)
+    reviewer_activity = models.CharField(max_length=100)
     interdisciplinary_research = models.CharField(max_length=100)
     research_awards = models.CharField(max_length=100)
     
     invited_talks = models.CharField(max_length=100)
     industry_collaboration = models.CharField(max_length=100)
     university_committee_service = models.CharField(max_length=100)
-    diversity_and_inclusion_initiatives = models.CharField(max_length=100)
+    research_coverage = models.CharField(max_length=100)
     
     def __str__(self):
         return str(self.name)

@@ -39,7 +39,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
         elif role == 2:
             allowed_fields.extend([
                 'grant_funding_secured',
-                'impact_of_research_publications',
+                'reviewer_activity',
                 'interdisciplinary_research',
                 'research_awards',
             ])
@@ -48,7 +48,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
                 'invited_talks',
                 'industry_collaboration',
                 'university_committee_service',
-                'diversity_and_inclusion_initiatives',
+                'research_coverage',
             ])
             
         return {key: value for key, value in representation.items() if key in allowed_fields}

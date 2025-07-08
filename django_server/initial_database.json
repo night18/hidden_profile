@@ -55,16 +55,16 @@
             "conference_organization_roles": "Chair of a National Conference",
             "undergraduate_mentorship_success": "12 students pursued grad studies",
             "graduate_thesis_supervision": "10 theses supervised",
-            "curriculum_development": "Developed/redesigned 4 courses",
+            "curriculum_development": "Developed 4 courses",
             "teaching_awards": "Won 'Outstanding Teacher of the Year'",
             "grant_funding_secured": "$2M",
-            "impact_of_research_publications": "10 top-tier publications",
+            "reviewer_activity": "Reviewer for 3 top-tier journals.",
             "interdisciplinary_research": "Collaborated across AI and medicine",
             "research_awards": "Won 'Best Paper Award' 3 times",
             "invited_talks": "Delivered 10 keynote speeches",
             "industry_collaboration": "Strong partnership with 3 companies",
-            "university_committee_service": "Chaired 2 committees",
-            "diversity_and_inclusion_initiatives": "Led a mentorship program for underrepresented groups"
+            "university_committee_service": "Chaired 4 committees",
+            "research_coverage": "Coverage in major international outlets"
         }
     },
     {
@@ -81,16 +81,16 @@
             "conference_organization_roles": "None",
             "undergraduate_mentorship_success": "5 students pursued grad studies",
             "graduate_thesis_supervision": "4 theses supervised",
-            "curriculum_development": "Redesigned 1 course",
+            "curriculum_development": "Developed 1 course",
             "teaching_awards": "No awards",
             "grant_funding_secured": "$1.5M",
-            "impact_of_research_publications": "8 top-tier publications",
+            "reviewer_activity": "Reviewer for 2 mid-level journals",
             "interdisciplinary_research": "Limited interdisciplinary work",
             "research_awards": "Won 'Best Paper Award' once",
             "invited_talks": "Delivered 5 keynote speeches",
             "industry_collaboration": "Partnership with 1 company",
             "university_committee_service": "Member of 1 committee",
-            "diversity_and_inclusion_initiatives": "None"
+            "research_coverage": "None"
         }
     },
     {
@@ -104,19 +104,19 @@
             "number_of_peer_reviewed_publications": "25",
             "citations": "1100",
             "service_on_editorial_boards": "No",
-            "conference_organization_roles": "Organizer of a Regional Workshop",
+            "conference_organization_roles": "Chair of a Regional Workshop",
             "undergraduate_mentorship_success": "8 students pursued grad studies",
             "graduate_thesis_supervision": "6 theses supervised",
-            "curriculum_development": "Designed 2 courses",
+            "curriculum_development": "Developed 2 courses",
             "teaching_awards": "Nominated for a teaching award",
             "grant_funding_secured": "$1M",
-            "impact_of_research_publications": "5 top-tier publications",
+            "reviewer_activity": "Reviewer for 2 mid-level journals",
             "interdisciplinary_research": "Collaborated across AI and education",
             "research_awards": "Won 'Best Paper Award' twice",
-            "invited_talks": "Delivered 8 invited talks",
+            "invited_talks": "No keynote delivered",
             "industry_collaboration": "Partnership with 2 companies",
             "university_committee_service": "Member of 2 committees",
-            "diversity_and_inclusion_initiatives": "Participated in D&I discussions"
+            "research_coverage": "Coverage in regional outlets"
         }
     }
 ]

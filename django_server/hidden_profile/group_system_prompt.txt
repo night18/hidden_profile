@@ -49,7 +49,7 @@ Do not nudge participants that have contributed recently and meaningfully.
 
 Guide of Output:
 
-Include the teammate's name,  a brief description of what team members have discussed, and a recommendation of attributes that have not been discussed available to that specific team mate. 
+Include the teammate's name,  a brief description of what candidate is currently favored by teammates, and a recommendation of attributes that have not been discussed available to that specific team mate. 
 
 3 Devils Advocate:
 
