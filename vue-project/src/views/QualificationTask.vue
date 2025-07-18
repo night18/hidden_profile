@@ -71,7 +71,7 @@ function validationMessage() {
     return 'Candidate A is strong in "Conference Organization Roles" and "Service on Editorial Boards", but lower in other four evaluations. Please review all qualifications carefully.';
   }
   if (selectedCandidate.value === 'Candidate C') {
-    return 'Candidate C has strong in "Service on Editorial Boards", "Citation Impact", and "Number of Peer-Reviewed Publications" and less experience in other areas. Please review all qualifications carefully.';
+    return 'Candidate C has strong in "Service on Editorial Boards", "Citation Impact", and "Number of Peer-Reviewed Publications" and less experience in other attributes. Please review all qualifications carefully.';
   }
   return 'Your selection is not the best candidate. Please review the candidates and select the most qualified one.';
 }

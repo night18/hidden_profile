@@ -95,7 +95,7 @@ function get_group_condition_private() {
           size="22px"
           class="avatar-icon"
         />
-        {{ avatarColorById(member._id) + " " + avatarAnimalById(member._id) }}
+        {{ avatarColorById(member._id) + " " + avatarAnimalById(member._id) }} <span v-if="member._id === participantStore.participant_id">(You)</span>
         <font-awesome-icon icon="fa-solid fa-circle" :class="{'green_icon': current_state(member)=== 3, 'yellow_icon': current_state(member) === 2, 'gray_icon': current_state(member) === 1, 'red_icon': current_state(member) === 0 }"/>
       </span>
       <div class="card">

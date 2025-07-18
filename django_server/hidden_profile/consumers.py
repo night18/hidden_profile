@@ -517,7 +517,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             }
                         }
                     )
-                    break
+                    break 
 
 
             elif condition_id == 2:

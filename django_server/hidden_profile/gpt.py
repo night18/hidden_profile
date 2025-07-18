@@ -89,14 +89,14 @@ class OpenAIClient:
         #role_description = turn.role.description
         
         hidden_profile_attributes = ""
-        attributes = "Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citation Impact, Service on Editorial Boards, Conference Organization Roles"
+        attributes = "Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citations, Service on Editorial Boards, Conference Organization Roles"
         
         if role_id == 1:
             hidden_profile_attributes = "Undergraduate Mentorship Success, Graduate Thesis Supervision, Curriculum Development, Teaching Awards"
         elif role_id == 2:
-            hidden_profile_attributes = "Grant Funding Secured, Impact of Research Publications, Interdisciplinary Research, Research Awards"
+            hidden_profile_attributes = "Grant Funding Secured, Reviewer Activity, Interdisciplinary Research, Research Awards"
         elif role_id == 3:
-            hidden_profile_attributes = "Invited Talks, Industry Collaboration, University Committee Service, Diversity and Inclusion Initiatives"
+            hidden_profile_attributes = "Invited Talks, Industry Collaboration, University Committee Service, Research Coverage"
         
         attributes = attributes + ", " + hidden_profile_attributes
         
@@ -129,7 +129,7 @@ class OpenAIClient:
             role_id_1=role_map[1],
             role_id_2=role_map[2],
             role_id_3=role_map[3],
-            public_information="Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citation Impact, Service on Editorial Boards, Conference Organization Roles",
+            public_information= "Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citations, Service on Editorial Boards, Conference Organization Roles"
 
             )
         

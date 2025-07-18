@@ -331,7 +331,7 @@ def get_bonus(request):
         
         # Check if the majority vote corresponds to the best candidate
         best_candidate = CandidateProfile.objects.filter(pair=turn.candidatePair, winner=True).first()
-        bonus = 0.5 if best_candidate and str(best_candidate._id) == str(majority_vote) else 0
+        bonus = 1.5 if best_candidate and str(best_candidate._id) == str(majority_vote) else 0
         total_bonus += bonus
 
         final_vote_name = CandidateProfile.objects.get(pk=majority_vote).name if majority_vote else 'N/A'

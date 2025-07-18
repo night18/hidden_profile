@@ -45,9 +45,7 @@ const submitSurvey = () => {
 const likertLabels = [
     "Strongly Disagree",
     "Disagree",
-    "Somewhat Disagree",
     "Neutral",
-    "Somewhat Agree",
     "Agree",
     "Strongly Agree"
 ];
@@ -91,29 +89,52 @@ const surveyResponses = ref({
     <div class="jumbotron container">
         <h2>Survey</h2>
         <p>
-          Wonderful! You almost completed all the search committee tasks. One last thing, please complete the survey. We will show how much bonus you could earn in the next page.
+            Wonderful! You almost completed all the search committee tasks. One last thing, please complete the survey. We will show how much bonus you could earn in the next page.
         </p>
-        <div>
-            <div v-for="(question, key) in questions" :key="key" class="mb-4">
-                <label><b>{{ question.label }}</b></label>
-                <div>
-                    <div v-for="(label, index) in likertLabels" :key="index" class="mb-1">
-                        <input type="radio" :id="`${key}-${index}`" :name="key" :value="index+1" v-model="surveyResponses[key]" />
-                        <label :for="`${key}-${index}`">{{ label }}</label>
-                    </div>
+        <div class="survey-container">
+            <!-- Header Row -->
+            <div class="header-spacer"></div> <!-- Empty top-left cell -->
+            <div v-for="label in likertLabels" :key="label" class="likert-header">{{ label }}</div>
+
+            <!-- Question Rows -->
+            <template v-for="(question, key) in questions" :key="key">
+                <label class="question-label"><b>{{ question.label }}</b></label>
+                <div v-for="(label, index) in likertLabels" :key="index" class="likert-cell">
+                    <input type="radio" :id="`${key}-${index}`" :name="key" :value="index+1" v-model="surveyResponses[key]" />
                 </div>
-            </div>
-            <button class="btn btn-primary" @click="submitSurvey">Submit</button>
-          </div>
+            </template>
+        </div>
+        <button class="btn btn-primary mt-4" @click="submitSurvey">Submit</button>
     </div>
 </div>
 </template>
 
 <style scoped>
-.mb-4 {
-    margin-bottom: 1.5rem;
+.survey-container {
+  display: grid;
+  /* 1 column for questions, 5 for likert scale options */
+  grid-template-columns: 3fr repeat(5, 1fr);
+  gap: 1rem 0.5rem;
+  align-items: center;
+  margin-top: 2rem;
 }
-.mb-1 {
-    margin-bottom: 0.5rem;
+
+.likert-header {
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.question-label {
+  text-align: left;
+  padding-right: 1rem;
+}
+
+.likert-cell {
+  text-align: center;
+}
+
+.btn-primary {
+    margin-top: 2rem;
 }
 </style>

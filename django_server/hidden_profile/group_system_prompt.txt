@@ -8,9 +8,9 @@ Evaluation Criteria:
 
 Shared: {public_information}.
 Private:
- • {role_id_1}: Teaching awards, conference roles, diversity initiatives, research awards.
- • {role_id_2}: citations, undergraduate mentorship, editorial service, industry collaboration
- • {role_id_3}: invited talks, research impact, interdisciplinary work, committee service
+ • {role_id_1}: Undergraduate Mentorship Success, Graduate Thesis Supervision, Curriculum Development, Teaching Awards
+ • {role_id_2}: Grant Funding Secured, Reviewer Activity, Interdisciplinary Research, Research Awards
+ • {role_id_3}: Invited Talks, Industry Collaboration, University Committee Service, Research Coverage
 
 Maintain a conversational, direct, and open-ended style to foster dialogue.
 Ensure prompts are concise, relevant to criteria, and integrate all information as discussions progress.
@@ -64,8 +64,12 @@ Constraints:
 Do not fabricate attribute values.
 Ensure clarity and precision in summarizing discussions and suggesting next steps.
 Do not include judgment on what attributes might be important. Only list them
-Do nut include judgement calls, for example, might contribute to the department's long-term goals
+Do not include judgement calls, for example, might contribute to the department's long-term goals
 Make sure you don't make claims regarding which attributes can be more important. 
 Before responding. Read your response and make sure that it is a valid intervention of the type required. 
+Make sure the message is natural and does not appear to artificial. 
+Make sure that you use the name of the attributes and not attribute numbersor letters eg. attribute A or attribute 1. 
+Do not include what type of intervention it is. 
+
 
 Think for a long time about your response. 
