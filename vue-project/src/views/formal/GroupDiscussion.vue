@@ -30,7 +30,7 @@ const showCandidateSelection = ref(false); // Display the candidate selection
 const isReady = ref(false); // Track if the participant is ready to vote
 const isSubmitting = ref(false); // Track submission state
 const countdownFinished = ref(false); // Track if the countdown is finished
-const countdownTime = ref(120); // Countdown time in seconds
+const countdownTime = ref(300); // Countdown time in seconds
 
 const toggleCandidateTable = () => {
   showCandidateTable.value = !showCandidateTable.value;
@@ -130,12 +130,20 @@ onMounted(() => {
     if (allComplete) {
       turnStore.addTurnNumber();
       groupStore.clearParticipantStatus()
+
       if (turnStore.isTurnFinished()) {
         // Close the chat room
         chatStore.closeWebSocket();
-        router.push( {name: 'PostSurvey'} );
+
+        const condition = groupStore.getCondition();
+
+        if (condition === 1 || condition === 2) {
+          router.push({ name: 'PostSurveyLLM' }); // Redirect to LLM Survey
+        } else {
+          router.push({ name: 'PostSurveyNasa' }); // Redirect to NASA Survey
+        }
       } else {
-        router.push( {name: 'FormalCandidate' } );
+        router.push({ name: 'FormalCandidate' });
       }
     }
   }, { deep: true });
@@ -160,95 +168,106 @@ onMounted(() => {
 });
 </script>
 <template>
-  <div class="container">
-    <div class="jumbotron container">
-      <div class="row">
-        <div class="col-md-6">
-          <h2> Group Discussion </h2>
-          <div class="content-area">
-            <p>Each committee member has made their own initial decisions on the best candidate to select. Now it's the time to have a discussion within your committee and decide who is the best candidate overall! You will have 15 minutes for this discussion. </p>
-            
-            <p>
-              <button
-                class="btn btn-secondary"
-                @click="toggleCandidateTable"
-              >
-                Check candidate profile
-            </button>
-            </p>
-            <div
-              v-if="showCandidateTable"
-              class="floating-table"
-            >
-              <div class="floating-table-header">
-                <div class="row">
-                  <div class="col-11">
-                    Candidate Profiles (Attributes available to YOU)
-                  </div>
-                  <div class="col-1 text-end">
-                    <button class="close-button" @click="closeCandidateTable">X</button>
-                  </div>
-                </div>
-              </div>
-              <div class="floating-table-content">
-                <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
-              </div>
+  <div class="container-fluid d-flex flex-column vh-100">
+    <div class="instructions-header p-3">
+      <h2> Group Discussion </h2>
+      <p>Each committee member has made their own initial decisions on the best candidate to select. Now it's the time to have a discussion within your committee and decide who is the best candidate overall! You can check the profiles by clicking the button.</p>
+      
+      <div>
+        <button
+          class="btn btn-secondary me-2"
+          @click="toggleCandidateTable"
+        >
+          Check candidate profile
+        </button>
+
+        <div v-if="!showCandidateSelection" class="d-inline-block">
+          <button class="btn btn-primary btn-lg" @click="ready" :disabled="!countdownFinished || isReady">
+            <span v-if="!countdownFinished">
+              <CountdownTimer :remain_time="countdownTime" />
+            </span>
+            <span v-else-if="isReady">
+              Waiting for others...
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </span>
+            <span v-else>
+              Ready to Vote
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-if="showCandidateTable"
+        class="floating-table"
+      >
+        <div class="floating-table-header">
+          <div class="row">
+            <div class="col-11">
+              Candidate Profiles (Attributes available to YOU)
             </div>
-            <div v-if="!showCandidateSelection" class="ready-area">
-              <p>You must discuss with the other search committee members for at least 2 minutes. Once the three of you agree that you reached an agreement on who is the best candidate, please click the 'Ready to Vote' button.</p>
-              <button class="btn btn-primary btn-lg" @click="ready" :disabled="!countdownFinished || isReady">
-                <span v-if="!countdownFinished">
-                  <CountdownTimer :remain_time="countdownTime" />
-                </span>
-                <span v-else-if="isReady">
-                  Waiting other committees 
-                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                </span>
-                <span v-else>
-                  Ready to Vote
-                </span>
-              </button>
-            </div>
-            <div v-if="showCandidateSelection">
-              <p>Please elect the candidate you believe is the best fit for the faculty position.</p>
-              <div
-                v-for="(candidate, index) in candidates"
-                :key="index"
-                class="form-check"
-              >
-                <input
-                  type="radio"
-                  :id="'candidate' + index"
-                  :value="candidate._id"
-                  :name="candidate.name"
-                  class="form-check-input"
-                  v-model="selectedCandidate" />
-                <label :for="'candidate' + index">
-                  {{ candidate.name }}
-                </label>
-              </div>
-              <button
-                class="btn btn-primary btn-lg"
-                style="margin-top: 10px;"
-                @click="submit"
-                :disabled="isSubmitting"
-              >
-                <span v-if="isSubmitting">Waiting other committees
-                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                </span>
-                <span v-if="!isSubmitting">Vote</span>
-              </button>
+            <div class="col-1 text-end">
+              <button class="close-button" @click="closeCandidateTable">X</button>
             </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <ChatRoom />
+        <div class="floating-table-content">
+          <CandidateTable v-if="candidateProfileStore.candidate_profiles !== null" :candidates="candidateProfileStore.candidate_profiles" />
         </div>
       </div>
+
+      <div v-if="showCandidateSelection" class="mt-3">
+        <p>Please elect the candidate you believe is the best fit for the faculty position.</p>
+        <div
+          v-for="(candidate, index) in candidates"
+          :key="index"
+          class="form-check form-check-inline"
+        >
+          <input
+            type="radio"
+            :id="'candidate' + index"
+            :value="candidate._id"
+            :name="candidate.name"
+            class="form-check-input"
+            v-model="selectedCandidate" />
+          <label :for="'candidate' + index">
+            {{ candidate.name }}
+          </label>
+        </div>
+        <button
+          class="btn btn-primary btn-lg ms-3"
+          @click="submit"
+          :disabled="isSubmitting"
+        >
+          <span v-if="isSubmitting">Waiting for others...
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </span>
+          <span v-else>Vote</span>
+        </button>
+      </div>
+    </div>
+    <div class="chat-container flex-grow-1">
+      <ChatRoom />
     </div>
   </div>
 </template>
 <style scoped>
+.instructions-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevents scrollbars on the container itself */
+}
+
+/* This targets the root element of the ChatRoom component */
+.chat-container > :deep(*) {
+  flex-grow: 1; /* Make the ChatRoom component fill the container */
+}
+
 .timer {
   position: fixed;
   top: 10px;

@@ -447,9 +447,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             last_message=  await sync_to_async(lambda: Message.objects.filter(group=group, turn=turn).order_by('-timestamp').first())()
             if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
                 continue
-            if (datetime.datetime.now(datetime.timezone.utc) - last_intervention_analysis).total_seconds() < 20:
-                continue
-            last_intervention_analysis = datetime.datetime.now(datetime.timezone.utc)
+
             if last_message == last_message_analyzed:
                 continue
             last_message_analyzed = last_message
@@ -462,62 +460,59 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     continue
 
 
-                while True:#use  loop and try in case llm response format is not correct
-                    try: 
-                        intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,participant,private=True)                                              
-                        intervention_response = json.loads(intervention_response)
+                try: 
+                    intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,participant,private=True)                                              
+                    intervention_response = json.loads(intervention_response)
 
 
-                        intervention_response["summarization"]['score']*=1
-                        intervention_response["summarization"]['score']*=1
-                        intervention_response["summarization"]['score']*=1
+                    intervention_response["summarization"]['score']*=1
+                    intervention_response["nudging"]['score']*=1
+                    intervention_response["devils_advocate"]['score']*=1
+                    max_intervention = max(intervention_response, key=lambda k: intervention_response[k]["score"])
 
-                        max_intervention = max(intervention_response, key=lambda k: intervention_response[k]["score"])
 
-
-                        if intervention_response[max_intervention]['score']>= 65:
-                            response = await self.openai_client.individual_level_response(participant, group, turn,max_intervention,role_id)        
-                            type_of_intervention = max_intervention
-                        else:
-                            break
-                    except Exception as e:
-                        print("LLM error:", e, flush=True)
-                        import traceback
-                        traceback.print_exc()
+                    if intervention_response[max_intervention]['score']> 70:
+                        response = await self.openai_client.individual_level_response(participant, group, turn,max_intervention,role_id)        
+                        type_of_intervention = max_intervention
+                    else:
                         continue
-                    if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
-                        break # If there was a message before crafting the response dont send the message
-                            # Store the response as new data in the database
-                    llm_message = await sync_to_async(LlmMessage.objects.create)(
-                        group=group, 
-                        turn=turn, 
-                        content=response, 
-                        is_private=True, 
-                        recipient=participant,
-                        type_of_intervention=type_of_intervention,
-                    )
-        
+                except Exception as e:
+                    print("LLM error:", e, flush=True)
+                    import traceback
+                    traceback.print_exc()
+                    continue
+                if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
+                    continue 
+                llm_message = await sync_to_async(LlmMessage.objects.create)(
+                    group=group, 
+                    turn=turn, 
+                    content=response, 
+                    is_private=True, 
+                    recipient=participant,
+                    type_of_intervention=type_of_intervention,
+                )
+    
 
 
 
 
-                    await self.channel_layer.send(
-                        self.channel_name,
-                        {
-                            "type": "chat_message",
-                            "message": {
-                                "type": "message",
-                                "content": {
-                                    "_id": str(llm_message._id),
-                                    "sender": {
-                                        "participant_id": -1,  
-                                    },
-                                    "content": response
-                                }
+                await self.channel_layer.send(
+                    self.channel_name,
+                    {
+                        "type": "chat_message",
+                        "message": {
+                            "type": "message",
+                            "content": {
+                                "_id": str(llm_message._id),
+                                "sender": {
+                                    "participant_id": -1,  
+                                },
+                                "content": response
                             }
                         }
-                    )
-                    break 
+                    }
+                )
+                 
 
 
             elif condition_id == 2:
@@ -526,62 +521,59 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     continue
 
 
-                while True:#use  loop and try in case llm response format is not correct
-                    try: 
-                        intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,None,private=False)                                              
-                        print('inter')
-                        print(intervention_response)
+                try: 
+                    intervention_response, llm_message_id = await self.openai_client.intervention_analyzer_response( group, turn,None,private=False)                                              
 
-                        intervention_response = json.loads(intervention_response)
+                    intervention_response = json.loads(intervention_response)
 
-                        intervention_response["summarization"]['score']*=1
-                        intervention_response["summarization"]['score']*=1
-                        intervention_response["summarization"]['score']*=1
+                    intervention_response["summarization"]['score']*=1
+                    intervention_response["nudging"]['score']*=1
+                    intervention_response["devils_advocate"]['score']*=1
 
-                        max_intervention = max(intervention_response, key=lambda k: intervention_response[k]["score"])
+                    max_intervention = max(intervention_response, key=lambda k: intervention_response[k]["score"])
 
 
-                        if intervention_response[max_intervention]['score']>= 65:
-                            response = await self.openai_client.group_level_response( group, turn,max_intervention,role_map)        
-                            type_of_intervention = max_intervention
-                        else:
-                            break
-                    except Exception as e:
-                        print("LLM error:", e, flush=True)
-                        import traceback
-                        traceback.print_exc()
+                    if intervention_response[max_intervention]['score']> 70:
+                        response = await self.openai_client.group_level_response( group, turn,max_intervention,role_map)        
+                        type_of_intervention = max_intervention
+                    else:
                         continue
-                    if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
-                        break # If there was a message before crafting the response dont send the message
-                    # Store the response as new data in the database
-                    llm_message=await sync_to_async(LlmMessage.objects.create)(
-                        group=group, 
-                        turn=turn, 
-                        content=response, 
-                        is_private=False, 
-                        recipient=None,
-                        type_of_intervention=type_of_intervention)
+                except Exception as e:
+                    print("LLM error:", e, flush=True)
+                    import traceback
+                    traceback.print_exc()
+                    continue
+                if last_message and (datetime.datetime.now(datetime.timezone.utc) - last_message.timestamp).total_seconds() < 10: #if less time than threshold do not interrupt
+                    continue # If there was a message before crafting the response dont send the message
+                # Store the response as new data in the database
+                llm_message=await sync_to_async(LlmMessage.objects.create)(
+                    group=group, 
+                    turn=turn, 
+                    content=response, 
+                    is_private=False, 
+                    recipient=None,
+                    type_of_intervention=type_of_intervention)
 
 
-                    
-                    # Broadcast the LLM response to the group
-                    await self.channel_layer.group_send(
-                        self.room_name,
-                        {
-                            "type": "chat_message",
-                            "message": {
-                                "type": "message",
-                                "content": {
-                                "_id": str(llm_message._id),
-                                "sender": {
-                                    "participant_id": -1,  
-                                },
-                                "content": response
-                            }
-                            }
+                
+                # Broadcast the LLM response to the group
+                await self.channel_layer.group_send(
+                    self.room_name,
+                    {
+                        "type": "chat_message",
+                        "message": {
+                            "type": "message",
+                            "content": {
+                            "_id": str(llm_message._id),
+                            "sender": {
+                                "participant_id": -1,  
+                            },
+                            "content": response
                         }
-                    )
-                    break
+                        }
+                    }
+                )
+                
 
 
                 

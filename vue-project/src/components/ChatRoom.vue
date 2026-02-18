@@ -114,6 +114,10 @@ function get_group_condition_private() {
       </div>
     </div>
     <div class="room-area" ref="roomarea">
+      <div class="bonus-reminder">
+        <font-awesome-icon icon="fa-solid fa-star" />
+        <strong>Bonus Reminder:</strong> Discuss the candidates' attributes in depth with your group to maximize your potential bonus!
+      </div>
       <div v-if="get_group_condition()" class="chat-info">
         You can call the LLM assistant to summarize the conversation by typing "<b>@Quori</b>" in the message box. <br>
       </div>
@@ -403,7 +407,10 @@ function get_group_condition_private() {
   .own_message .col {
     padding-right: 0;
   }
-
+  .bonus-reminder .fa-star {
+    color: #ffc107;
+    margin-right: 8px;
+  }
   .message-area {
     border: solid 1px #1d3557;
     border-bottom-right-radius: 10px;

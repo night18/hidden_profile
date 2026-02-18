@@ -27,6 +27,11 @@ urlpatterns = [
     path('api/hidden_profile/candidate_profile_by_turn/', views.candidate_profile_by_turn),
     path('api/hidden_profile/initial_decision/', views.initial_decision),
     path('api/hidden_profile/final_decision/', views.final_decision),
-    path('api/hidden_profile/record_post_survey/', views.record_post_survey),
+    path('api/hidden_profile/record_pre_survey/', views.record_pre_survey),
+    path('api/hidden_profile/record_post_survey_llm/', views.record_post_survey_llm),
+    path('api/hidden_profile/record_post_survey_task/', views.record_post_survey_task),
+    path('api/hidden_profile/record_post_survey_nasa/', views.record_post_survey_nasa),
+
+
     path('api/hidden_profile/get_bonus/', views.get_bonus)
 ]

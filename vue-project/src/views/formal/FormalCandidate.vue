@@ -120,8 +120,8 @@ function next() {
 <template>
   <div class="container">
     <div class="timer">
-      <b>Time Remaining</b>
-      <CountdownTimer :remain_time="120" />
+      <b>Min. Discussion Time</b>
+      <CountdownTimer :remain_time="300" />
     </div>
     <div class="jumbotron container">
       <h2> Faculty Search: Formal Task

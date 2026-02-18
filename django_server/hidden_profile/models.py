@@ -4,32 +4,32 @@ import uuid
 class CandidateProfile(models.Model):
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     pair = models.IntegerField()
+    difficult = models.IntegerField(default=0)  # 0: easy, 1: difficult
     winner = models.BooleanField()
     # Public Information
     name = models.CharField(max_length=100)
-    number_of_courses_taught = models.CharField(max_length=10)
-    student_teaching_evaluations =models.CharField(max_length=10)
-    number_of_peer_reviewed_publications = models.CharField(max_length=10)
-    citations = models.CharField(max_length=10)
-    service_on_editorial_boards = models.CharField(max_length=10)
-    conference_organization_roles = models.CharField(max_length=100)
+    #number_of_courses_taught = models.CharField(max_length=100)
+    #student_teaching_evaluations =models.CharField(max_length=100)
+    publications = models.CharField(max_length=100)
+    citations = models.CharField(max_length=100)
+    editorial_service = models.CharField(max_length=100)
+    conference_organization = models.CharField(max_length=100)
     
     # Hidden Information
-    undergraduate_mentorship_success = models.CharField(max_length=100)
-    graduate_thesis_supervision = models.CharField(max_length=100)
-    curriculum_development = models.CharField(max_length=100)
-    teaching_awards = models.CharField(max_length=100)
+    mentorship = models.CharField(max_length=100)
+    #graduate_thesis_supervision = models.CharField(max_length=100)
+    #curriculum_development = models.CharField(max_length=100)
+    teaching = models.CharField(max_length=100)
     
-    grant_funding_secured = models.CharField(max_length=100)
-    reviewer_activity = models.CharField(max_length=100)
-    interdisciplinary_research = models.CharField(max_length=100)
-    research_awards = models.CharField(max_length=100)
+    funding = models.CharField(max_length=100)
+    #reviewer_activity = models.CharField(max_length=100)
+    interdisciplinarity = models.CharField(max_length=100)
+    #research_awards = models.CharField(max_length=100)
     
-    invited_talks = models.CharField(max_length=100)
-    industry_collaboration = models.CharField(max_length=100)
-    university_committee_service = models.CharField(max_length=100)
+    #invited_talks = models.CharField(max_length=100)
+    collaborations = models.CharField(max_length=100)
+    #university_committee_service = models.CharField(max_length=100)
     research_coverage = models.CharField(max_length=100)
-    
     def __str__(self):
         return str(self.name)
 
@@ -42,14 +42,15 @@ class Participant(models.Model):
     formal_session_id = models.CharField(max_length=100)
     avatar_color = models.CharField(max_length=100, default=None, null=True)
     avatar_animal = models.CharField(max_length=100, default=None, null=True)
-    group_id = models.UUIDField(default=uuid.uuid4, null=True)
+    group_id = models.UUIDField( null=True, blank=True)
     bonus = models.FloatField(default=0.0)
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True)
     complete_initial = models.BooleanField(default=False)   
     auto_llm = models.BooleanField(default=False)   
 
-
+    class Meta:
+        ordering = ['-start_time'] #
     
     def __str__(self):
         return str(self._id)
@@ -89,7 +90,10 @@ class Group(models.Model):
     active_participants = models.ManyToManyField(Participant, related_name='active_groups', blank=True)
     max_size = models.PositiveIntegerField(default=3)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    difficulty = models.IntegerField(default=0)  # 0: easy, 1: difficult
+    class Meta:
+        ordering = ['-created_at'] 
+
     def is_full(self):
         return self.participants.count() >= self.max_size
     
@@ -150,6 +154,9 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     quori_included = models.BooleanField(default=False)
+    class Meta:
+        ordering = ['-timestamp'] # Example: Ensure logic matches fields that exist!
+
 
     def __str__(self):
         return f"Message {self._id} from {self.sender._id} in Group {self.group._id} during Turn {self.turn.turn_number}"
@@ -168,6 +175,8 @@ class LlmMessage(models.Model):
     is_intervention_analysis=models.BooleanField(default=False)
     type_of_intervention = models.CharField(max_length=100, null=True, blank=True)
     input_messages = models.TextField(default="")
+    class Meta:
+        ordering = ['-timestamp'] 
 
     def __str__(self):
         if self.is_private and self.recipient:
@@ -192,6 +201,8 @@ class FormalRecord(models.Model):
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE, related_name="formal_records")
     vote = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name="formal_records")
     timestamp = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['-timestamp'] 
 
     def __str__(self):
         return f"Formal Record {self._id} from {self.participant._id}, voting {self.vote.name}, in Group {self.turn.group._id} during Turn {self.turn.turn_number}"
@@ -220,3 +231,72 @@ class PostSurvey(models.Model):
 
     def __str__(self):
         return f"Post Survey {self._id} from {self.participant._id}"
+
+class PostSurveyLLM(models.Model):
+    """Stores each participant's post-survey responses."""
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="post_surveys_llm")
+    # Optional open-ended response
+    open_ended_response = models.TextField(null=True, blank=True)
+
+    # Likert scale questions
+    llm_summary = models.IntegerField(null=True, blank=True)
+    llm_encouragement = models.IntegerField(null=True, blank=True)
+    llm_alternatives = models.IntegerField(null=True, blank=True)
+    llm_collaboration = models.IntegerField(null=True, blank=True)
+    llm_satisfaction = models.IntegerField(null=True, blank=True)
+    llm_quality = models.IntegerField(null=True, blank=True)
+    llm_recommendation = models.IntegerField(null=True, blank=True)
+    llm_future_use = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Post Survey {self._id} from {self.participant._id}"
+    
+class PostSurveyTask(models.Model):
+    """Stores each participant's post-survey responses."""
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="post_surveys_task")
+
+    # Discussion Quality Scale
+    dialogue_management = models.IntegerField()
+    information_pooling = models.IntegerField()
+    reaching_consensus = models.IntegerField()
+    time_management = models.IntegerField()
+    reciprocal_interaction = models.IntegerField()
+    individual_task_orientation = models.IntegerField()
+
+
+
+    def __str__(self):
+        return f"Post Survey {self._id} from {self.participant._id}"
+    
+
+class PostSurveyNasa(models.Model):
+    """Stores each participant's NASA-TLX survey responses."""
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="post_surveys_task_nasa")
+
+    # NASA-TLX Scales
+    mental_demand = models.IntegerField()
+    temporal_demand = models.IntegerField()
+    performance = models.IntegerField()
+    effort = models.IntegerField()
+    frustration = models.IntegerField()
+
+    def __str__(self):
+        return f"NASA-TLX Survey {self._id} from {self.participant._id}"
+
+class PreSurvey(models.Model):
+    """Stores each participant's post-survey responses."""
+    _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="pre_surveys")
+
+    # Pre-survey demographic and knowledge questions
+    ai_knowledge = models.CharField(max_length=200, blank=True, null=True)
+    gender = models.CharField(max_length=50, blank=True, null=True)
+    age = models.CharField(max_length=50, blank=True, null=True)
+    ethnicity = models.CharField(max_length=100, blank=True, null=True)
+    education = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return f"Pre Survey {self._id} from {self.participant._id}"

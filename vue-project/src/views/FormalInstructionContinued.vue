@@ -52,7 +52,6 @@ generateAvatar();
         <h2>Group Phase Instruction</h2>
         <div class="content-area">
             <p>Now, we are about to move on to the group phase. You will be assigned to a group of three people to form a search committee. </p>
-
             <p><b>Discussion rules:</b> 
             </p>
             <ul>
@@ -60,7 +59,7 @@ generateAvatar();
                 <li>Do NOT give out any of your personal information during the discussion.</li>
             </ul>
 
-            <p><b>Bonus opportunity:</b> for each group task, you can earn <b>$1.5 </b>as an additional personal bonus  if the candidate that your group selects in the end is indeed the candidate who excels on more aspects than other candidates when considering all aspects of evaluation. 
+            <p><b>Bonus opportunity:</b> for each group task, you can earn <b>$1.5 </b>as an additional bonus  if the candidate that your group selects in the end is indeed the candidate who excels on more aspects than other candidates when considering all aspects of evaluation. 
             </p>
             <p>To protect your identity, we would assign you an avatar to represent you in your group throughout the rest of this study. If you are not satisfied with the assigned avatar, please click the <b>Refresh</b> button to get a new one.</p>
             <div class="avatar-area">

@@ -21,33 +21,33 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
         allowed_fields = [
             '_id',
             'name',
-            'number_of_courses_taught',
-            'student_teaching_evaluations',
-            'number_of_peer_reviewed_publications',
+            #'number_of_courses_taught',
+            #'student_teaching_evaluations',
+            'publications',
             'citations',
-            'service_on_editorial_boards',
-            'conference_organization_roles',
+            'editorial_service',
+            'conference_organization',
         ]
         
         if role == 1:
             allowed_fields.extend([
-                'undergraduate_mentorship_success',
-                'graduate_thesis_supervision',
-                'curriculum_development',
-                'teaching_awards',
+                'mentorship',
+                #'graduate_thesis_supervision',
+                #'curriculum_development',
+                'teaching',
             ])
         elif role == 2:
             allowed_fields.extend([
-                'grant_funding_secured',
-                'reviewer_activity',
-                'interdisciplinary_research',
-                'research_awards',
+                'funding',
+                #'reviewer_activity',
+                'interdisciplinarity',
+                #'research_awards',
             ])
         elif role == 3:
             allowed_fields.extend([
-                'invited_talks',
-                'industry_collaboration',
-                'university_committee_service',
+                #'invited_talks',
+                'collaborations',
+                #'university_committee_service',
                 'research_coverage',
             ])
             

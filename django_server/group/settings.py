@@ -34,8 +34,16 @@ ALLOWED_HOSTS = [
     'localhost',
     '172.31.17.19',
     '172.31.62.11',
+    '172.31.19.28',
+    '172.31.30.169',
+    '3.20.210.165',
+    '172.31.12.145',
     'hidden-profile-env-1.eba-saedd8ej.us-west-2.elasticbeanstalk.com',
     'hiddenprofile.hci-study.com',
+    'experiment-env.eba-q2zvszsg.us-east-2.elasticbeanstalk.com',
+    'grou-llm-experiment.com',
+    '3.147.154.113'
+    #'ec2-18-188-132-179.us-east-2.compute.amazonaws.com'
 ]
 
 
@@ -103,8 +111,8 @@ CHANNEL_LAYERS = {
     'default' : {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('hdpf-redis.6kcz6r.ng.0001.usw2.cache.amazonaws.com', 6379)],
-            # "hosts": [('localhost', 6379)],
+            "hosts": [('channel.nptx9m.ng.0001.use2.cache.amazonaws.com', 6379)],
+             #"hosts": [('localhost', 6379)]
         },
     }
 }
@@ -129,10 +137,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'experiment',
-            'USER': 'chunwei',
+            'NAME': 'new_setup',
+            'USER': 'postgres',
             # 'USER': 'chun',
-            'PASSWORD': 'chun',
+            'PASSWORD': 'hola1234',
             'HOST': 'localhost',
             'PORT': '5432',
         }

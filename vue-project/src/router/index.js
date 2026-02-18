@@ -15,6 +15,11 @@ import FormalInstruction from '@/views/FormalInstruction.vue';
 import ExitView from '@/views/ExitView.vue';
 import TeammateLeft from '@/views/errors/TeammateLeft.vue';
 import PostSurvey from '@/views/PostSurvey.vue';
+import PreSurvey from '@/views/PreSurvey.vue';
+import PostSurveyTask from '@/views/PostSurveyTask.vue';
+import PostSurveyNasa from '@/views/PostSurveyNasa.vue';
+import PostSurveyLLM from '@/views/PostSurveyLLM.vue';
+import Consent from '@/views/Consent.vue'; // Add this import
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +29,18 @@ const router = createRouter({
       name: 'entrance',
       component: EntranceView,
     },
+    {
+      path: '/Consent',
+      name: 'Consent',
+      component: Consent,
+    },
+
+    {
+      path: '/PreSurvey',
+      name: 'PreSurvey',
+      component: PreSurvey,
+    },
+
     {
       path: '/TaskInstruction',
       name: 'TaskInstruction',
@@ -75,9 +92,19 @@ const router = createRouter({
       component: GroupDiscussion,
     },
     {
-      path: '/PostSurvey',
-      name: 'PostSurvey',
-      component: PostSurvey,
+      path: '/PostSurveyLLM',
+      name: 'PostSurveyLLM',
+      component: PostSurveyLLM,
+    },
+    {
+      path: '/PostSurveyTask',
+      name: 'PostSurveyTask',
+      component: PostSurveyTask,
+    },
+    {
+      path: '/PostSurveyNasa',
+      name: 'PostSurveyNasa',
+      component: PostSurveyNasa,
     },
     {
       path: '/FailPairing',

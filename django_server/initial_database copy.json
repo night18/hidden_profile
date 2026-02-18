@@ -47,16 +47,16 @@
             "pair": 0,
             "name": "Candidate A",
             "winner": true,
-            "number_of_courses_taught": "Good", 
+            "number_of_courses_taught": "Good", //Exceptional
             "student_teaching_evaluations": "Average",
             "number_of_peer_reviewed_publications": "Good",
             "citations": "Average",
             "service_on_editorial_boards": "Good",
             "conference_organization_roles": "Exceptional",
             "undergraduate_mentorship_success": "Exceptional",
-            "graduate_thesis_supervision": "Average",
+            "graduate_thesis_supervision": "Average",//Exceptional
             "curriculum_development": "Exceptional",
-            "teaching_awards": "Good",
+            "teaching_awards": "Good",//Exceptional
             "grant_funding_secured": "Exceptional",
             "reviewer_activity": "Exceptional",
             "interdisciplinary_research": "Average",
@@ -79,14 +79,17 @@
             "citations": "Exceptional",
             "service_on_editorial_boards": "Exceptional",
             "conference_organization_roles": "Good",
+
             "undergraduate_mentorship_success": "Average",
             "graduate_thesis_supervision": "Average",
             "curriculum_development": "Good",
-            "teaching_awards": "Exceptional",
+            "teaching_awards": "Exceptional",//Good
+
             "grant_funding_secured": "Average",
             "reviewer_activity": "Average",
             "interdisciplinary_research": "Good",
             "research_awards": "Exceptional",
+
             "invited_talks": "Average",
             "industry_collaboration": "Exceptional",
             "university_committee_service": "Good",

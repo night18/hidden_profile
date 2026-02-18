@@ -1,71 +1,43 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useParticipantStore } from '@/stores/participant';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-
-const participantStore = useParticipantStore();
-const bonus = ref(null);
-const taskDetails = ref([]);
-const errorMessage = ref('');
-
-onMounted(() => {
-  let body = new FormData();
-  body.append('participant_id', participantStore.participant_id);
-  axios.post('/get_bonus/', body)
-    .then(response => {
-      if (response.status !== 200) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to retrieve bonus.',
-        });
-        return;
-      }
-      bonus.value = response.data.bonus;
-      taskDetails.value = response.data.list; // Updated to handle the 'list' field
-    })
-    .catch(() => {
-      errorMessage.value = 'An error occurred while retrieving your bonus.';
-    });
-});
-</script>
-<template>
-  <div class="container">
-    <div class="jumbotron container">
-      <h2>Exit Page</h2>
-      <div class="content-area">
-        <p>Thank you for your participation. We appreciate your time and effort.</p>
-        <p>If you have any questions or feedback, please feel free to contact us.</p>
-        <div v-if="bonus !== null">
-          <p>Your bonus: <strong>{{ bonus }}</strong></p>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Turn</th>
-                <th>Vote Result</th>
-                <th>Best Candidate</th>
-                <th>Bonus</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="task in taskDetails" :key="task.task">
-                <td>{{ task.task }}</td>
-                <td>{{ task.final_vote }}</td>
-                <td>{{ task.ground_truth }}</td>
-                <td>{{ task.bonus }}</td>
-              </tr>
-            </tbody>
-          </table>
+  import { ref } from 'vue';
+  
+  // A single completion code for everyone who completes the recruitment phase.
+  const completionCode = ref('CNBTWNUO'); // Replace with your actual recruitment completion code
+  </script>
+  
+  <template>
+    <div class="container">
+      <div class="jumbotron container">
+        <h2>Thank You for Registering!</h2>
+        <div class="content-area">
+          <p>Thank you for your interest and for completing the initial consent and survey steps. You have successfully registered for the upcoming study.</p>
+          <p>
+            Please remember that the experiment will take place on <strong>TODAY Feb 4 at 5pm E.T.</strong>. You will receive reminders from Prolific before the session begins.
+          </p>
+          <p>If you have any questions, please feel free to contact the research team.</p>
         </div>
-        <div v-else-if="errorMessage">
-          <p class="error">{{ errorMessage }}</p>
-        </div>
-        <div v-else>
-          <p>Loading your bonus...</p>
+        <div class="completion-code">
+          <h3>Your Prolific Completion Code:</h3>
+          <p><strong>{{ completionCode }}</strong></p>
+          <p>Please copy this code and submit it on Prolific to confirm your registration for the study.</p>
         </div>
       </div>
-      <button class="btn btn-lg btn-primary">Submit Study</button>
     </div>
-  </div>
-</template>
+  </template>
+  
+  <style scoped>
+  .completion-code {
+    background-color: #f8f9fa;
+    border: 2px solid #007bff;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 20px 0;
+    border-radius: 8px;
+    color: #007bff;
+  }
+  .content-area p {
+    font-size: 1.1rem;
+  }
+  </style>

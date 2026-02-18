@@ -2,11 +2,13 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useParticipantStore } from '@/stores/participant';
+import { useGroupStore } from '@/stores/group'; // Import the group store
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
 const router = useRouter();
 const participantStore = useParticipantStore();
+const groupStore = useGroupStore(); // Instantiate the group store
 
 const submitSurvey = () => {
     let body = new FormData();
@@ -22,9 +24,13 @@ const submitSurvey = () => {
     }
 
     // Post to the new endpoint for the general survey part
-    axios.post('/api/hidden_profile/record_post_survey_task/', body)
+    axios.post('/record_post_survey_task/', body)
       .then(() => {
-        router.push({ name: 'Exit' });
+        // Get the condition from the groupStore, as shown in ChatRoom.vue
+        
+
+        router.push({ name: 'exit' });
+        
       })
       .catch(error => {
           Swal.fire({
@@ -35,7 +41,6 @@ const submitSurvey = () => {
           console.error("General Survey Error:", error);
       });
 };
-
 const likertLabels = [
     "Strongly Disagree",
     "Disagree",
@@ -49,9 +54,8 @@ const questions = {
     dialogue_management: { label: "Our discussion flowed smoothly without interruptions." },
     information_pooling: { label: "I actively asked for other team members' knowledge or expertise." },
     reaching_consensus: { label: "We carefully evaluated different options before agreeing." },
-    task_division: { label: "We clearly divided the task according to our strengths." },
     time_management: { label: "We kept track of time and adjusted our pace accordingly." },
-    technical_coordination: { label: "We effectively coordinated our use of the shared workspace." },
+
     reciprocal_interaction: { label: "We treated each other with respect and as equals." },
     individual_task_orientation: { label: "I stayed focused and motivated throughout the task." },
 };
@@ -61,9 +65,7 @@ const surveyResponses = ref({
     dialogue_management: null,
     information_pooling: null,
     reaching_consensus: null,
-    task_division: null,
     time_management: null,
-    technical_coordination: null,
     reciprocal_interaction: null,
     individual_task_orientation: null,
 });
@@ -72,9 +74,9 @@ const surveyResponses = ref({
 <template>
 <div class="container">
     <div class="jumbotron container">
-        <h2>Survey (Part 2 of 2)</h2>
+        <h2>Survey </h2>
         <p>
-            Wonderful! You almost completed all the search committee tasks. One last thing, please complete the survey. We will show how much bonus you could earn in the next page.
+            Please rate your experience on the following scales.
         </p>
         <div class="survey-container">
             <!-- Header Row -->

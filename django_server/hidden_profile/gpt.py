@@ -9,14 +9,12 @@ class OpenAIClient:
         if not api_key:
             raise ValueError("OPENAI_API_KEY is not set")
         self.client = AsyncOpenAI(api_key=api_key)
-        self.model = "o3-mini-2025-01-31"
+        self.model = "gpt-5-mini"
         self.max_tokens = 20000
         # Load system prompts and templates at initialization
         self.group_system_prompt = self._load_prompt("group_system_prompt.txt")
         self.individual_system_prompt = self._load_prompt("individual_system_prompt.txt")
         self.individual_system_private_prompt= self._load_prompt("individual_system_prompt_private.txt")
-        self.quori_system_prompt = self._load_prompt("quori_system_prompt.txt")
-        self.group_summarization_prompt = self._load_prompt("group_summarization_prompt.txt")
         self.intervention_analyzer_prompt = self._load_prompt("intervention_analyzer.txt")
         self.intervention_analyzer_private_prompt = self._load_prompt("intervention_analyzer_private.txt")
 
@@ -36,6 +34,7 @@ class OpenAIClient:
             model=self.model,
             messages=messages,
             max_completion_tokens=self.max_tokens,
+            service_tier="priority"
         )
         print("completion")
         print(completion.choices[0].message.content)
@@ -89,14 +88,14 @@ class OpenAIClient:
         #role_description = turn.role.description
         
         hidden_profile_attributes = ""
-        attributes = "Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citations, Service on Editorial Boards, Conference Organization Roles"
+        attributes = "Publications, Citations, Editorial Service, Conference Organization"
         
         if role_id == 1:
-            hidden_profile_attributes = "Undergraduate Mentorship Success, Graduate Thesis Supervision, Curriculum Development, Teaching Awards"
+            hidden_profile_attributes = "Mentorship, Teaching "
         elif role_id == 2:
-            hidden_profile_attributes = "Grant Funding Secured, Reviewer Activity, Interdisciplinary Research, Research Awards"
+            hidden_profile_attributes = "Funding, Interdisciplinarity"
         elif role_id == 3:
-            hidden_profile_attributes = "Invited Talks, Industry Collaboration, University Committee Service, Research Coverage"
+            hidden_profile_attributes = "Collaborations, Research Coverage"
         
         attributes = attributes + ", " + hidden_profile_attributes
         
@@ -129,7 +128,7 @@ class OpenAIClient:
             role_id_1=role_map[1],
             role_id_2=role_map[2],
             role_id_3=role_map[3],
-            public_information= "Number of Courses Taught, Student Teaching Evaluations, Number of Peer-Reviewed Publications, Citations, Service on Editorial Boards, Conference Organization Roles"
+            public_information= "Publications, Citations, Editorial Service, Conference Organization"
 
             )
         

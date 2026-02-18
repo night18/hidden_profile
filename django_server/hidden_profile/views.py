@@ -4,13 +4,13 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Count, F
-from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition, InitialRecord, PostSurvey
+from .models import CandidateProfile, Participant, Group, Role, Turn, ParticipantTurn, Message, LlmMessage, FormalRecord, Condition, InitialRecord, PostSurvey, PreSurvey,   PostSurveyLLM,    PostSurveyTask,    PostSurveyNasa
 from .serializers import CandidateProfileSerializer
 from datetime import datetime
 import csv
 import random
-
-TEST_MODE = True
+import time
+TEST_MODE = False
 
 """ For Prolifc use"""
 SUCCESS_CODE = ""
@@ -33,6 +33,7 @@ def create_participant(request):
     - condition: str
     Due to paricipant model does not have condition, hence we have to create the group but not assign the participant to the group at this momemt.
     """
+    random.seed(time.time()) 
 
     worker_id = request.POST.get('worker_id', None)
     study_id = request.POST.get('study_id', None)
@@ -48,8 +49,8 @@ def create_participant(request):
         
     # Create the participant
     participant = Participant.objects.create(worker_id=worker_id, formal_study_id=study_id, formal_session_id=session_id)
-    
     if TEST_MODE:
+
         condition_id = request.POST.get('condition', None)
         print(f"condition_id: {condition_id}")
         if not worker_id or not condition_id or condition_id not in ['0', '1', '2']:
@@ -63,8 +64,13 @@ def create_participant(request):
         ).filter(num_participants__lt=F('max_size'), condition=condition).order_by('created_at').first()
         
         if not group:
-            group = Group.objects.create(condition=condition)
-        
+            difficulty_choice = random.choice([0, 1, 2])
+            
+            group = Group.objects.create(
+                condition=condition,
+                difficulty=difficulty_choice
+            )    
+            
         
         # Assign the participant to the group
         participant.group_id = group._id
@@ -116,11 +122,20 @@ def pairing(request):
     
         if not group:
             # Create a new group with random condition. Condition is a model, so we need to get the condition object first. The condition's id is from 0 to 2.
-            condition = Condition.objects.order_by('?').first()
+            random.seed(time.time()) 
+            random_condition_id = random.choice([1])
+            condition = Condition.objects.get(_id=random_condition_id)
+
+            #condition = Condition.objects.order_by('?').first()
+            #condition = Condition.objects.get(_id=0)  
             if not condition:
                 raise ValueError("No valid conditions available to create a group.") 
-            group = Group.objects.create(condition=condition)
-    
+            difficulty_choice = random.choice([ 2])
+            
+            group = Group.objects.create(
+                condition=condition,
+                difficulty=difficulty_choice
+            )    
     
     group.add_participant(participant)
     group_id = group._id
@@ -144,7 +159,8 @@ def initial_decision(request):
     participant = Participant.objects.get(pk=participant_id)
     group = Group.objects.get(pk=participant.group_id)
     turn = Turn.objects.get(group=group, turn_number=turn_number)
-    selected_candidate = CandidateProfile.objects.get(pair=turn_number, name=selected_candidate_name)
+    print(selected_candidate_name)
+    selected_candidate = CandidateProfile.objects.get(name=selected_candidate_name, difficult=group.difficulty)
     
     # Store the initial decision
     InitialRecord.objects.create(participant=participant, turn=turn, vote=selected_candidate)
@@ -163,7 +179,7 @@ def final_decision(request):
     participant = Participant.objects.get(pk=participant_id)
     group = Group.objects.get(pk=participant.group_id)
     turn = Turn.objects.get(group=group, turn_number=turn_number)
-    selected_candidate = CandidateProfile.objects.get(pk=selected_candidate_id)
+    selected_candidate = CandidateProfile.objects.get(pk=selected_candidate_id, difficult=group.difficulty)
     
     # Store the final decision
     FormalRecord.objects.create(participant=participant, turn=turn, vote=selected_candidate)
@@ -187,7 +203,7 @@ def candidate_profile_by_turn(request):
     role_id = participant_turn.role._id
     
     # Get the candidate profiles by turn, which also named as pair in chandidate profile model
-    candidate_profiles = CandidateProfile.objects.filter(pair=turn_number)
+    candidate_profiles = CandidateProfile.objects.filter(pair=turn_number, difficult=group.difficulty)
     serializer = CandidateProfileSerializer(candidate_profiles, many=True, context={'role': role_id})
     
     json = {
@@ -195,14 +211,12 @@ def candidate_profile_by_turn(request):
     }
     
     return JsonResponse(json, status=status.HTTP_200_OK)
-
 @api_view(['POST'])
-def record_post_survey(request):
+def record_pre_survey(request):
     """
-    Records the participant's responses to the post-survey.
+    Records the participant's responses to the pre-survey.
     """
-    participant_id = request.POST.get('participant_id', None)
-    # print(participant_id)
+    participant_id = request.data.get('participant_id', None)
     if not participant_id:
         return JsonResponse({'error': 'Missing participant_id'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -211,89 +225,97 @@ def record_post_survey(request):
     except Participant.DoesNotExist:
         return JsonResponse({'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Extract survey responses from the request
+    # Check if participant already has a pre-survey record
+    if PreSurvey.objects.filter(participant=participant).exists():
+        return JsonResponse({'error': 'Pre-survey already completed for this participant'}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
-        # Discussion Quality Scale fields
-        dialogue_management = request.POST.get('dialogue_management')
-        information_pooling = request.POST.get('information_pooling')
-        reaching_consensus = request.POST.get('reaching_consensus')
-        task_division = request.POST.get('task_division')
-        time_management = request.POST.get('time_management')
-        technical_coordination = request.POST.get('technical_coordination')
-        reciprocal_interaction = request.POST.get('reciprocal_interaction')
-        individual_task_orientation = request.POST.get('individual_task_orientation')
-
-        # LLM Usability fields
-        llm_collaboration = request.POST.get('llm_collaboration')
-        llm_satisfaction = request.POST.get('llm_satisfaction')
-        llm_quality = request.POST.get('llm_quality')
-        llm_recommendation = request.POST.get('llm_recommendation')
-        llm_future_use = request.POST.get('llm_future_use')
-
-        # print(f"Received post-survey data for participant {participant_id}: "
-        #       f"dialogue_management={dialogue_management}, "
-        #         f"information_pooling={information_pooling}, "
-        #         f"reaching_consensus={reaching_consensus}, "
-        #         f"task_division={task_division}, "
-        #         f"time_management={time_management}, "
-        #         f"technical_coordination={technical_coordination}, "
-        #         f"reciprocal_interaction={reciprocal_interaction}, "
-        #         f"individual_task_orientation={individual_task_orientation}, "
-        #         f"llm_collaboration={llm_collaboration}, "
-        #         f"llm_satisfaction={llm_satisfaction}, "
-        #         f"llm_quality={llm_quality}, "
-        #         f"llm_recommendation={llm_recommendation}, "
-        #         f"llm_future_use={llm_future_use}")
-        
-
-        # Validate that all required fields are present
-        required_fields = [
-            dialogue_management, information_pooling, reaching_consensus, task_division,
-            time_management, technical_coordination, reciprocal_interaction, individual_task_orientation
-        ]
-        
-        if any(field is None or field == '' for field in required_fields):
-            return JsonResponse({'error': 'Missing required survey fields'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Convert to integers and validate range (assuming 1-7 Likert scale)
+        # Extract survey responses from the request
+        # Note: The frontend sends 'ml_knowledge', but the model field is 'ai_knowledge'.
         survey_data = {
-            'dialogue_management': int(dialogue_management),
-            'information_pooling': int(information_pooling),
-            'reaching_consensus': int(reaching_consensus),
-            'task_division': int(task_division),
-            'time_management': int(time_management),
-            'technical_coordination': int(technical_coordination),
-            'reciprocal_interaction': int(reciprocal_interaction),
-            'individual_task_orientation': int(individual_task_orientation),
-            'llm_collaboration': int(llm_collaboration),
-            'llm_satisfaction': int(llm_satisfaction),
-            'llm_quality': int(llm_quality),
-            'llm_recommendation': int(llm_recommendation),
-            'llm_future_use': int(llm_future_use)
+            'ai_knowledge': request.data.get('ai_knowledge'),
+            'gender': request.data.get('gender'),
+            'age': request.data.get('age'),
+            'ethnicity': request.data.get('ethnicity'),
+            'education': request.data.get('education'),
         }
 
-        # Validate that all values are within expected range (1-7 for Likert scale)
-        for field, value in survey_data.items():
-            if not (1 <= value <= 7):
-                return JsonResponse({'error': f'Invalid value for {field}: must be between 1 and 7'}, status=status.HTTP_400_BAD_REQUEST)
+        # Validate that all required fields are present
+        if any(value is None or value == '' for value in survey_data.values()):
+            return JsonResponse({'error': 'Missing required survey fields'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if participant already has a post-survey record
-        if PostSurvey.objects.filter(participant=participant).exists():
-            return JsonResponse({'error': 'Post-survey already completed for this participant'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Create and save the PostSurvey record
-        post_survey = PostSurvey.objects.create(
+        # Create and save the PreSurvey record
+        pre_survey = PreSurvey.objects.create(
             participant=participant,
             **survey_data
         )
 
-        return JsonResponse({'message': 'Post-survey recorded successfully', 'survey_id': str(post_survey._id)}, status=status.HTTP_200_OK)
+        return JsonResponse({'message': 'Pre-survey recorded successfully', 'survey_id': str(pre_survey._id)}, status=status.HTTP_200_OK)
 
-    except ValueError as e:
-        return JsonResponse({'error': f'Invalid data format: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return JsonResponse({'error': f'An error occurred while saving the survey: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+@api_view(['POST'])
+def record_post_survey_llm(request):
+    """Records the LLM part of the post-survey."""
+    participant_id = request.data.get('participant_id')
+    try:
+        participant = Participant.objects.get(pk=participant_id)
+        survey_data = {
+            'open_ended_response': request.data.get('open_ended_response'),
+            'llm_summary': request.data.get('llm_summary'),
+            'llm_encouragement': request.data.get('llm_encouragement'),
+            'llm_alternatives': request.data.get('llm_alternatives'),
+            'llm_collaboration': request.data.get('llm_collaboration'),
+            'llm_satisfaction': request.data.get('llm_satisfaction'),
+            'llm_quality': request.data.get('llm_quality'),
+            'llm_recommendation': request.data.get('llm_recommendation'),
+            'llm_future_use': request.data.get('llm_future_use'),
+        }
+        PostSurveyLLM.objects.create(participant=participant, **survey_data)
+        return JsonResponse({'message': 'LLM survey recorded successfully'}, status=200)
+    except Participant.DoesNotExist:
+        return JsonResponse({'error': 'Participant not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@api_view(['POST'])
+def record_post_survey_task(request):
+    """Records the task-related part of the post-survey."""
+    participant_id = request.data.get('participant_id')
+    try:
+        participant = Participant.objects.get(pk=participant_id)
+        survey_data = {
+            'dialogue_management': request.data.get('dialogue_management'),
+            'information_pooling': request.data.get('information_pooling'),
+            'reaching_consensus': request.data.get('reaching_consensus'),
+            'time_management': request.data.get('time_management'),
+            'reciprocal_interaction': request.data.get('reciprocal_interaction'),
+            'individual_task_orientation': request.data.get('individual_task_orientation'),
+        }
+        PostSurveyTask.objects.create(participant=participant, **survey_data)
+        return JsonResponse({'message': 'Task survey recorded successfully'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@api_view(['POST'])
+def record_post_survey_nasa(request):
+    """Records the NASA-TLX part of the post-survey."""
+    participant_id = request.data.get('participant_id')
+    try:
+        participant = Participant.objects.get(pk=participant_id)
+        survey_data = {
+            'mental_demand': request.data.get('mental_demand'),
+            'temporal_demand': request.data.get('temporal_demand'),
+            'performance': request.data.get('performance'),
+            'effort': request.data.get('effort'),
+            'frustration': request.data.get('frustration'),
+        }
+        PostSurveyNasa.objects.create(participant=participant, **survey_data)
+        return JsonResponse({'message': 'NASA-TLX survey recorded successfully'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 @api_view(['POST'])
 def get_bonus(request):
     participant_id = request.POST.get('participant_id', None)
@@ -330,7 +352,7 @@ def get_bonus(request):
             continue
         
         # Check if the majority vote corresponds to the best candidate
-        best_candidate = CandidateProfile.objects.filter(pair=turn.candidatePair, winner=True).first()
+        best_candidate = CandidateProfile.objects.filter(difficult=group.difficulty,     winner=True).first()
         bonus = 1.5 if best_candidate and str(best_candidate._id) == str(majority_vote) else 0
         total_bonus += bonus
 

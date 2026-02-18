@@ -10,7 +10,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const router = useRouter();
-const remainTime = ref(300);
+const remainTime = ref(400);
 const message = ref('');
 const groupStore = useGroupStore();
 const turnStore = useTurnStore();
@@ -83,7 +83,7 @@ onMounted(() => {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Sorry, a participant has left the task. Please click OK to finish the task.',
+          text: 'Sorry, a participant has left the task. Please click OK to finish the task.  Please copy this code and submit it on Prolific to confirm your participation. C5FPSG5Y',
         }).then(() => {
           router.push({ name: 'TeammateLeft' });
         });
@@ -102,8 +102,8 @@ onMounted(() => {
       <h2> Waiting Room </h2>
       <div class="content-area">
         <p>We are currently waiting for other participants to join your committee. Please wait until we gather three members for your group.</p>
-        <p>If you wait for more than 5 minutes, you will be redirected to the end page. We will pay you for your time.</p>
-        <CountdownTimer :remain_time="300" />
+        <p>If you wait for more than 10 minutes, you will be redirected to the end page. We will pay you for your time.</p>
+        <CountdownTimer :remain_time="400" />
         <p>{{ message }}</p>
       </div>
     </div>

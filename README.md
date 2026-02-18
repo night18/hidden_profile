@@ -1,31 +1,5 @@
 # hidden_profile
-The web application for the hidden profile task
+The is web application for a hidden profile task. It has the option of including private or group LLMs. 
 
 # TODO
-- [ ] Redirect the users to the Prolific after complete the task and fail paring.
-- [x] Instead of handle the message and llm response together, try to separate them.
-- [x] Set pair to Turn in role_by_turn.
-- [x] Spinner after clicking final vote.
-- [x] Chat at least two minute.
-- [x] Change the icon and name in group discussion.
-- [x] Double check the bonus page.
-- [x] Formal Disconnect the channel.
-- [x] GPT would not participant until 60 seconds.
-- [x] Add sounds while successfully paired.
-- [x] Change the name in LLM prompt.
-- [x] Add summarize function which could be activated when calling @quori (case unsensitive).
-- [x] The LLM must wait idle_time for next nudge.
-- [x] The idle time should be based on the chatroom starting time.
-- [x] For task instruction, make sure participants read all four.
-- [x] Change "Candidate Example" to "Faculty search example" on CandidateExample.vue, change the table highlight color.
-- [x] Show the table summary in the bonus page.
-- [x] The redirect function when user leave. 
-- [x] Hide the @quori notification in the control group.
-- [ ] Post-survey.
-- [ ] Pre-survey.
-- [ ] Change the quori prompt to individual level and group level.
-- [ ] Waiting time bonus.
-- [ ] Make sure that participants don't have the same alias
-- [ ] Include LLM messages in trancript given to LLM (so we don't have repeated interventions)
-- [ ] How to deal with table?
-- [ ] In the initial individual decision, what to do after the allowed time (2 minutes).
+- [ ] 
